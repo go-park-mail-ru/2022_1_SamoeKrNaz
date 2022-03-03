@@ -93,6 +93,7 @@ func register(c *gin.Context) {
 	for _, userDB := range userList {
 		if userDB.Username == user.Username {
 			c.JSON(http.StatusConflict, gin.H{"is_registered": false})
+			return
 		}
 	}
 	userList = append(userList, User{userID, user.Username, user.Password})
@@ -108,14 +109,17 @@ func getBoards(c *gin.Context) {
 	token, err := c.Cookie("token")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"isOkay": false})
+		return
 	}
 
 	for _, sess := range sessionList {
 		if token == sess.CookieId {
 			c.JSON(http.StatusOK, boardList)
+			return
 		}
 	}
 	c.JSON(http.StatusUnauthorized, gin.H{"isOkay": false})
+	return
 }
 
 func generateSessionToken() string {
