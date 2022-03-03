@@ -109,6 +109,7 @@ func getBoards(c *gin.Context) {
 	}
 	c.JSON(http.StatusUnauthorized, gin.H{"isOkay": false})*/
 	c.SetCookie("token", "ABBA", 3600, "", "", false, true)
+	c.JSON(http.StatusOK, gin.H{"isOkay": false})
 }
 
 func generateSessionToken() string {
