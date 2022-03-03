@@ -69,6 +69,7 @@ func login(c *gin.Context) {
 		}
 	}*/
 
+	c.SetCookie("token", "LOLOLOLO", 3600, "", "", false, true)
 	c.JSON(http.StatusUnauthorized, gin.H{"is_logged": false})
 	return
 }
