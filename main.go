@@ -29,9 +29,17 @@ type Board struct {
 var router *gin.Engine
 
 var userID int
-var userList []User
+var userList = []User{
+	{1, "user1", "pass1"},
+	{2, "user2", "pass2"},
+	{3, "user3", "pass3"},
+}
 var sessionList []Session
-var boardList []Board
+var boardList = []Board{
+	{1, "board1", "descr1", "img/img1", "22.02.2022"},
+	{2, "board2", "descr2", "img/img2", "22.02.2023"},
+	{3, "board3", "descr3", "img/img3", "22.02.2024"},
+}
 
 func main() {
 
@@ -97,7 +105,7 @@ func register(c *gin.Context) {
 }
 
 func getBoards(c *gin.Context) {
-	/*token, err := c.Cookie("token")
+	token, err := c.Cookie("token")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"isOkay": false})
 	}
@@ -107,9 +115,7 @@ func getBoards(c *gin.Context) {
 			c.JSON(http.StatusOK, boardList)
 		}
 	}
-	c.JSON(http.StatusUnauthorized, gin.H{"isOkay": false})*/
-	c.SetCookie("token", "ABBA", 3600, "", "", false, true)
-	c.JSON(http.StatusOK, gin.H{"isOkay": false})
+	c.JSON(http.StatusUnauthorized, gin.H{"isOkay": false})
 }
 
 func generateSessionToken() string {
