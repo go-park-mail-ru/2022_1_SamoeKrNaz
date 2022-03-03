@@ -49,7 +49,7 @@ func InitializeRoutes() {
 }
 
 func login(c *gin.Context) {
-	var user User
+	/*var user User
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"is_logged": false})
@@ -67,7 +67,7 @@ func login(c *gin.Context) {
 				return
 			}
 		}
-	}
+	}*/
 
 	c.JSON(http.StatusUnauthorized, gin.H{"is_logged": false})
 	return
