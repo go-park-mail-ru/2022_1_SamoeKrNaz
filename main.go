@@ -44,12 +44,12 @@ func main() {
 
 func InitializeRoutes() {
 	router.POST("/api/login", login)
-	router.GET("/api/", register)
-	router.POST("/api/register", getBoards)
+	router.GET("/api/", getBoards)
+	router.POST("/api/register", register)
 }
 
 func login(c *gin.Context) {
-	/*var user User
+	var user User
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"is_logged": false})
@@ -67,9 +67,8 @@ func login(c *gin.Context) {
 				return
 			}
 		}
-	}*/
+	}
 
-	c.SetCookie("token", "LOLOLOLO", 3600, "", "", false, true)
 	c.JSON(http.StatusUnauthorized, gin.H{"is_logged": false})
 	return
 }
