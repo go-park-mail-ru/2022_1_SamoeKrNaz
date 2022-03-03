@@ -1,0 +1,1 @@
+web: bin/2022_1_SamoeKrNaz
