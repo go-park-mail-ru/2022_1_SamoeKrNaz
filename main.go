@@ -97,7 +97,7 @@ func register(c *gin.Context) {
 }
 
 func getBoards(c *gin.Context) {
-	token, err := c.Cookie("token")
+	/*token, err := c.Cookie("token")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"isOkay": false})
 	}
@@ -107,7 +107,8 @@ func getBoards(c *gin.Context) {
 			c.JSON(http.StatusOK, boardList)
 		}
 	}
-	c.JSON(http.StatusUnauthorized, gin.H{"isOkay": false})
+	c.JSON(http.StatusUnauthorized, gin.H{"isOkay": false})*/
+	c.SetCookie("token", "ABBA", 3600, "", "", false, true)
 }
 
 func generateSessionToken() string {
