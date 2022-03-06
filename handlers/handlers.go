@@ -22,7 +22,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	lock.RLock()
+	//lock.RLock()
 	for _, userDB := range models.UserList {
 		if userDB.Username == user.Username {
 			if userDB.Password == user.Password {
@@ -36,7 +36,7 @@ func Login(c *gin.Context) {
 			}
 		}
 	}
-	lock.RUnlock()
+	//lock.RUnlock()
 
 	c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 	return
@@ -51,12 +51,12 @@ func Register(c *gin.Context) {
 	}
 	err = utils.CheckPassword(user.Password)
 	if err != nil {
-		lock.RLock()
+		//lock.RLock()
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrPassword), gin.H{"error": err.Error()})
-		lock.RUnlock()
+		//lock.RUnlock()
 	}
 
-	lock.RLock()
+	//lock.RLock()
 	for _, userDB := range models.UserList {
 		if userDB.Username == user.Username {
 			c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUsernameExist), gin.H{"error": customErrors.ErrUsernameExist.Error()})
@@ -64,14 +64,14 @@ func Register(c *gin.Context) {
 		}
 	}
 	models.UserList = append(models.UserList, models.User{Id: models.UserID, Username: user.Username, Password: user.Password})
-	lock.RUnlock()
+	//lock.RUnlock()
 	token := generateSessionToken()
 	c.SetCookie("token", token, cookieTime, "", "", false, true)
 	c.JSON(http.StatusCreated, gin.H{"is_registered": true})
-	lock.RLock()
+	//lock.RLock()
 	models.SessionList = append(models.SessionList, models.Session{UserId: models.UserID, CookieValue: token})
 	models.UserID++
-	lock.RUnlock()
+	//lock.RUnlock()
 	return
 }
 
@@ -82,14 +82,14 @@ func GetBoards(c *gin.Context) {
 		return
 	}
 
-	lock.RLock()
+	//lock.RLock()
 	for _, sess := range models.SessionList {
 		if token == sess.CookieValue {
 			c.JSON(http.StatusOK, models.BoardList)
 			return
 		}
 	}
-	lock.RUnlock()
+	//lock.RUnlock()
 	c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"ERROR": customErrors.ErrUnauthorized.Error()})
 	return
 }
