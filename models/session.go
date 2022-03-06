@@ -1,8 +1,8 @@
-package sessionModel
+package models
 
 type Session struct {
 	UserId      uint   `json:"user_id"`
-	CookieValue string `json:"cookie_va;ue"`
+	CookieValue string `json:"cookie_value"`
 }
 
 var SessionList = []Session{

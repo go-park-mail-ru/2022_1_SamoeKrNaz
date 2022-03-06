@@ -1,5 +1,7 @@
 package routes
 
-var LoginRoute = "/api/login"
-var HomeRoute = "/api/"
-var RegisterRoute = "/api/register"
+var (
+	LoginRoute    = "/login"
+	HomeRoute     = "/api"
+	RegisterRoute = "/register"
+)

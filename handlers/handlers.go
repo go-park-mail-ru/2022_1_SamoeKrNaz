@@ -2,64 +2,61 @@ package handlers
 
 import (
 	"PLANEXA_backend/errors"
-	boardModel "PLANEXA_backend/models/board_model"
-	sessionModel "PLANEXA_backend/models/session_model"
-	userModel "PLANEXA_backend/models/user_model"
+	boardModel "PLANEXA_backend/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
 )
 
+// 3 days
 var cookieTime = 604800
 
 func Login(c *gin.Context) {
-	var user userModel.User
+	/*var user boardModel.User
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
-	//token, err := c.Cookie("token")
 
-	for _, userDB := range userModel.UserList {
+	for _, userDB := range boardModel.UserList {
 		if userDB.Username == user.Username {
 			if userDB.Password == user.Password {
 				token := generateSessionToken()
 				c.SetCookie("token", token, cookieTime, "", "", false, true)
-				sessionModel.SessionList = append(sessionModel.SessionList, sessionModel.Session{UserId: userDB.Id, CookieValue: token})
+				boardModel.SessionList = append(boardModel.SessionList, boardModel.Session{UserId: userDB.Id, CookieValue: token})
 				c.JSON(http.StatusOK, gin.H{"is_logged": true})
 				return
 			} else {
 				break
 			}
 		}
-	}
-
-	c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+	}*/
+	c.JSON(http.StatusConflict, gin.H{"OI BAD": true})
+	//c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 	return
 }
 
 func Register(c *gin.Context) {
-	var user userModel.User
+	var user boardModel.User
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
-	//token, err := c.Cookie("token")
 
-	for _, userDB := range userModel.UserList {
+	for _, userDB := range boardModel.UserList {
 		if userDB.Username == user.Username {
 			c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUsernameExist), gin.H{"error": customErrors.ErrUsernameExist.Error()})
 			return
 		}
 	}
-	userModel.UserList = append(userModel.UserList, userModel.User{Id: userModel.UserID, Username: user.Username, Password: user.Password})
+	boardModel.UserList = append(boardModel.UserList, boardModel.User{Id: boardModel.UserID, Username: user.Username, Password: user.Password})
 	token := generateSessionToken()
 	c.SetCookie("token", token, cookieTime, "", "", false, true)
 	c.JSON(http.StatusCreated, gin.H{"is_registered": true})
-	sessionModel.SessionList = append(sessionModel.SessionList, sessionModel.Session{UserId: userModel.UserID, CookieValue: token})
-	userModel.UserID++
+	boardModel.SessionList = append(boardModel.SessionList, boardModel.Session{UserId: boardModel.UserID, CookieValue: token})
+	boardModel.UserID++
 	return
 }
 
@@ -70,7 +67,7 @@ func GetBoards(c *gin.Context) {
 		return
 	}
 
-	for _, sess := range sessionModel.SessionList {
+	for _, sess := range boardModel.SessionList {
 		if token == sess.CookieValue {
 			c.JSON(http.StatusOK, boardModel.BoardList)
 			return

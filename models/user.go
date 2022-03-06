@@ -1,4 +1,4 @@
-package userModel
+package models
 
 type User struct {
 	Id       uint   `json:"id"`
@@ -6,7 +6,7 @@ type User struct {
 	Password string `json:"password"`
 }
 
-var UserID uint = 3
+var UserID uint = 4
 
 var UserList = []User{
 	{1, "user1", "pass1"},

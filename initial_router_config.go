@@ -1,19 +1,19 @@
 package main
 
 import (
+	"PLANEXA_backend/handlers"
+	"PLANEXA_backend/routes"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"main/handlers"
-	"main/routes"
 )
 
 func initRouter() *gin.Engine {
 	router := gin.Default()
 
-	mainRoutes := router.Group("/api")
+	mainRoutes := router.Group(routes.HomeRoute)
 	{
 		mainRoutes.POST(routes.LoginRoute, handlers.Login)
-		mainRoutes.GET(routes.HomeRoute, handlers.GetBoards)
+		mainRoutes.GET("", handlers.GetBoards)
 		mainRoutes.POST(routes.RegisterRoute, handlers.Register)
 	}
 

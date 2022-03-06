@@ -1,4 +1,4 @@
-package boardModel
+package models
 
 type Board struct {
 	Id          uint   `json:"id"`
