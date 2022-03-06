@@ -11,13 +11,11 @@ import (
 	"net/http/httptest"
 	"os"
 	"reflect"
-	"sync"
 	"testing"
 )
 
 var (
 	router = gin.New()
-	lock   = sync.RWMutex{}
 )
 
 func TestMain(m *testing.M) {
@@ -105,8 +103,9 @@ func TestLoginFail(t *testing.T) {
 
 	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.LoginRoute, body)
 	writer := httptest.NewRecorder()
+	lock.RLock()
 	router.ServeHTTP(writer, request)
-
+	lock.RUnlock()
 	require.Equal(t, http.StatusUnauthorized, writer.Code)
 }
 
@@ -159,7 +158,8 @@ func TestRegisterBadPassword(t *testing.T) {
 
 	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.RegisterRoute, body)
 	writer := httptest.NewRecorder()
+	//lock.RLock()
 	router.ServeHTTP(writer, request)
-
+	//lock.RUnlock()
 	require.Equal(t, http.StatusBadRequest, writer.Code)
 }
