@@ -8,7 +8,7 @@ func main() {
 
 	err := router.Run(":8080")
 	if err != nil {
-		fmt.Println("Error while starting server")
+		fmt.Println(err.Error())
 		return
 	}
 }

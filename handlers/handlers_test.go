@@ -85,7 +85,7 @@ func TestGetBoardsFalse(t *testing.T) {
 func TestLoginSuccess(t *testing.T) {
 	t.Parallel()
 
-	newUser := models.User{Username: "user1", Password: "pass1"}
+	newUser := models.User{Username: "xz_xz", Password: "sobaki_toze_norm"}
 	jsonNewUser, _ := json.Marshal(newUser)
 	body := bytes.NewReader(jsonNewUser)
 
@@ -108,4 +108,58 @@ func TestLoginFail(t *testing.T) {
 	router.ServeHTTP(writer, request)
 
 	require.Equal(t, http.StatusUnauthorized, writer.Code)
+}
+
+func TestRegisterSuccess(t *testing.T) {
+	t.Parallel()
+
+	newUser := models.User{Username: "zxc_god", Password: "kaneki_ken"}
+	jsonNewUser, _ := json.Marshal(newUser)
+	body := bytes.NewReader(jsonNewUser)
+
+	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.RegisterRoute, body)
+	writer := httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+
+	require.Equal(t, http.StatusCreated, writer.Code)
+
+	lock.RLock()
+	isEqual := false
+
+	for _, user := range models.UserList {
+		if user.Username == newUser.Username && user.Password == newUser.Password {
+			isEqual = true
+		}
+	}
+
+	lock.RUnlock()
+	require.True(t, isEqual)
+}
+
+func TestRegisterFail(t *testing.T) {
+	t.Parallel()
+
+	newUser := models.User{Username: "cucumber_two_two", Password: "kaneki_ken"}
+	jsonNewUser, _ := json.Marshal(newUser)
+	body := bytes.NewReader(jsonNewUser)
+
+	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.RegisterRoute, body)
+	writer := httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+
+	require.Equal(t, http.StatusConflict, writer.Code)
+}
+
+func TestRegisterBadPassword(t *testing.T) {
+	t.Parallel()
+
+	newUser := models.User{Username: "cucumber_two_two", Password: "я люблю Россию"}
+	jsonNewUser, _ := json.Marshal(newUser)
+	body := bytes.NewReader(jsonNewUser)
+
+	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.RegisterRoute, body)
+	writer := httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+
+	require.Equal(t, http.StatusBadRequest, writer.Code)
 }
