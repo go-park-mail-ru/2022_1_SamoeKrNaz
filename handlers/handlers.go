@@ -12,7 +12,7 @@ import (
 var cookieTime = 604800
 
 func Login(c *gin.Context) {
-	/*var user boardModel.User
+	var user boardModel.User
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
@@ -31,9 +31,9 @@ func Login(c *gin.Context) {
 				break
 			}
 		}
-	}*/
-	c.JSON(http.StatusConflict, gin.H{"OI BAD": true})
-	//c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+	}
+
+	c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 	return
 }
 
@@ -73,7 +73,7 @@ func GetBoards(c *gin.Context) {
 			return
 		}
 	}
-	c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+	c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"ERROR": customErrors.ErrUnauthorized.Error()})
 	return
 }
 
