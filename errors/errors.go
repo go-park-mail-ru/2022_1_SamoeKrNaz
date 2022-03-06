@@ -7,7 +7,7 @@ import (
 
 var (
 	ErrBadInputData  = errors.New("bad input data")
-	ErrUnauthorized  = errors.New("user is not authorized")
+	ErrUnauthorized  = errors.New("user is not authorized YESYES")
 	ErrUsernameExist = errors.New("this username already exists")
 )
 
