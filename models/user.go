@@ -9,7 +9,7 @@ type User struct {
 var UserID uint = 4
 
 var UserList = []User{
-	{1, "cucumber_two_two", "ya_lublu_kotikov"},
-	{2, "my_friendISGood", "ya_lublu1213141"},
-	{3, "xz_xz", "sobaki_toze_norm"},
+	{1, "palantina14", "bdazglweq21"},
+	{2, "Lopp", "1labwaf2"},
+	{3, "paperThing11", "gedab1gawf"},
 }
