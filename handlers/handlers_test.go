@@ -50,7 +50,6 @@ func TestGetBoardsSuccess(t *testing.T) {
 		t.Error(err)
 	}
 
-	lock.RLock()
 	expectedBoards := models.BoardList
 	isEqual := true
 
@@ -61,7 +60,6 @@ func TestGetBoardsSuccess(t *testing.T) {
 	if !reflect.DeepEqual(returnedBoards, expectedBoards) {
 		isEqual = false
 	}
-	lock.RUnlock()
 
 	require.True(t, isEqual)
 }
@@ -83,7 +81,7 @@ func TestGetBoardsFalse(t *testing.T) {
 func TestLoginSuccess(t *testing.T) {
 	t.Parallel()
 
-	newUser := models.User{Username: "xz_xz", Password: "sobaki_toze_norm"}
+	newUser := models.User{Username: "paperThing11", Password: "gedab1gawf"}
 	jsonNewUser, _ := json.Marshal(newUser)
 	body := bytes.NewReader(jsonNewUser)
 
@@ -103,9 +101,7 @@ func TestLoginFail(t *testing.T) {
 
 	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.LoginRoute, body)
 	writer := httptest.NewRecorder()
-	lock.RLock()
 	router.ServeHTTP(writer, request)
-	lock.RUnlock()
 	require.Equal(t, http.StatusUnauthorized, writer.Code)
 }
 
@@ -122,7 +118,6 @@ func TestRegisterSuccess(t *testing.T) {
 
 	require.Equal(t, http.StatusCreated, writer.Code)
 
-	lock.RLock()
 	isEqual := false
 
 	for _, user := range models.UserList {
@@ -131,14 +126,13 @@ func TestRegisterSuccess(t *testing.T) {
 		}
 	}
 
-	lock.RUnlock()
 	require.True(t, isEqual)
 }
 
 func TestRegisterFail(t *testing.T) {
 	t.Parallel()
 
-	newUser := models.User{Username: "cucumber_two_two", Password: "kaneki_ken"}
+	newUser := models.User{Username: "palantina14", Password: "bdazglweq21"}
 	jsonNewUser, _ := json.Marshal(newUser)
 	body := bytes.NewReader(jsonNewUser)
 
@@ -158,8 +152,6 @@ func TestRegisterBadPassword(t *testing.T) {
 
 	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.RegisterRoute, body)
 	writer := httptest.NewRecorder()
-	//lock.RLock()
 	router.ServeHTTP(writer, request)
-	//lock.RUnlock()
 	require.Equal(t, http.StatusBadRequest, writer.Code)
 }
