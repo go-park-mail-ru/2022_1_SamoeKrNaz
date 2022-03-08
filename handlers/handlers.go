@@ -107,6 +107,7 @@ func Logout(c *gin.Context) {
 	token, err := c.Cookie("token")
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
 	}
 
 	for i, sess := range models.SessionList {
@@ -119,6 +120,7 @@ func Logout(c *gin.Context) {
 		}
 	}
 	c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"err": customErrors.ErrUnauthorized.Error()})
+	return
 }
 
 func generateSessionToken() string {
