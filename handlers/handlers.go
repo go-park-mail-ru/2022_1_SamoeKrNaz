@@ -11,9 +11,11 @@ import (
 )
 
 // 3 days
-var cookieTime = 604800
-var lockUser = sync.RWMutex{}
-var lockSess = sync.RWMutex{}
+var (
+	cookieTime = 604800
+	lockUser   = sync.RWMutex{}
+	lockSess   = sync.RWMutex{}
+)
 
 func Login(c *gin.Context) {
 	lockUser.RLock()
@@ -60,7 +62,7 @@ func Register(c *gin.Context) {
 	}
 	err = utils.CheckPassword(user.Password)
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrPassword), gin.H{"error": err.Error()})
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
 
@@ -97,6 +99,25 @@ func GetBoards(c *gin.Context) {
 	}
 	c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"ERROR": customErrors.ErrUnauthorized.Error()})
 	return
+}
+
+func Logout(c *gin.Context) {
+	lockSess.Lock()
+	defer lockSess.Unlock()
+	token, err := c.Cookie("token")
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+	}
+
+	for i, sess := range models.SessionList {
+		if sess.CookieValue == token {
+			models.SessionList[i] = models.SessionList[len(models.SessionList)-1]
+			models.SessionList = models.SessionList[:len(models.SessionList)-1]
+			c.JSON(http.StatusOK, gin.H{"Is_okay": true})
+			return
+		}
+	}
+	c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"err": customErrors.ErrUnauthorized.Error()})
 }
 
 func generateSessionToken() string {

@@ -53,10 +53,6 @@ func TestGetBoardsSuccess(t *testing.T) {
 	expectedBoards := models.BoardList
 	isEqual := true
 
-	if len(expectedBoards) != len(returnedBoards) {
-		isEqual = false
-	}
-
 	if !reflect.DeepEqual(returnedBoards, expectedBoards) {
 		isEqual = false
 	}
@@ -154,4 +150,18 @@ func TestRegisterBadPassword(t *testing.T) {
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	require.Equal(t, http.StatusBadRequest, writer.Code)
+}
+
+func TestLogoutSuccess(t *testing.T) {
+	t.Parallel()
+
+	request, _ := http.NewRequest("DELETE", routes.HomeRoute+routes.LogoutRoute, nil)
+	cookie := &http.Cookie{
+		Name:  "token",
+		Value: "session1",
+	}
+	request.AddCookie(cookie)
+	writer := httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+	require.Equal(t, http.StatusOK, writer.Code)
 }

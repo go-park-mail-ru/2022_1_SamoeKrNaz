@@ -10,27 +10,18 @@ import (
 func initRouter() *gin.Engine {
 	router := gin.Default()
 
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"https://planexa.netlify.app", "https://89.208.199.114:3000"}
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.AllowCredentials = true
+	router.Use(cors.New(config))
+
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
 		mainRoutes.POST(routes.LoginRoute, handlers.Login)
 		mainRoutes.GET("", handlers.GetBoards)
 		mainRoutes.POST(routes.RegisterRoute, handlers.Register)
+		mainRoutes.DELETE(routes.LogoutRoute, handlers.Logout)
 	}
-
-	config := cors.DefaultConfig()
-	//config.AllowOrigins = []string{"https://planexa.netlify.app", "https://89.208.199.114:3000"}
-	config.AllowAllOrigins = true
-	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-	config.AllowCredentials = true
-
-	router.Use(CORSMiddleware())
-	router.Use(cors.New(config))
 	return router
-}
-
-func CORSMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Next()
-	}
 }

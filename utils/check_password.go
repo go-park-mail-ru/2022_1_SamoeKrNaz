@@ -7,12 +7,12 @@ import (
 
 func CheckPassword(pass string) error {
 	if len(pass) <= 6 {
-		return customErrors.ErrPassword
+		return customErrors.ErrShotPassword
 	}
 
 	for i := 0; i < len(pass); i++ {
 		if pass[i] > unicode.MaxASCII {
-			return customErrors.ErrPassword
+			return customErrors.ErrLatinPassword
 		}
 	}
 	return nil
