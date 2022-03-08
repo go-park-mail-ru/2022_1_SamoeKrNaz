@@ -24,6 +24,7 @@ func TestMain(m *testing.M) {
 		mainRoutes.POST(routes.LoginRoute, Login)
 		mainRoutes.POST(routes.RegisterRoute, Register)
 		mainRoutes.GET("", GetBoards)
+		mainRoutes.DELETE(routes.LogoutRoute, Logout)
 	}
 	os.Exit(m.Run())
 }
@@ -164,4 +165,18 @@ func TestLogoutSuccess(t *testing.T) {
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	require.Equal(t, http.StatusOK, writer.Code)
+}
+
+func TestLogoutFail(t *testing.T) {
+	t.Parallel()
+
+	request, _ := http.NewRequest("DELETE", routes.HomeRoute+routes.LogoutRoute, nil)
+	cookie := &http.Cookie{
+		Name:  "token",
+		Value: "BadSession",
+	}
+	request.AddCookie(cookie)
+	writer := httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+	require.Equal(t, http.StatusUnauthorized, writer.Code)
 }
