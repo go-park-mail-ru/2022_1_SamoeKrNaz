@@ -7,7 +7,7 @@ import (
 
 func CheckPassword(pass string) error {
 	if len(pass) <= 6 {
-		return customErrors.ErrShotPassword
+		return customErrors.ErrShortPassword
 	}
 
 	for i := 0; i < len(pass); i++ {

@@ -10,9 +10,8 @@ import (
 	"sync"
 )
 
-// 3 days
 var (
-	cookieTime = 604800
+	cookieTime = 604800 // 3 days
 	lockUser   = sync.RWMutex{}
 	lockSess   = sync.RWMutex{}
 )
