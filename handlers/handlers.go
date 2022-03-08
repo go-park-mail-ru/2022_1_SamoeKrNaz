@@ -92,7 +92,8 @@ func GetBoards(c *gin.Context) {
 
 	for _, sess := range models.SessionList {
 		if token == sess.CookieValue {
-			c.JSON(http.StatusOK, models.BoardList)
+
+			c.JSON(http.StatusOK, models.TasksAndBoards)
 			return
 		}
 	}
