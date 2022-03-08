@@ -45,16 +45,20 @@ func TestGetBoardsSuccess(t *testing.T) {
 		t.Error("status is not ok")
 	}
 
-	var returnedBoards []models.Board
-	err := json.Unmarshal(writer.Body.Bytes(), &returnedBoards)
+	var returnedBoardsAndTasks models.BoardAndTasks
+	err := json.Unmarshal(writer.Body.Bytes(), &returnedBoardsAndTasks)
 	if err != nil {
 		t.Error(err)
 	}
 
+	returnedBoards := returnedBoardsAndTasks.Boards
+	returnedTasks := returnedBoardsAndTasks.Tasks
+
 	expectedBoards := models.BoardList
+	expectedTasks := models.TaskList
 	isEqual := true
 
-	if !reflect.DeepEqual(returnedBoards, expectedBoards) {
+	if !reflect.DeepEqual(returnedBoards, expectedBoards) || !reflect.DeepEqual(returnedTasks, expectedTasks) {
 		isEqual = false
 	}
 

@@ -14,3 +14,10 @@ var BoardList = []Board{
 	{4, "Домашние дела", "Тут собраны все домашние дела, которые мне надо выполнить", "10.02.2022"},
 	{5, "Проект", "Все таски проекта собраны тут, для того, чтобы мы могли эффективно вести разработку вместе. Это точно удобно!", "10.02.2022"},
 }
+
+type BoardAndTasks struct {
+	Boards []Board `json:"boards"`
+	Tasks  []Task  `json:"tasks"`
+}
+
+var TasksAndBoards = BoardAndTasks{Boards: BoardList, Tasks: TaskList}
