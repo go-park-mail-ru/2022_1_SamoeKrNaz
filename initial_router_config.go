@@ -11,7 +11,7 @@ func initRouter() *gin.Engine {
 	router := gin.Default()
 
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"https://planexa.netlify.app", "https://89.208.199.114:3000"}
+	config.AllowOrigins = []string{"https://planexa.netlify.app", "https://89.208.199.114:3000", "https://89.208.199.114:8080"}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowCredentials = true
 	router.Use(cors.New(config))
