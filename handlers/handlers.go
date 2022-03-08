@@ -113,6 +113,7 @@ func Logout(c *gin.Context) {
 		if sess.CookieValue == token {
 			models.SessionList[i] = models.SessionList[len(models.SessionList)-1]
 			models.SessionList = models.SessionList[:len(models.SessionList)-1]
+			c.SetCookie("token", token, -1, "", "", false, true)
 			c.JSON(http.StatusOK, gin.H{"Is_okay": true})
 			return
 		}
