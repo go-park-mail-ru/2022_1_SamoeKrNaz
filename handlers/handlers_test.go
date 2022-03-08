@@ -51,14 +51,9 @@ func TestGetBoardsSuccess(t *testing.T) {
 		t.Error(err)
 	}
 
-	returnedBoards := returnedBoardsAndTasks.Boards
-	returnedTasks := returnedBoardsAndTasks.Tasks
-
-	expectedBoards := models.BoardList
-	expectedTasks := models.TaskList
 	isEqual := true
 
-	if !reflect.DeepEqual(returnedBoards, expectedBoards) || !reflect.DeepEqual(returnedTasks, expectedTasks) {
+	if !reflect.DeepEqual(returnedBoardsAndTasks, models.TasksAndBoards) {
 		isEqual = false
 	}
 
