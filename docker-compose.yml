@@ -3,6 +3,17 @@ services:
   go-docker:
     build: ./
     ports:
-      - '8080:8080'
+      - "8080:8080"
     volumes:
       - ./:/server
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: "DB_Planexa"
+      POSTGRES_USER: "Planexa"
+      POSTGRES_PASSWORD: "WEB21Planexa"
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db_postgres:/var/lib/postgresql/data
