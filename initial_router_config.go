@@ -2,6 +2,7 @@ package main
 
 import (
 	"PLANEXA_backend/handlers"
+	"PLANEXA_backend/middleware"
 	"PLANEXA_backend/routes"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -19,7 +20,7 @@ func initRouter() *gin.Engine {
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
 		mainRoutes.POST(routes.LoginRoute, handlers.Login)
-		mainRoutes.GET("", handlers.GetBoards)
+		mainRoutes.GET("", middleware.CheckAuth, handlers.GetBoards)
 		mainRoutes.POST(routes.RegisterRoute, handlers.Register)
 		mainRoutes.DELETE(routes.LogoutRoute, handlers.Logout)
 	}

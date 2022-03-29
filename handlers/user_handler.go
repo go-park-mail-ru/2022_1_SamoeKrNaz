@@ -1,0 +1,76 @@
+package handlers
+
+import (
+	customErrors "PLANEXA_backend/errors"
+	"PLANEXA_backend/models"
+	"PLANEXA_backend/usecases"
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
+
+func Login(c *gin.Context) {
+	var user models.User
+	err := c.ShouldBindJSON(&user)
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		return
+	}
+
+	// вызываю юзкейс
+
+	token, err := usecases.Login(user)
+	if err != nil {
+		c.SetCookie("token", token, cookieTime, "", "", false, true)
+		c.JSON(http.StatusOK, gin.H{"is_logged": true})
+		return
+	} else {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+	return
+}
+
+func Register(c *gin.Context) {
+	var user models.User
+	err := c.ShouldBindJSON(&user)
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		return
+	}
+
+	//usecase
+
+	token, err := usecases.Register(user)
+
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		return
+	}
+
+	c.SetCookie("token", token, cookieTime, "", "", false, true)
+	c.JSON(http.StatusCreated, gin.H{"is_registered": true})
+	return
+}
+
+func Logout(c *gin.Context) {
+	token, err := c.Cookie("token")
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+
+	//usecase
+
+	err = usecases.Logout(token)
+
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"err": err.Error()})
+		return
+	}
+
+	c.SetCookie("token", token, -1, "", "", false, true)
+	c.JSON(http.StatusOK, gin.H{"Is_okay": true})
+	return
+}
