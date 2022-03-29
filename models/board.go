@@ -10,7 +10,7 @@ type Board struct {
 	Description string    `json:"description"`
 	ImgDesk     string    `json:"img_desk"`
 	DateCreated time.Time `json:"date"`
-	IdP         uint      `json:"idp"`
+	IdP         uint      `json:"idp" gorm:"foreignKey:IdP"`
 	Users       []User    `gorm:"many2many:users_boards"`
 	Tasks       []Task    `gorm:"foreignKey:IdB"`
 }

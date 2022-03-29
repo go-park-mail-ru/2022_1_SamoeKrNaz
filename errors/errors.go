@@ -6,11 +6,13 @@ import (
 )
 
 var (
-	ErrBadInputData  = errors.New("bad input data")
-	ErrUnauthorized  = errors.New("user is not authorized")
-	ErrUsernameExist = errors.New("this username already exists")
-	ErrShortPassword = errors.New("password should be longer than 6 characters")
-	ErrLatinPassword = errors.New("password should contains Latin characters and numbers")
+	ErrBadInputData     = errors.New("bad input data")
+	ErrUnauthorized     = errors.New("user is not authorized")
+	ErrUsernameExist    = errors.New("this username already exists")
+	ErrUsernameNotExist = errors.New("this username doesn`t exists")
+	ErrIdNotExist       = errors.New("this id doesn`t exists")
+	ErrShortPassword    = errors.New("password should be longer than 6 characters")
+	ErrLatinPassword    = errors.New("password should contains Latin characters and numbers")
 )
 
 var errorToCode = map[error]int{

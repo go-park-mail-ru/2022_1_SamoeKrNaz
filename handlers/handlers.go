@@ -34,7 +34,7 @@ func Login(c *gin.Context) {
 			if userDB.Password == user.Password {
 				token := generateSessionToken()
 				c.SetCookie("token", token, cookieTime, "", "", false, true)
-				models.SessionList = append(models.SessionList, models.Session{UserId: userDB.Id, CookieValue: token})
+				models.SessionList = append(models.SessionList, models.Session{UserId: userDB.IdP, CookieValue: token})
 				c.JSON(http.StatusOK, gin.H{"is_logged": true})
 				return
 			} else {
@@ -71,7 +71,7 @@ func Register(c *gin.Context) {
 			return
 		}
 	}
-	models.UserList = append(models.UserList, models.User{Id: models.UserID, Username: user.Username, Password: user.Password})
+	models.UserList = append(models.UserList, models.User{IdP: models.UserID, Username: user.Username, Password: user.Password})
 	token := generateSessionToken()
 	c.SetCookie("token", token, cookieTime, "", "", false, true)
 	c.JSON(http.StatusCreated, gin.H{"is_registered": true})
