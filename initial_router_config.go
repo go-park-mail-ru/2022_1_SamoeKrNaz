@@ -23,6 +23,8 @@ func initRouter() *gin.Engine {
 		mainRoutes.GET("", middleware.CheckAuth, handlers.GetBoards)
 		mainRoutes.POST(routes.RegisterRoute, handlers.Register)
 		mainRoutes.DELETE(routes.LogoutRoute, handlers.Logout)
+		mainRoutes.POST(routes.BoardRoute, middleware.CheckAuth, handlers.CreateBoard)
+
 	}
 	return router
 }
