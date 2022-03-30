@@ -24,6 +24,7 @@ func initRouter() *gin.Engine {
 		mainRoutes.POST(routes.RegisterRoute, handlers.Register)
 		mainRoutes.DELETE(routes.LogoutRoute, handlers.Logout)
 		mainRoutes.POST(routes.BoardRoute, middleware.CheckAuth, handlers.CreateBoard)
+		mainRoutes.PUT(routes.BoardRoute, middleware.CheckAuth, handlers.RefactorBoard)
 
 	}
 	return router
