@@ -1,8 +1,8 @@
 package models
 
 type User struct {
-	IdP       uint    `json:"idp" gorm:"primaryKey"`
-	Username  string  `json:"username" gorm:"not null;unique"`
+	IdU       uint    `json:"idu" gorm:"primaryKey;auto_increment"`
+	Username  string  `json:"username" gorm:"not null;unique;index"`
 	Password  string  `json:"password" gorm:"not null;"`
 	ImgAvatar string  `json:"img_avatar"`
 	Boards    []Board `gorm:"many2many:users_boards;"`
