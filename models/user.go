@@ -1,7 +1,7 @@
 package models
 
 type User struct {
-	IdU       uint    `json:"idu" gorm:"primaryKey;auto_increment"`
+	IdU       uint    `json:"idu" gorm:"primaryKey"`
 	Username  string  `json:"username" gorm:"not null;unique;index"`
 	Password  string  `json:"password" gorm:"not null;"`
 	ImgAvatar string  `json:"img_avatar"`

@@ -18,9 +18,9 @@ func (taskRepository *TaskRepository) Create(task *models.Task, IdL uint, IdB ui
 	task.IdL = IdL
 	task.IdB = IdB
 	var currentPosition int64
-	result := taskRepository.db.Model(&models.Task{}).Where("id_t = ?", task.IdT).Count(&currentPosition)
-	if result.Error != nil {
-		return result.Error
+	result := taskRepository.db.Model(&models.Task{}).Where("id_l = ?", task.IdL).Count(&currentPosition).Error
+	if result != nil {
+		return result
 	}
 	task.Position = uint(currentPosition) + 1
 	return taskRepository.db.Create(task).Error
@@ -38,27 +38,78 @@ func (taskRepository *TaskRepository) Update(task *models.Task) error {
 		currentData.Description = task.Description
 	}
 	if currentData.Position != task.Position {
-		currentData.Position = task.Position
+		repository := ListRepository{}
+		listRepo := repository.MakeRepository(taskRepository.db)
+		// получим все списки из текущей доски
+		listsInBoards, err := listRepo.GetTasks(currentData.IdL)
+		if err != nil {
+			return err
+		}
+		// если список переместили вниз
+		if currentData.Position > task.Position {
+			for i := task.Position - 1; i < currentData.Position; i++ {
+				(*listsInBoards)[i].Position += currentData.Position - task.Position - 1
+				err = taskRepository.db.Save((*listsInBoards)[i]).Error
+				if err != nil {
+					return err
+				}
+			}
+			currentData.Position = task.Position
+		} else { // если список переместили вверх
+			for i := currentData.Position; i < task.Position; i++ {
+				(*listsInBoards)[i].Position -= task.Position - currentData.Position - 1
+				err = taskRepository.db.Save((*listsInBoards)[i]).Error
+				if err != nil {
+					return err
+				}
+			}
+			currentData.Position = task.Position
+		}
 	}
 	return taskRepository.db.Save(currentData).Error
 }
 
 func (taskRepository *TaskRepository) Delete(IdT uint) error {
-	return taskRepository.db.Delete(&models.Task{}, IdT).Error
+	// при удалении необходимо изменить позиции тасков, которые следуют после удаляемой задачи
+	taskToDelete, err := taskRepository.GetById(IdT)
+	if err != nil {
+		return err
+	}
+	repository := ListRepository{}
+	taskRepo := repository.MakeRepository(taskRepository.db)
+	// получим все таски из текущего списка
+	listsInBoards, err := taskRepo.GetTasks(taskToDelete.IdB)
+	if err != nil {
+		return err
+	}
+	err = taskRepository.db.Delete(&models.Task{}, IdT).Error
+	if err != nil {
+		return err
+	}
+	for i := int(taskToDelete.Position); i < len(*listsInBoards); i++ {
+		// сдвинем позицию на одну
+		(*listsInBoards)[i].Position -= 1
+		// и удалим
+		err = taskRepository.db.Save((*listsInBoards)[i]).Error
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (taskRepository *TaskRepository) GetById(IdT uint) (*models.Task, error) {
 	// указатель на структуру, которую вернем
 	task := new(models.Task)
 	result := taskRepository.db.Find(task, IdT)
-	// если выборка в 0 строк, то такой доски нет
+	// если выборка в 0 строк, то такой таски нет
 	if result.RowsAffected == 0 {
 		return nil, customErrors.ErrBoardNotFound
 	} else if result.Error != nil {
 		// если произошла ошибка при выборке
 		return nil, result.Error
 	} else {
-		// иначе вернем доску
+		// иначе вернем таску
 		return task, nil
 	}
 }

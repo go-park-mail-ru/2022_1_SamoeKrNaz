@@ -3,6 +3,7 @@ package repositories
 import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
+	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -17,9 +18,9 @@ func (listRepository *ListRepository) MakeRepository(db *gorm.DB) *ListRepositor
 func (listRepository *ListRepository) Create(list *models.List, IdB uint) error {
 	list.IdB = IdB
 	var currentPosition int64
-	result := listRepository.db.Model(&models.List{}).Where("id_b = ?", list.IdB).Count(&currentPosition)
-	if result.Error != nil {
-		return result.Error
+	result := listRepository.db.Model(&models.List{}).Where("id_b = ?", list.IdB).Count(&currentPosition).Error
+	if result != nil {
+		return result
 	}
 	list.Position = uint(currentPosition) + 1
 	return listRepository.db.Create(list).Error
@@ -34,13 +35,75 @@ func (listRepository *ListRepository) Update(list *models.List) error {
 		currentData.Title = list.Title
 	}
 	if currentData.Position != list.Position {
-		currentData.Position = list.Position
+		repository := BoardRepository{}
+		boardRepo := repository.MakeRepository(listRepository.db)
+		// получим все списки из текущей доски
+		listsInBoards, err := boardRepo.GetLists(list.IdB)
+		if err != nil {
+			return err
+		}
+		// если список переместили вниз
+		if currentData.Position > list.Position {
+			// допустим, что был список 1 2 3 4
+			// решили, что четвертый список будет после первого
+			// 1 4 2 3
+			// значит, нужно все индексы после текущей позиции увеличить на количество
+			// позиций, на которые мы переместили и сохранить
+			for i := list.Position - 1; i < currentData.Position; i++ {
+				(*listsInBoards)[i].Position += currentData.Position - list.Position - 1
+				err = listRepository.db.Save((*listsInBoards)[i]).Error
+				if err != nil {
+					return err
+				}
+			}
+			currentData.Position = list.Position
+		} else { // если список переместили вверх
+			// допустим, что был список 1 2 3 4
+			// решили, что второй список будет после четвертого
+			// 1 3 4 2
+			// значит, нужно все индексы  с предыдущей позиции уменьшить на количество
+			// позиций, на которые мы переместили и сохранить
+			for i := currentData.Position; i < list.Position; i++ {
+				(*listsInBoards)[i].Position -= list.Position - currentData.Position - 1
+				err = listRepository.db.Save((*listsInBoards)[i]).Error
+				if err != nil {
+					return err
+				}
+			}
+			currentData.Position = list.Position
+		}
 	}
 	//сохраняем новую структуру
 	return listRepository.db.Save(currentData).Error
 }
 func (listRepository *ListRepository) Delete(IdL uint) error {
-	return listRepository.db.Delete(&models.List{}, IdL).Error
+	// при удалении необходимо изменить позиции списков, которые следуют после удаляемого списка
+	listToDelete, err := listRepository.GetById(IdL)
+	if err != nil {
+		return err
+	}
+	repository := BoardRepository{}
+	boardRepo := repository.MakeRepository(listRepository.db)
+	// получим все списки из текущей доски
+	listsInBoards, err := boardRepo.GetLists(listToDelete.IdB)
+	if err != nil {
+		return err
+	}
+	err = listRepository.db.Delete(&models.List{}, IdL).Error
+	if err != nil {
+		return err
+	}
+	for i := int(listToDelete.Position); i < len(*listsInBoards); i++ {
+		// сдвинем позицию на одну
+		fmt.Println((*listsInBoards)[i])
+		(*listsInBoards)[i].Position -= 1
+		// и удалим
+		err = listRepository.db.Save((*listsInBoards)[i]).Error
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (listRepository *ListRepository) GetTasks(IdL uint) (*[]models.Task, error) {

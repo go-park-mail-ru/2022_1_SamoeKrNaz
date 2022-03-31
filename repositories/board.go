@@ -16,6 +16,7 @@ func (boardRepository *BoardRepository) MakeRepository(db *gorm.DB) *BoardReposi
 }
 
 func (boardRepository *BoardRepository) Create(board *models.Board, IdU uint) error {
+	// TODO: вынести две нижние строки в юзкейс
 	board.DateCreated = time.Now().Format(time.RFC850)
 	board.IdU = IdU
 	return boardRepository.db.Create(board).Error
@@ -48,18 +49,8 @@ func (boardRepository *BoardRepository) GetUserBoards(IdU uint) (*[]models.Board
 	err := boardRepository.db.Model(&models.User{IdU: IdU}).Association("Boards").Find(boards)
 	if err != nil {
 		return nil, err
-	} else {
-		return boards, nil
 	}
-}
-
-func (boardRepository *BoardRepository) AddUserToBoard(IdB uint, IdP uint) error {
-	userRepository := UserRepository{}
-	user, err := userRepository.MakeRepository(boardRepository.db).GetUserById(IdP)
-	if err != nil {
-		return err
-	}
-	return boardRepository.db.Model(&models.Board{IdB: IdB}).Association("Users").Append(user)
+	return boards, nil
 }
 
 func (boardRepository *BoardRepository) GetLists(IdB uint) (*[]models.List, error) {
@@ -84,8 +75,7 @@ func (boardRepository *BoardRepository) GetById(IdB uint) (*models.Board, error)
 	} else if result.Error != nil {
 		// если произошла ошибка при выборке
 		return nil, result.Error
-	} else {
-		// иначе вернем доску
-		return board, nil
 	}
+	// иначе вернем доску
+	return board, nil
 }

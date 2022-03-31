@@ -18,10 +18,9 @@ func (userRepository *UserRepository) MakeRepository(db *gorm.DB) *UserRepositor
 func (userRepository *UserRepository) Create(user *models.User) error {
 	// проверка на уже существующего пользователя
 	isExist, err := userRepository.IsExist(user.Username)
-	if isExist == true {
+	if isExist {
 		return customErrors.ErrUsernameExist
-	}
-	if err != nil {
+	} else if err != nil {
 		return err
 	}
 	// пароли нужно хранить скрытно, поэтому хешируем
@@ -46,7 +45,7 @@ func (userRepository *UserRepository) Update(user *models.User) error {
 		//проверяем, не занят ли новый никнейм
 		isExist, err := userRepository.IsExist(user.Username)
 		//если такой никнейм уже занят, то отправляем ошибку
-		if isExist != true {
+		if isExist == true {
 			return err
 		} else {
 			currentData.Username = user.Username
@@ -62,7 +61,7 @@ func (userRepository *UserRepository) Update(user *models.User) error {
 	return userRepository.db.Save(currentData).Error
 }
 
-func (userRepository *UserRepository) Login(username string, password string) (*models.User, error) {
+func (userRepository *UserRepository) IsLogin(username string, password string) (*models.User, error) {
 	// проверка на существование пользователя по никнейму
 	isExist, err := userRepository.IsExist(username)
 	if isExist != true {
@@ -71,7 +70,6 @@ func (userRepository *UserRepository) Login(username string, password string) (*
 	if err != nil {
 		return nil, err
 	}
-	// вычисляем хеш от пароля
 	user := new(models.User)
 	// чекаем в базе правильность данных
 	result := userRepository.db.Table("users").Select("*").Where("username = ?", username).Find(user)
@@ -79,16 +77,25 @@ func (userRepository *UserRepository) Login(username string, password string) (*
 	if result.RowsAffected == 0 {
 		return nil, customErrors.ErrBadInputData
 	} else if hash.CheckPasswordHash(password, user.Password) {
+		// проверим правильность пароля
 		return user, nil
 	} else {
 		return nil, customErrors.ErrBadInputData
 	}
 }
 
+func (userRepository *UserRepository) AddUserToBoard(IdB uint, IdU uint) error {
+	user, err := userRepository.GetUserById(IdU)
+	if err != nil {
+		return err
+	}
+	return userRepository.db.Model(&models.Board{IdB: IdB}).Association("Users").Append(user)
+}
+
 func (userRepository *UserRepository) GetUserByLogin(username string) (*models.User, error) {
 	// указатель на структуру, которую вернем
 	user := new(models.User)
-	result := userRepository.db.Table("users").Select("*").Where("username = ?", username).Find(user)
+	result := userRepository.db.Table("users").Where("username = ?", username).Find(user)
 	// если выборка в 0 строк, то такого пользователя нет
 	if result.RowsAffected == 0 {
 		return nil, customErrors.ErrUserNotFound
@@ -115,16 +122,11 @@ func (userRepository *UserRepository) GetUserById(IdP uint) (*models.User, error
 }
 
 func (userRepository *UserRepository) IsExist(username string) (bool, error) {
-	// пробуем найти такого пользователя
-	user := new(models.User)
-	result := userRepository.db.Table("users").Select("*").Where("username = ?", username).Find(user)
-	// если выборка не в 0 строк, то пользователь существует
-	if result.RowsAffected == 0 {
+	result, err := userRepository.GetUserByLogin(username)
+	if err != nil {
+		return false, err
+	} else if result == nil {
 		return false, nil
-	} else if result.Error != nil {
-		// если произошла ошибка при выборке
-		return false, result.Error
-	} else {
-		return true, nil
 	}
+	return true, nil
 }

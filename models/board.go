@@ -3,15 +3,15 @@ package models
 import "time"
 
 type Board struct {
-	IdB         uint   `json:"idb" gorm:"primaryKey;auto_increment"`
+	IdB         uint   `json:"idb" gorm:"primaryKey"`
 	Title       string `json:"title" gorm:"not null"`
 	Description string `json:"description"`
 	ImgDesk     string `json:"img_desk"`
 	DateCreated string `json:"date"`
-	IdU         uint   `json:"idp" gorm:"foreignKey:IdB"`
+	IdU         uint   `json:"idu" gorm:"foreignKey:IdB;"`
 	Users       []User `gorm:"many2many:users_boards"`
-	Lists       []List `gorm:"foreignKey:IdB"`
-	Tasks       []Task `gorm:"foreignKey:IdB"`
+	Lists       []List `gorm:"foreignKey:IdB;"`
+	Tasks       []Task `gorm:"foreignKey:IdB;"`
 }
 
 var BoardList = []Board{
