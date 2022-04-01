@@ -19,25 +19,34 @@ func initRouter() *gin.Engine {
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
+		boardRoutes := router.Group(routes.BoardRoute)
+		{
+			boardRoutes.POST("", middleware.CheckAuth, handlers.CreateBoard)
+			boardRoutes.PUT("", middleware.CheckAuth, handlers.RefactorBoard)
+			boardRoutes.GET("/:id", middleware.CheckAuth, handlers.GetSingleBoard)
+			boardRoutes.DELETE("/:id", middleware.CheckAuth, handlers.DeleteBoard)
+			boardRoutes.GET("/:id"+routes.ListRoute, middleware.CheckAuth, handlers.GetLists)
+		}
+		listRoutes := router.Group(routes.ListRoute)
+		{
+			listRoutes.GET("/:id", middleware.CheckAuth, handlers.GetSingleList)
+			listRoutes.POST("", middleware.CheckAuth, handlers.CreateList)
+			listRoutes.PUT("/:id", middleware.CheckAuth, handlers.RefactorList)
+			listRoutes.DELETE("/:id", middleware.CheckAuth, handlers.DeleteList)
+			listRoutes.GET("/:id"+routes.TaskRoute, middleware.CheckAuth, handlers.GetTasks)
+		}
+		taskRoutes := router.Group(routes.TaskRoute)
+		{
+			taskRoutes.GET("/:id", middleware.CheckAuth, handlers.GetSingleTask)
+			taskRoutes.POST("", middleware.CheckAuth, handlers.CreateTask)
+			taskRoutes.PUT("/:id", middleware.CheckAuth, handlers.RefactorTask)
+			taskRoutes.DELETE("/:id", middleware.CheckAuth, handlers.DeleteTask)
+		}
 		mainRoutes.POST(routes.LoginRoute, handlers.Login)
 		mainRoutes.GET("", middleware.CheckAuth, handlers.GetBoards)
 		mainRoutes.POST(routes.RegisterRoute, handlers.Register)
 		mainRoutes.DELETE(routes.LogoutRoute, handlers.Logout)
-		mainRoutes.POST(routes.BoardRoute, middleware.CheckAuth, handlers.CreateBoard)
-		mainRoutes.PUT(routes.BoardRoute, middleware.CheckAuth, handlers.RefactorBoard)
-		mainRoutes.GET(routes.BoardRoute+"/:id", middleware.CheckAuth, handlers.GetSingleBoard)
-		mainRoutes.DELETE(routes.BoardRoute+"/:id", middleware.CheckAuth, handlers.DeleteBoard)
 		mainRoutes.GET(routes.ProfileRoute+"/:id", middleware.CheckAuth, handlers.GetInfo)
-		mainRoutes.GET(routes.BoardRoute+"/:id"+routes.ListRoute, middleware.CheckAuth, handlers.GetLists)
-		mainRoutes.GET(routes.ListRoute+"/:id", middleware.CheckAuth, handlers.GetSingleList)
-		mainRoutes.POST(routes.ListRoute, middleware.CheckAuth, handlers.CreateList)
-		mainRoutes.PUT(routes.ListRoute+"/:id", middleware.CheckAuth, handlers.RefactorList)
-		mainRoutes.DELETE(routes.ListRoute+"/:id", middleware.CheckAuth, handlers.DeleteList)
-		mainRoutes.GET(routes.ListRoute+"/:id"+routes.TaskRoute, middleware.CheckAuth, handlers.GetTasks)
-		mainRoutes.GET(routes.TaskRoute+"/:id", middleware.CheckAuth, handlers.GetSingleTask)
-		mainRoutes.POST(routes.TaskRoute, middleware.CheckAuth, handlers.CreateTask)
-		mainRoutes.PUT(routes.TaskRoute+"/:id", middleware.CheckAuth, handlers.RefactorTask)
-		mainRoutes.DELETE(routes.TaskRoute+"/:id", middleware.CheckAuth, handlers.DeleteTask)
 
 	}
 	return router

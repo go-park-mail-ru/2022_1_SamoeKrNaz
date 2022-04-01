@@ -42,7 +42,7 @@ func GetSingleBoard(c *gin.Context) {
 
 	board, err := usecases.GetSingleBoard(uint(boardId), userId.(uint))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, board)
@@ -68,7 +68,7 @@ func CreateBoard(c *gin.Context) {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"created": true, "boardId": board.Id})
+	c.JSON(http.StatusCreated, gin.H{"boardId": board.Id})
 	return
 }
 
@@ -111,7 +111,7 @@ func DeleteBoard(c *gin.Context) {
 
 	err = usecases.DeleteBoard(uint(boardId), userId.(uint))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"deleted": true})

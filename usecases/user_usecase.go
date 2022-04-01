@@ -37,7 +37,7 @@ func Logout(token string) error {
 }
 
 func GetInfo(userId uint) (models.User, error) {
-	// получаю из бд всю инфу по айдишнику
+	// получаю из бд всю инфу по айдишнику кроме пароля
 	var err error
 	return models.User{}, err
 }

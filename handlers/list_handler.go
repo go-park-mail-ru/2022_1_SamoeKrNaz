@@ -72,7 +72,7 @@ func CreateList(c *gin.Context) {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, listId)
+	c.JSON(http.StatusOK, gin.H{"listId": listId})
 	return
 }
 
@@ -121,7 +121,7 @@ func DeleteList(c *gin.Context) {
 
 	err = usecases.DeleteList(uint(listId), userId.(uint))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"deleted": true})

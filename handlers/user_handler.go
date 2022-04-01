@@ -29,12 +29,12 @@ func Login(c *gin.Context) {
 	// вызываю юзкейс
 
 	token, err := usecases.Login(user)
-	if err == nil {
-		c.SetCookie("token", token, cookieTime, "", "", false, true)
-		c.JSON(http.StatusOK, gin.H{"is_logged": true})
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+	c.SetCookie("token", token, cookieTime, "", "", false, true)
+	c.JSON(http.StatusOK, gin.H{"is_logged": true})
 	return
 }
 

@@ -72,7 +72,7 @@ func CreateTask(c *gin.Context) {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, taskId)
+	c.JSON(http.StatusOK, gin.H{"taskId": taskId})
 	return
 }
 
@@ -121,7 +121,7 @@ func DeleteTask(c *gin.Context) {
 
 	err = usecases.DeleteList(uint(taskId), userId.(uint))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"deleted": true})
