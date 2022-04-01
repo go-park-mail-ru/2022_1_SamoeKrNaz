@@ -9,84 +9,94 @@ import (
 	"strconv"
 )
 
-func GetBoards(c *gin.Context) {
+func GetLists(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
 
-	//Получаю доски от БД
-	boards, err := usecases.GetBoards(userId.(uint))
-	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, boards)
-	return
-}
-
-func GetSingleBoard(c *gin.Context) {
-	userId, check := c.Get("Auth")
-	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
-		return
-	}
 	boardId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	//вызываю юзкейс
-
-	board, err := usecases.GetSingleBoard(uint(boardId), userId.(uint))
-	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, board)
-	return
-}
-
-func CreateBoard(c *gin.Context) {
-	userId, check := c.Get("Auth")
-	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
-		return
-	}
-
-	var board models.Board
-	err := c.ShouldBindJSON(&board)
-	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
-		return
-	}
-
-	err = usecases.CreateBoard(userId.(uint), board)
+	lists, err := usecases.GetLists(uint(boardId), userId.(uint))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"created": true, "boardId": board.Id})
+	c.JSON(http.StatusOK, lists)
 	return
 }
 
-func RefactorBoard(c *gin.Context) {
+func GetSingleList(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
 
-	var board models.Board
-	err := c.ShouldBindJSON(&board)
+	listId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	list, err := usecases.GetSingleList(uint(listId), userId.(uint))
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, list)
+	return
+}
+
+func CreateList(c *gin.Context) {
+	userId, check := c.Get("Auth")
+	if !check {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+
+	var list models.List
+	err := c.ShouldBindJSON(&list)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
 
-	err = usecases.RefactorBoard(userId.(uint), board)
+	listId, err := usecases.CreateList(list, userId.(uint))
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, listId)
+	return
+}
+
+func RefactorList(c *gin.Context) {
+	userId, check := c.Get("Auth")
+	if !check {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+
+	var list models.List
+	err := c.ShouldBindJSON(&list)
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		return
+	}
+
+	listId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = usecases.RefactorList(list, userId.(uint), uint(listId))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -95,13 +105,13 @@ func RefactorBoard(c *gin.Context) {
 	return
 }
 
-func DeleteBoard(c *gin.Context) {
+func DeleteList(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
-	boardId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	listId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -109,7 +119,7 @@ func DeleteBoard(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	err = usecases.DeleteBoard(uint(boardId), userId.(uint))
+	err = usecases.DeleteList(uint(listId), userId.(uint))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return

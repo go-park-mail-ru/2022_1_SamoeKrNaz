@@ -9,84 +9,94 @@ import (
 	"strconv"
 )
 
-func GetBoards(c *gin.Context) {
+func GetTasks(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
 
-	//Получаю доски от БД
-	boards, err := usecases.GetBoards(userId.(uint))
-	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, boards)
-	return
-}
-
-func GetSingleBoard(c *gin.Context) {
-	userId, check := c.Get("Auth")
-	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
-		return
-	}
-	boardId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	listId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	//вызываю юзкейс
-
-	board, err := usecases.GetSingleBoard(uint(boardId), userId.(uint))
-	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, board)
-	return
-}
-
-func CreateBoard(c *gin.Context) {
-	userId, check := c.Get("Auth")
-	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
-		return
-	}
-
-	var board models.Board
-	err := c.ShouldBindJSON(&board)
-	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
-		return
-	}
-
-	err = usecases.CreateBoard(userId.(uint), board)
+	tasks, err := usecases.GetTasks(uint(listId), userId.(uint))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"created": true, "boardId": board.Id})
+	c.JSON(http.StatusOK, tasks)
 	return
 }
 
-func RefactorBoard(c *gin.Context) {
+func GetSingleTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
 
-	var board models.Board
-	err := c.ShouldBindJSON(&board)
+	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	list, err := usecases.GetSingleTask(uint(taskId), userId.(uint))
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, list)
+	return
+}
+
+func CreateTask(c *gin.Context) {
+	userId, check := c.Get("Auth")
+	if !check {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+
+	var list models.Task
+	err := c.ShouldBindJSON(&list)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
 
-	err = usecases.RefactorBoard(userId.(uint), board)
+	taskId, err := usecases.CreateTaks(list, userId.(uint))
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, taskId)
+	return
+}
+
+func RefactorTask(c *gin.Context) {
+	userId, check := c.Get("Auth")
+	if !check {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+
+	var task models.Task
+	err := c.ShouldBindJSON(&task)
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		return
+	}
+
+	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = usecases.RefactorTask(task, userId.(uint), uint(taskId))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -95,13 +105,13 @@ func RefactorBoard(c *gin.Context) {
 	return
 }
 
-func DeleteBoard(c *gin.Context) {
+func DeleteTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
-	boardId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -109,7 +119,7 @@ func DeleteBoard(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	err = usecases.DeleteBoard(uint(boardId), userId.(uint))
+	err = usecases.DeleteList(uint(taskId), userId.(uint))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return

@@ -35,3 +35,9 @@ func Logout(token string) error {
 	var err error
 	return err
 }
+
+func GetInfo(userId uint) (models.User, error) {
+	// получаю из бд всю инфу по айдишнику
+	var err error
+	return models.User{}, err
+}

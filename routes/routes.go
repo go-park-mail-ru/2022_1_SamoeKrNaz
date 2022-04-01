@@ -8,5 +8,5 @@ var (
 	BoardRoute    = "/board"
 	TaskRoute     = "/task"
 	ListRoute     = "/list"
-	ProfileRout   = "/profile"
+	ProfileRoute  = "/profile"
 )

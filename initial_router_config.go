@@ -25,6 +25,19 @@ func initRouter() *gin.Engine {
 		mainRoutes.DELETE(routes.LogoutRoute, handlers.Logout)
 		mainRoutes.POST(routes.BoardRoute, middleware.CheckAuth, handlers.CreateBoard)
 		mainRoutes.PUT(routes.BoardRoute, middleware.CheckAuth, handlers.RefactorBoard)
+		mainRoutes.GET(routes.BoardRoute+"/:id", middleware.CheckAuth, handlers.GetSingleBoard)
+		mainRoutes.DELETE(routes.BoardRoute+"/:id", middleware.CheckAuth, handlers.DeleteBoard)
+		mainRoutes.GET(routes.ProfileRoute+"/:id", middleware.CheckAuth, handlers.GetInfo)
+		mainRoutes.GET(routes.BoardRoute+"/:id"+routes.ListRoute, middleware.CheckAuth, handlers.GetLists)
+		mainRoutes.GET(routes.ListRoute+"/:id", middleware.CheckAuth, handlers.GetSingleList)
+		mainRoutes.POST(routes.ListRoute, middleware.CheckAuth, handlers.CreateList)
+		mainRoutes.PUT(routes.ListRoute+"/:id", middleware.CheckAuth, handlers.RefactorList)
+		mainRoutes.DELETE(routes.ListRoute+"/:id", middleware.CheckAuth, handlers.DeleteList)
+		mainRoutes.GET(routes.ListRoute+"/:id"+routes.TaskRoute, middleware.CheckAuth, handlers.GetTasks)
+		mainRoutes.GET(routes.TaskRoute+"/:id", middleware.CheckAuth, handlers.GetSingleTask)
+		mainRoutes.POST(routes.TaskRoute, middleware.CheckAuth, handlers.CreateTask)
+		mainRoutes.PUT(routes.TaskRoute+"/:id", middleware.CheckAuth, handlers.RefactorTask)
+		mainRoutes.DELETE(routes.TaskRoute+"/:id", middleware.CheckAuth, handlers.DeleteTask)
 
 	}
 	return router
