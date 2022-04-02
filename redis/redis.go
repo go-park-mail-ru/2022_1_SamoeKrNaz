@@ -4,7 +4,6 @@ import (
 	"PLANEXA_backend/handlers"
 	"PLANEXA_backend/models"
 	"github.com/go-redis/redis"
-	"strconv"
 	"time"
 )
 
@@ -20,20 +19,20 @@ func (redisConnect RedisConnect) ConnectToRedis() *RedisConnect {
 	})}
 }
 
-func (redisConnect RedisConnect) SetCookie(session models.Session) error {
-	return redisConnect.client.Set(session.CookieValue, strconv.Itoa(int(session.UserId)), time.Duration(handlers.CookieTime)).Err()
+func (redisConnect RedisConnect) SetSession(session models.Session) error {
+	return redisConnect.client.Set(session.CookieValue, session.UserId, time.Duration(handlers.CookieTime)).Err()
 }
 
-func (redisConnect RedisConnect) GetCookie(session models.Session) (uint64, error) {
-	value, err := redisConnect.client.Get(session.CookieValue).Uint64()
+func (redisConnect RedisConnect) GetSession(cookieValue string) (uint64, error) {
+	value, err := redisConnect.client.Get(cookieValue).Uint64()
 	if err != nil {
 		return 0, err
 	}
 	return value, nil
 }
 
-func (redisConnect RedisConnect) DeleteCookie(session models.Session) error {
-	err := redisConnect.client.Del(session.CookieValue).Err()
+func (redisConnect RedisConnect) DeleteSession(cookieValue string) error {
+	err := redisConnect.client.Del(cookieValue).Err()
 	if err != nil {
 		return err
 	}
