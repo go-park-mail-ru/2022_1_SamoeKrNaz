@@ -30,10 +30,10 @@ func (boardRepository *BoardRepository) Update(board *models.Board) error {
 		return err
 	}
 	// ищем, какое поле поменялось
-	if currentData.Title != board.Title {
+	if currentData.Title != board.Title && board.Description != "" {
 		currentData.Title = board.Title
 	}
-	if currentData.Description != board.Description {
+	if currentData.Description != board.Description && board.Description != "" {
 		currentData.Description = board.Description
 	}
 	//сохраняем новую структуру

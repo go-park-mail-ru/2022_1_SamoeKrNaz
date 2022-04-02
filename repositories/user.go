@@ -41,7 +41,7 @@ func (userRepository *UserRepository) Update(user *models.User) error {
 		return err
 	}
 	// теперь будем искать, какое поле поменялось
-	if currentData.Username != user.Username {
+	if currentData.Username != user.Username && user.Username != "" {
 		//проверяем, не занят ли новый никнейм
 		isExist, err := userRepository.IsExist(user.Username)
 		//если такой никнейм уже занят, то отправляем ошибку
@@ -52,7 +52,7 @@ func (userRepository *UserRepository) Update(user *models.User) error {
 		}
 	}
 	// если мы поменяли пароль, то надо его захешировать
-	if hash.CheckPasswordHash(user.Password, currentData.Password) {
+	if hash.CheckPasswordHash(user.Password, currentData.Password) && user.Password != "" {
 		currentData.Password, err = hash.HashPassword(user.Password)
 		if err != nil {
 			return err

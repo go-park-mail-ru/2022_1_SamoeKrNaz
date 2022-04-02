@@ -31,39 +31,43 @@ func (taskRepository *TaskRepository) Update(task *models.Task) error {
 	if err != nil {
 		return err
 	}
-	if currentData.Title != task.Title {
+	if currentData.Title != task.Title && task.Title != "" {
 		currentData.Title = task.Title
 	}
-	if currentData.Description != task.Description {
+	if currentData.Description != task.Description && task.Title != "" {
 		currentData.Description = task.Description
 	}
 	if currentData.Position != task.Position {
 		repository := ListRepository{}
 		listRepo := repository.MakeRepository(taskRepository.db)
 		// получим все списки из текущей доски
-		listsInBoards, err := listRepo.GetTasks(currentData.IdL)
+		taskInList, err := listRepo.GetTasks(currentData.IdL)
 		if err != nil {
 			return err
 		}
 		// если список переместили вниз
 		if currentData.Position > task.Position {
-			for i := task.Position - 1; i < currentData.Position; i++ {
-				(*listsInBoards)[i].Position += currentData.Position - task.Position - 1
-				err = taskRepository.db.Save((*listsInBoards)[i]).Error
+			for i := task.Position - 1; i < currentData.Position-1; i++ {
+				(*taskInList)[i].Position += 1
+				(*taskInList)[i].IdT += 1
+				err = taskRepository.db.Save((*taskInList)[i]).Error
 				if err != nil {
 					return err
 				}
 			}
 			currentData.Position = task.Position
+			currentData.IdT = task.Position
 		} else { // если список переместили вверх
 			for i := currentData.Position; i < task.Position; i++ {
-				(*listsInBoards)[i].Position -= task.Position - currentData.Position - 1
-				err = taskRepository.db.Save((*listsInBoards)[i]).Error
+				(*taskInList)[i].Position -= 1
+				(*taskInList)[i].IdT -= 1
+				err = taskRepository.db.Save((*taskInList)[i]).Error
 				if err != nil {
 					return err
 				}
 			}
 			currentData.Position = task.Position
+			currentData.IdT = task.Position
 		}
 	}
 	return taskRepository.db.Save(currentData).Error
