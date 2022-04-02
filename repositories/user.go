@@ -45,7 +45,9 @@ func (userRepository *UserRepository) Update(user *models.User) error {
 		//проверяем, не занят ли новый никнейм
 		isExist, err := userRepository.IsExist(user.Username)
 		//если такой никнейм уже занят, то отправляем ошибку
-		if isExist == true {
+		if isExist {
+			return customErrors.ErrUsernameExist
+		} else if err != nil {
 			return err
 		} else {
 			currentData.Username = user.Username
@@ -95,7 +97,7 @@ func (userRepository *UserRepository) AddUserToBoard(IdB uint, IdU uint) error {
 func (userRepository *UserRepository) GetUserByLogin(username string) (*models.User, error) {
 	// указатель на структуру, которую вернем
 	user := new(models.User)
-	result := userRepository.db.Table("users").Where("username = ?", username).Find(user)
+	result := userRepository.db.Where("username = ?", username).Find(user)
 	// если выборка в 0 строк, то такого пользователя нет
 	if result.RowsAffected == 0 {
 		return nil, customErrors.ErrUserNotFound

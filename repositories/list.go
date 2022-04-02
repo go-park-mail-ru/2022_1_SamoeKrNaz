@@ -17,9 +17,9 @@ func (listRepository *ListRepository) MakeRepository(db *gorm.DB) *ListRepositor
 func (listRepository *ListRepository) Create(list *models.List, IdB uint) error {
 	list.IdB = IdB
 	var currentPosition int64
-	result := listRepository.db.Model(&models.List{}).Where("id_b = ?", list.IdB).Count(&currentPosition).Error
-	if result != nil {
-		return result
+	err := listRepository.db.Model(&models.List{}).Where("id_b = ?", list.IdB).Count(&currentPosition).Error
+	if err != nil {
+		return err
 	}
 	list.Position = uint(currentPosition) + 1
 	return listRepository.db.Create(list).Error
@@ -34,44 +34,25 @@ func (listRepository *ListRepository) Update(list *models.List) error {
 		currentData.Title = list.Title
 	}
 	if currentData.Position != list.Position {
-		repository := BoardRepository{}
-		boardRepo := repository.MakeRepository(listRepository.db)
-		// получим все списки из текущей доски
-		listsInBoards, err := boardRepo.GetLists(list.IdB)
-		if err != nil {
-			return err
-		}
 		// если список переместили вниз
 		if currentData.Position > list.Position {
 			// допустим, что был список 1 2 3 4
 			// решили, что четвертый список будет после первого
 			// 1 4 2 3
 			// значит, нужно все индексы после текущей позиции увеличить на 1
-			for i := list.Position - 1; i < currentData.Position-1; i++ {
-				(*listsInBoards)[i].Position += 1
-				(*listsInBoards)[i].IdL += 1
-				err = listRepository.db.Save((*listsInBoards)[i]).Error
-				if err != nil {
-					return err
-				}
-			}
+			listRepository.db.Model(&models.List{}).
+				Where("position > ? AND position <= ? AND id_b = ?", list.Position-1, currentData.Position-1, currentData.IdB).
+				UpdateColumn("position", gorm.Expr("position + 1"))
 			currentData.Position = list.Position
-			currentData.IdL = list.Position
 		} else { // если список переместили вверх
 			// допустим, что был список 1 2 3 4
 			// решили, что второй список будет после четвертого
 			// 1 3 4 2
 			// значит, нужно все индексы  с предыдущей позиции уменьшить на 1
-			for i := currentData.Position; i < list.Position; i++ {
-				(*listsInBoards)[i].Position -= 1
-				(*listsInBoards)[i].IdL -= 1
-				err = listRepository.db.Save((*listsInBoards)[i]).Error
-				if err != nil {
-					return err
-				}
-			}
+			listRepository.db.Model(&models.List{}).
+				Where("position > ? AND position <= ? AND id_b = ?", currentData.Position, list.Position, currentData.IdB).
+				UpdateColumn("position", gorm.Expr("position - 1"))
 			currentData.Position = list.Position
-			currentData.IdL = list.Position
 		}
 	}
 	//сохраняем новую структуру

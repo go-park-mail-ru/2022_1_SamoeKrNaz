@@ -18,9 +18,9 @@ func (taskRepository *TaskRepository) Create(task *models.Task, IdL uint, IdB ui
 	task.IdL = IdL
 	task.IdB = IdB
 	var currentPosition int64
-	result := taskRepository.db.Model(&models.Task{}).Where("id_l = ?", task.IdL).Count(&currentPosition).Error
-	if result != nil {
-		return result
+	err := taskRepository.db.Model(&models.Task{}).Where("id_l = ?", task.IdL).Count(&currentPosition).Error
+	if err != nil {
+		return err
 	}
 	task.Position = uint(currentPosition) + 1
 	return taskRepository.db.Create(task).Error
@@ -37,38 +37,37 @@ func (taskRepository *TaskRepository) Update(task *models.Task) error {
 	if currentData.Description != task.Description && task.Title != "" {
 		currentData.Description = task.Description
 	}
-	if currentData.Position != task.Position {
-		repository := ListRepository{}
-		listRepo := repository.MakeRepository(taskRepository.db)
-		// получим все списки из текущей доски
-		taskInList, err := listRepo.GetTasks(currentData.IdL)
-		if err != nil {
-			return err
-		}
+	if currentData.Position != task.Position && currentData.IdL == task.IdL {
 		// если список переместили вниз
 		if currentData.Position > task.Position {
-			for i := task.Position - 1; i < currentData.Position-1; i++ {
-				(*taskInList)[i].Position += 1
-				(*taskInList)[i].IdT += 1
-				err = taskRepository.db.Save((*taskInList)[i]).Error
-				if err != nil {
-					return err
-				}
-			}
-			currentData.Position = task.Position
-			currentData.IdT = task.Position
+			taskRepository.db.Model(&models.Task{}).
+				Where("position > ? AND position <= ? AND id_l = ?", task.Position-1, currentData.Position-1, currentData.IdL).
+				UpdateColumn("position", gorm.Expr("position + 1"))
 		} else { // если список переместили вверх
-			for i := currentData.Position; i < task.Position; i++ {
-				(*taskInList)[i].Position -= 1
-				(*taskInList)[i].IdT -= 1
-				err = taskRepository.db.Save((*taskInList)[i]).Error
-				if err != nil {
-					return err
-				}
-			}
-			currentData.Position = task.Position
-			currentData.IdT = task.Position
+			taskRepository.db.Model(&models.Task{}).
+				Where("position > ? AND position <= ? AND id_l = ?", currentData.Position, task.Position, currentData.IdL).
+				UpdateColumn("position", gorm.Expr("position - 1"))
 		}
+		currentData.Position = task.Position
+	}
+	if currentData.Position != task.Position && currentData.IdL != task.IdL {
+		// если мы переместили таску из одного списка в другой и поменяли список
+		// то нужно в старом списке поменять позиции после текущей таски
+		taskRepository.db.Model(&models.Task{}).
+			Where("position > ? AND id_l = ?", currentData.Position, currentData.IdL).
+			UpdateColumn("position", gorm.Expr("position - 1"))
+		// в новом списке поменять позицию
+		if currentData.Position > task.Position {
+			taskRepository.db.Model(&models.Task{}).
+				Where("position > ? AND position <= ? AND id_l = ?", task.Position-1, currentData.Position-1, task.IdL).
+				UpdateColumn("position", gorm.Expr("position + 1"))
+		} else { // если список переместили вверх
+			taskRepository.db.Model(&models.Task{}).
+				Where("position > ? AND position <= ? AND id_l = ?", currentData.Position, task.Position, task.IdL).
+				UpdateColumn("position", gorm.Expr("position - 1"))
+		}
+		currentData.Position = task.Position
+		currentData.IdL = task.IdL
 	}
 	return taskRepository.db.Save(currentData).Error
 }
@@ -108,7 +107,7 @@ func (taskRepository *TaskRepository) GetById(IdT uint) (*models.Task, error) {
 	result := taskRepository.db.Find(task, IdT)
 	// если выборка в 0 строк, то такой таски нет
 	if result.RowsAffected == 0 {
-		return nil, customErrors.ErrBoardNotFound
+		return nil, customErrors.ErrTaskNotFound
 	} else if result.Error != nil {
 		// если произошла ошибка при выборке
 		return nil, result.Error
