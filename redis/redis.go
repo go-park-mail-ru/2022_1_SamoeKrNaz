@@ -1,19 +1,15 @@
 package main
 
 import (
-	customErrors "PLANEXA_backend/errors"
+	"PLANEXA_backend/handlers"
+	"PLANEXA_backend/models"
 	"github.com/go-redis/redis"
 	"strconv"
 	"time"
 )
 
-type UserCookie struct {
-	idU    uint
-	cookie string
-}
-
 type RedisConnect struct {
-	*redis.Client
+	client *redis.Client
 }
 
 func (redisConnect RedisConnect) ConnectToRedis() *RedisConnect {
@@ -24,23 +20,22 @@ func (redisConnect RedisConnect) ConnectToRedis() *RedisConnect {
 	})}
 }
 
-func (redisConnect RedisConnect) SetCookie(user UserCookie) error {
-	err := redisConnect.Set(strconv.Itoa(int(user.idU)), user.cookie, 259200*time.Second).Err()
-	return err
+func (redisConnect RedisConnect) SetCookie(session models.Session) error {
+	return redisConnect.client.Set(session.CookieValue, strconv.Itoa(int(session.UserId)), time.Duration(handlers.CookieTime)).Err()
 }
 
-func (redisConnect RedisConnect) GetCookie(user UserCookie) (string, error) {
-	value, err := redisConnect.Get(strconv.Itoa(int(user.idU))).Result()
+func (redisConnect RedisConnect) GetCookie(session models.Session) (uint64, error) {
+	value, err := redisConnect.client.Get(session.CookieValue).Uint64()
 	if err != nil {
-		return "", customErrors.ErrUnauthorized
+		return 0, err
 	}
 	return value, nil
 }
 
-func (redisConnect RedisConnect) DeleteCookie(user UserCookie) error {
-	err := redisConnect.Del(strconv.Itoa(int(user.idU))).Err()
+func (redisConnect RedisConnect) DeleteCookie(session models.Session) error {
+	err := redisConnect.client.Del(session.CookieValue).Err()
 	if err != nil {
-		return customErrors.ErrUserNotFound
+		return err
 	}
 	return nil
 }

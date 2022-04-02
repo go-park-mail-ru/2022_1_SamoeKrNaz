@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	cookieTime = 604800 // 3 days
+	CookieTime = 604800 // 3 days
 	lockUser   = sync.RWMutex{}
 	lockSess   = sync.RWMutex{}
 )
@@ -33,7 +33,7 @@ func Login(c *gin.Context) {
 		if userDB.Username == user.Username {
 			if userDB.Password == user.Password {
 				token := generateSessionToken()
-				c.SetCookie("token", token, cookieTime, "", "", false, true)
+				c.SetCookie("token", token, CookieTime, "", "", false, true)
 				models.SessionList = append(models.SessionList, models.Session{UserId: userDB.IdU, CookieValue: token})
 				c.JSON(http.StatusOK, gin.H{"is_logged": true})
 				return
@@ -73,7 +73,7 @@ func Register(c *gin.Context) {
 	}
 	models.UserList = append(models.UserList, models.User{IdU: models.UserID, Username: user.Username, Password: user.Password})
 	token := generateSessionToken()
-	c.SetCookie("token", token, cookieTime, "", "", false, true)
+	c.SetCookie("token", token, CookieTime, "", "", false, true)
 	c.JSON(http.StatusCreated, gin.H{"is_registered": true})
 	models.SessionList = append(models.SessionList, models.Session{UserId: models.UserID, CookieValue: token})
 	models.UserID++

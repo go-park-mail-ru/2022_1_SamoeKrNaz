@@ -40,18 +40,24 @@ func (listRepository *ListRepository) Update(list *models.List) error {
 			// решили, что четвертый список будет после первого
 			// 1 4 2 3
 			// значит, нужно все индексы после текущей позиции увеличить на 1
-			listRepository.db.Model(&models.List{}).
+			err := listRepository.db.Model(&models.List{}).
 				Where("id_b = ? AND position BETWEEN ? AND ?", currentData.IdB, list.Position, currentData.Position-1).
-				UpdateColumn("position", gorm.Expr("position + 1"))
+				UpdateColumn("position", gorm.Expr("position + 1")).Error
+			if err != nil {
+				return err
+			}
 			currentData.Position = list.Position
 		} else { // если список переместили вверх
 			// допустим, что был список 1 2 3 4
 			// решили, что второй список будет после четвертого
 			// 1 3 4 2
 			// значит, нужно все индексы  с предыдущей позиции уменьшить на 1
-			listRepository.db.Model(&models.List{}).
-				Where("id_b = ? AND position BETWEEN ? AND ?", currentData.IdB, list.Position, currentData.Position-1).
-				UpdateColumn("position", gorm.Expr("position - 1"))
+			err := listRepository.db.Model(&models.List{}).
+				Where("id_b = ? AND position BETWEEN ? AND ?", currentData.IdB, currentData.Position+1, list.Position).
+				UpdateColumn("position", gorm.Expr("position - 1")).Error
+			if err != nil {
+				return err
+			}
 			currentData.Position = list.Position
 		}
 	}

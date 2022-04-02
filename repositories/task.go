@@ -40,31 +40,46 @@ func (taskRepository *TaskRepository) Update(task *models.Task) error {
 	if currentData.Position != task.Position && currentData.IdL == task.IdL {
 		// если список переместили вниз
 		if currentData.Position > task.Position {
-			taskRepository.db.Model(&models.Task{}).
+			err := taskRepository.db.Model(&models.Task{}).
 				Where("id_b = ? AND position BETWEEN ? AND ?", currentData.IdL, task.Position, currentData.Position-1).
-				UpdateColumn("position", gorm.Expr("position + 1"))
+				UpdateColumn("position", gorm.Expr("position + 1")).Error
+			if err != nil {
+				return err
+			}
 		} else { // если список переместили вверх
-			taskRepository.db.Model(&models.Task{}).
-				Where("id_b = ? AND position BETWEEN ? AND ?", currentData.IdL, task.Position, currentData.Position-1).
-				UpdateColumn("position", gorm.Expr("position - 1"))
+			err := taskRepository.db.Model(&models.Task{}).
+				Where("id_b = ? AND position BETWEEN ? AND ?", currentData.IdL, currentData.Position+1, task.Position).
+				UpdateColumn("position", gorm.Expr("position - 1")).Error
+			if err != nil {
+				return err
+			}
 		}
 		currentData.Position = task.Position
 	}
 	if currentData.Position != task.Position && currentData.IdL != task.IdL {
 		// если мы переместили таску из одного списка в другой и поменяли список
 		// то нужно в старом списке поменять позиции после текущей таски
-		taskRepository.db.Model(&models.Task{}).
+		err := taskRepository.db.Model(&models.Task{}).
 			Where("position > ? AND id_l = ?", currentData.Position, currentData.IdL).
-			UpdateColumn("position", gorm.Expr("position - 1"))
+			UpdateColumn("position", gorm.Expr("position - 1")).Error
+		if err != nil {
+			return err
+		}
 		// в новом списке поменять позицию
 		if currentData.Position > task.Position {
-			taskRepository.db.Model(&models.Task{}).
+			err := taskRepository.db.Model(&models.Task{}).
 				Where("id_b = ? AND position BETWEEN ? AND ?", task.IdL, task.Position, currentData.Position-1).
-				UpdateColumn("position", gorm.Expr("position + 1"))
+				UpdateColumn("position", gorm.Expr("position + 1")).Error
+			if err != nil {
+				return err
+			}
 		} else { // если список переместили вверх
-			taskRepository.db.Model(&models.Task{}).
-				Where("id_b = ? AND position BETWEEN ? AND ?", task.IdL, task.Position, currentData.Position-1).
-				UpdateColumn("position", gorm.Expr("position - 1"))
+			err := taskRepository.db.Model(&models.Task{}).
+				Where("id_b = ? AND position BETWEEN ? AND ?", task.IdL, currentData.Position+1, task.Position).
+				UpdateColumn("position", gorm.Expr("position - 1")).Error
+			if err != nil {
+				return err
+			}
 		}
 		currentData.Position = task.Position
 		currentData.IdL = task.IdL
