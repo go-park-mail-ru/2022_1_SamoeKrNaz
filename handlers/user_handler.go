@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	cookieTime = 604800 // 3 days
+	CookieTime = 604800 // 3 days
 )
 
 func generateSessionToken() string {
@@ -33,7 +33,7 @@ func Login(c *gin.Context) {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.SetCookie("token", token, cookieTime, "", "", false, true)
+	c.SetCookie("token", token, CookieTime, "", "", false, true)
 	c.JSON(http.StatusOK, gin.H{"is_logged": true})
 	return
 }
@@ -55,7 +55,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("token", token, cookieTime, "", "", false, true)
+	c.SetCookie("token", token, CookieTime, "", "", false, true)
 	c.JSON(http.StatusCreated, gin.H{"is_registered": true})
 	return
 }
