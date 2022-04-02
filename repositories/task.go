@@ -41,11 +41,11 @@ func (taskRepository *TaskRepository) Update(task *models.Task) error {
 		// если список переместили вниз
 		if currentData.Position > task.Position {
 			taskRepository.db.Model(&models.Task{}).
-				Where("position > ? AND position <= ? AND id_l = ?", task.Position-1, currentData.Position-1, currentData.IdL).
+				Where("id_b = ? AND position BETWEEN ? AND ?", currentData.IdL, task.Position, currentData.Position-1).
 				UpdateColumn("position", gorm.Expr("position + 1"))
 		} else { // если список переместили вверх
 			taskRepository.db.Model(&models.Task{}).
-				Where("position > ? AND position <= ? AND id_l = ?", currentData.Position, task.Position, currentData.IdL).
+				Where("id_b = ? AND position BETWEEN ? AND ?", currentData.IdL, task.Position, currentData.Position-1).
 				UpdateColumn("position", gorm.Expr("position - 1"))
 		}
 		currentData.Position = task.Position
@@ -59,11 +59,11 @@ func (taskRepository *TaskRepository) Update(task *models.Task) error {
 		// в новом списке поменять позицию
 		if currentData.Position > task.Position {
 			taskRepository.db.Model(&models.Task{}).
-				Where("position > ? AND position <= ? AND id_l = ?", task.Position-1, currentData.Position-1, task.IdL).
+				Where("id_b = ? AND position BETWEEN ? AND ?", task.IdL, task.Position, currentData.Position-1).
 				UpdateColumn("position", gorm.Expr("position + 1"))
 		} else { // если список переместили вверх
 			taskRepository.db.Model(&models.Task{}).
-				Where("position > ? AND position <= ? AND id_l = ?", currentData.Position, task.Position, task.IdL).
+				Where("id_b = ? AND position BETWEEN ? AND ?", task.IdL, task.Position, currentData.Position-1).
 				UpdateColumn("position", gorm.Expr("position - 1"))
 		}
 		currentData.Position = task.Position
@@ -78,27 +78,13 @@ func (taskRepository *TaskRepository) Delete(IdT uint) error {
 	if err != nil {
 		return err
 	}
-	repository := ListRepository{}
-	taskRepo := repository.MakeRepository(taskRepository.db)
-	// получим все таски из текущего списка
-	listsInBoards, err := taskRepo.GetTasks(taskToDelete.IdB)
-	if err != nil {
-		return err
-	}
 	err = taskRepository.db.Delete(&models.Task{}, IdT).Error
 	if err != nil {
 		return err
 	}
-	for i := int(taskToDelete.Position); i < len(*listsInBoards); i++ {
-		// сдвинем позицию на одну
-		(*listsInBoards)[i].Position -= 1
-		// и удалим
-		err = taskRepository.db.Save((*listsInBoards)[i]).Error
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return taskRepository.db.Model(&models.Task{}).
+		Where("position > ? AND id_l = ?", taskToDelete.Position, taskToDelete.IdL).
+		UpdateColumn("position", gorm.Expr("position - 1")).Error
 }
 
 func (taskRepository *TaskRepository) GetById(IdT uint) (*models.Task, error) {

@@ -41,7 +41,7 @@ func (listRepository *ListRepository) Update(list *models.List) error {
 			// 1 4 2 3
 			// значит, нужно все индексы после текущей позиции увеличить на 1
 			listRepository.db.Model(&models.List{}).
-				Where("position > ? AND position <= ? AND id_b = ?", list.Position-1, currentData.Position-1, currentData.IdB).
+				Where("id_b = ? AND position BETWEEN ? AND ?", currentData.IdB, list.Position, currentData.Position-1).
 				UpdateColumn("position", gorm.Expr("position + 1"))
 			currentData.Position = list.Position
 		} else { // если список переместили вверх
@@ -50,7 +50,7 @@ func (listRepository *ListRepository) Update(list *models.List) error {
 			// 1 3 4 2
 			// значит, нужно все индексы  с предыдущей позиции уменьшить на 1
 			listRepository.db.Model(&models.List{}).
-				Where("position > ? AND position <= ? AND id_b = ?", currentData.Position, list.Position, currentData.IdB).
+				Where("id_b = ? AND position BETWEEN ? AND ?", currentData.IdB, list.Position, currentData.Position-1).
 				UpdateColumn("position", gorm.Expr("position - 1"))
 			currentData.Position = list.Position
 		}
@@ -64,27 +64,13 @@ func (listRepository *ListRepository) Delete(IdL uint) error {
 	if err != nil {
 		return err
 	}
-	repository := BoardRepository{}
-	boardRepo := repository.MakeRepository(listRepository.db)
-	// получим все списки из текущей доски
-	listsInBoards, err := boardRepo.GetLists(listToDelete.IdB)
-	if err != nil {
-		return err
-	}
 	err = listRepository.db.Delete(&models.List{}, IdL).Error
 	if err != nil {
 		return err
 	}
-	for i := int(listToDelete.Position); i < len(*listsInBoards); i++ {
-		// сдвинем позицию на одну
-		(*listsInBoards)[i].Position -= 1
-		// и удалим
-		err = listRepository.db.Save((*listsInBoards)[i]).Error
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return listRepository.db.Model(&models.Task{}).
+		Where("position > ? AND id_b = ?", listToDelete.Position, listToDelete.IdB).
+		UpdateColumn("position", gorm.Expr("position - 1")).Error
 }
 
 func (listRepository *ListRepository) GetTasks(IdL uint) (*[]models.Task, error) {

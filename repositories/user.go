@@ -63,26 +63,28 @@ func (userRepository *UserRepository) Update(user *models.User) error {
 	return userRepository.db.Save(currentData).Error
 }
 
-func (userRepository *UserRepository) IsLogin(username string, password string) (*models.User, error) {
+func (userRepository *UserRepository) IsAbleToLogin(username string, password string) (bool, error) {
 	// проверка на существование пользователя по никнейму
 	isExist, err := userRepository.IsExist(username)
 	if isExist != true {
-		return nil, customErrors.ErrUsernameNotExist
+		return false, customErrors.ErrUsernameNotExist
 	}
 	if err != nil {
-		return nil, err
+		return false, err
 	}
-	user := new(models.User)
 	// чекаем в базе правильность данных
-	result := userRepository.db.Table("users").Select("*").Where("username = ?", username).Find(user)
+	user, err := userRepository.GetUserByLogin(username)
+	if err != nil {
+		return false, err
+	}
 	// если выборка в 0 строк, то не сошлись данные
-	if result.RowsAffected == 0 {
-		return nil, customErrors.ErrBadInputData
+	if user == nil {
+		return false, customErrors.ErrBadInputData
 	} else if hash.CheckPasswordHash(password, user.Password) {
 		// проверим правильность пароля
-		return user, nil
+		return true, nil
 	} else {
-		return nil, customErrors.ErrBadInputData
+		return false, customErrors.ErrBadInputData
 	}
 }
 
