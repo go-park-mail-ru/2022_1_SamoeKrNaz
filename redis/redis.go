@@ -1,4 +1,4 @@
-package main
+package planexa_redis
 
 import (
 	"PLANEXA_backend/handlers"

@@ -5,7 +5,6 @@ import (
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/usecases"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"net/http"
 	"strconv"
 )
@@ -13,10 +12,6 @@ import (
 var (
 	CookieTime = 604800 // 3 days
 )
-
-func generateSessionToken() string {
-	return uuid.NewString()
-}
 
 func Login(c *gin.Context) {
 	var user models.User

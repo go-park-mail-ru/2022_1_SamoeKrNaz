@@ -2,6 +2,7 @@ package utils
 
 import (
 	customErrors "PLANEXA_backend/errors"
+	"github.com/google/uuid"
 	"unicode"
 )
 
@@ -16,4 +17,8 @@ func CheckPassword(pass string) error {
 		}
 	}
 	return nil
+}
+
+func GenerateSessionToken() string {
+	return uuid.NewString()
 }
