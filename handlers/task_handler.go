@@ -9,7 +9,15 @@ import (
 	"strconv"
 )
 
-func GetTasks(c *gin.Context) {
+type TaskHandler struct {
+	usecase *usecases.TaskUsecase
+}
+
+func MakeTaskHandler(usecase_ *usecases.TaskUsecase) *TaskHandler {
+	return &TaskHandler{usecase: usecase_}
+}
+
+func (*TaskHandler) GetTasks(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -31,7 +39,7 @@ func GetTasks(c *gin.Context) {
 	return
 }
 
-func GetSingleTask(c *gin.Context) {
+func (*TaskHandler) GetSingleTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -53,7 +61,7 @@ func GetSingleTask(c *gin.Context) {
 	return
 }
 
-func CreateTask(c *gin.Context) {
+func (*TaskHandler) CreateTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -76,7 +84,7 @@ func CreateTask(c *gin.Context) {
 	return
 }
 
-func RefactorTask(c *gin.Context) {
+func (*TaskHandler) RefactorTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -105,7 +113,7 @@ func RefactorTask(c *gin.Context) {
 	return
 }
 
-func DeleteTask(c *gin.Context) {
+func (*TaskHandler) DeleteTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})

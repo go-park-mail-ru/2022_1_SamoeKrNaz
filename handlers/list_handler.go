@@ -9,7 +9,15 @@ import (
 	"strconv"
 )
 
-func GetLists(c *gin.Context) {
+type ListHandler struct {
+	usecase *usecases.ListUsecase
+}
+
+func MakeListHandler(usecase_ *usecases.ListUsecase) *ListHandler {
+	return &ListHandler{usecase: usecase_}
+}
+
+func (*ListHandler) GetLists(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -31,7 +39,7 @@ func GetLists(c *gin.Context) {
 	return
 }
 
-func GetSingleList(c *gin.Context) {
+func (*ListHandler) GetSingleList(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -53,7 +61,7 @@ func GetSingleList(c *gin.Context) {
 	return
 }
 
-func CreateList(c *gin.Context) {
+func (*ListHandler) CreateList(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -76,7 +84,7 @@ func CreateList(c *gin.Context) {
 	return
 }
 
-func RefactorList(c *gin.Context) {
+func (*ListHandler) RefactorList(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -105,7 +113,7 @@ func RefactorList(c *gin.Context) {
 	return
 }
 
-func DeleteList(c *gin.Context) {
+func (*ListHandler) DeleteList(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
