@@ -18,7 +18,15 @@ func generateSessionToken() string {
 	return uuid.NewString()
 }
 
-func Login(c *gin.Context) {
+type UserHandler struct {
+	usecase *usecases.UserUsecase
+}
+
+func MakeUserHandler(usecase *usecases.UserUsecase) *UserHandler {
+	return &UserHandler{usecase: usecase}
+}
+
+func (*UserHandler) Login(c *gin.Context) {
 	var user models.User
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
@@ -38,7 +46,7 @@ func Login(c *gin.Context) {
 	return
 }
 
-func Register(c *gin.Context) {
+func (*UserHandler) Register(c *gin.Context) {
 	var user models.User
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
@@ -60,7 +68,7 @@ func Register(c *gin.Context) {
 	return
 }
 
-func Logout(c *gin.Context) {
+func (*UserHandler) Logout(c *gin.Context) {
 	token, err := c.Cookie("token")
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -81,7 +89,7 @@ func Logout(c *gin.Context) {
 	return
 }
 
-func GetInfo(c *gin.Context) {
+func (*UserHandler) GetInfo(c *gin.Context) {
 	_, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})

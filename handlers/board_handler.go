@@ -9,7 +9,15 @@ import (
 	"strconv"
 )
 
-func GetBoards(c *gin.Context) {
+type BoardHandler struct {
+	usecase *usecases.BoardUseCase
+}
+
+func MakeBoardHandler(usecase_ *usecases.BoardUseCase) *BoardHandler {
+	return &BoardHandler{usecase: usecase_}
+}
+
+func (*BoardHandler) GetBoards(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -26,7 +34,7 @@ func GetBoards(c *gin.Context) {
 	return
 }
 
-func GetSingleBoard(c *gin.Context) {
+func (*BoardHandler) GetSingleBoard(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -49,7 +57,7 @@ func GetSingleBoard(c *gin.Context) {
 	return
 }
 
-func CreateBoard(c *gin.Context) {
+func (*BoardHandler) CreateBoard(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -72,7 +80,7 @@ func CreateBoard(c *gin.Context) {
 	return
 }
 
-func RefactorBoard(c *gin.Context) {
+func (*BoardHandler) RefactorBoard(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -95,7 +103,7 @@ func RefactorBoard(c *gin.Context) {
 	return
 }
 
-func DeleteBoard(c *gin.Context) {
+func (*BoardHandler) DeleteBoard(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
