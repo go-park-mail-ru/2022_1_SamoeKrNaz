@@ -9,6 +9,10 @@ type TaskUsecase struct {
 	rep *repositories.TaskRepository
 }
 
+func MakeTaskUsecase(rep_ *repositories.TaskRepository) *TaskUsecase {
+	return &TaskUsecase{rep: rep_}
+}
+
 func GetTasks(listId uint, userId uint) ([]models.List, error) {
 	// достаю все таски из БД по айди доски
 	var err error

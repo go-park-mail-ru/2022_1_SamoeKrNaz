@@ -12,7 +12,7 @@ type UserUsecase struct {
 	red *planexa_redis.RedisConnect
 }
 
-func MakeUsecase(rep_ *repositories.UserRepository) *UserUsecase {
+func MakeUserUsecase(rep_ *repositories.UserRepository) *UserUsecase {
 	return &UserUsecase{rep: rep_}
 }
 

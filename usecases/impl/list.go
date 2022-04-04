@@ -9,6 +9,10 @@ type ListUsecase struct {
 	rep *repositories.ListRepository
 }
 
+func MakeListUsecase(rep_ *repositories.ListRepository) *ListUsecase {
+	return &ListUsecase{rep: rep_}
+}
+
 func GetLists(boardId uint, userId uint) ([]models.List, error) {
 	// достаю все списки тасков из БД по айди доски
 	var err error

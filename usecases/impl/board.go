@@ -9,6 +9,10 @@ type BoardUsecase struct {
 	rep *repositories.BoardRepository
 }
 
+func MakeBoardUsecase(rep_ *repositories.BoardRepository) *BoardUsecase {
+	return &BoardUsecase{rep: rep_}
+}
+
 func GetBoards(userId uint) ([]models.Board, error) {
 	// достаю из БД доски по userId
 	var err error // обработка ошибки из бд
