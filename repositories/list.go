@@ -10,7 +10,7 @@ type ListRepository struct {
 	db *gorm.DB
 }
 
-func (listRepository *ListRepository) MakeRepository(db *gorm.DB) *ListRepository {
+func MakeListRepository(db *gorm.DB) *ListRepository {
 	return &ListRepository{db: db}
 }
 

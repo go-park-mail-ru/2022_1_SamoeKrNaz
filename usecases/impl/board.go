@@ -5,12 +5,12 @@ import (
 	"PLANEXA_backend/repositories"
 )
 
-type BoardUsecase struct {
+type BoardUseCaseImpl struct {
 	rep *repositories.BoardRepository
 }
 
-func MakeBoardUsecase(rep_ *repositories.BoardRepository) *BoardUsecase {
-	return &BoardUsecase{rep: rep_}
+func MakeBoardUsecase(rep_ *repositories.BoardRepository) *BoardUseCaseImpl {
+	return &BoardUseCaseImpl{rep: rep_}
 }
 
 func GetBoards(userId uint) ([]models.Board, error) {

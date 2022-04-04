@@ -2,7 +2,7 @@ package usecases
 
 import "PLANEXA_backend/models"
 
-type ListUsecase interface {
+type ListUseCase interface {
 	GetLists(boardId uint, userId uint) ([]models.List, error)
 	GetSingleList(listId uint, userId uint) (models.List, error)
 	CreateList(list models.List, userId uint) (uint, error)

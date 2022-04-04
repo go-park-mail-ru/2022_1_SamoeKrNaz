@@ -5,12 +5,12 @@ import (
 	"PLANEXA_backend/repositories"
 )
 
-type ListUsecase struct {
+type ListUseCaseImpl struct {
 	rep *repositories.ListRepository
 }
 
-func MakeListUsecase(rep_ *repositories.ListRepository) *ListUsecase {
-	return &ListUsecase{rep: rep_}
+func MakeListUsecase(rep_ *repositories.ListRepository) *ListUseCaseImpl {
+	return &ListUseCaseImpl{rep: rep_}
 }
 
 func GetLists(boardId uint, userId uint) ([]models.List, error) {

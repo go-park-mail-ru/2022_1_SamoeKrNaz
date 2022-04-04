@@ -4,7 +4,7 @@ import (
 	"PLANEXA_backend/models"
 )
 
-type UserUsecase interface {
+type UserUseCase interface {
 	Login(user models.User) (string, error)
 	Register(user models.User) (string, error)
 	Logout(token string) error

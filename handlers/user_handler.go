@@ -19,10 +19,10 @@ func generateSessionToken() string {
 }
 
 type UserHandler struct {
-	usecase *usecases.UserUsecase
+	usecase usecases.UserUseCase
 }
 
-func MakeUserHandler(usecase *usecases.UserUsecase) *UserHandler {
+func MakeUserHandler(usecase usecases.UserUseCase) *UserHandler {
 	return &UserHandler{usecase: usecase}
 }
 

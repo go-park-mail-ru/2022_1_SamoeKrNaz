@@ -11,7 +11,7 @@ type BoardRepository struct {
 	db *gorm.DB
 }
 
-func (boardRepository *BoardRepository) MakeRepository(db *gorm.DB) *BoardRepository {
+func MakeBoardRepository(db *gorm.DB) *BoardRepository {
 	return &BoardRepository{db: db}
 }
 

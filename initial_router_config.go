@@ -3,10 +3,48 @@ package main
 import (
 	"PLANEXA_backend/handlers"
 	"PLANEXA_backend/middleware"
+	"PLANEXA_backend/models"
+	planexa_redis "PLANEXA_backend/redis"
+	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/routes"
+	"PLANEXA_backend/usecases/impl"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
+
+func initDB() (*gorm.DB, error) {
+	db, err := gorm.Open(postgres.New(postgres.Config{
+		DSN:                  "host=localhost user=Planexa password=WEB21Planexa dbname=DB_Planexa port=5432",
+		PreferSimpleProtocol: true,
+	}), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+	err = db.AutoMigrate(&models.User{})
+	if err != nil {
+		return nil, err
+	}
+	err = db.AutoMigrate(&models.Board{})
+	if err != nil {
+		return nil, err
+	}
+	err = db.AutoMigrate(&models.List{})
+	if err != nil {
+		return nil, err
+	}
+	err = db.AutoMigrate(&models.Task{})
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
+}
+
+func initRedis() (client *planexa_redis.RedisConnect) {
+	client = planexa_redis.RedisConnect{}.ConnectToRedis()
+	return
+}
 
 func initRouter() *gin.Engine {
 	router := gin.Default()
@@ -16,6 +54,13 @@ func initRouter() *gin.Engine {
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowCredentials = true
 	router.Use(cors.New(config))
+
+	db, _ := initDB()
+	redis := initRedis()
+
+	// создание хендлера
+	userRepository := repositories.MakeUserRepository(db)
+	userHandler := handlers.MakeUserHandler(impl.MakeUserUsecase(userRepository, redis))
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{

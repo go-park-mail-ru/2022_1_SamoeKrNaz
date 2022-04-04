@@ -2,7 +2,7 @@ package usecases
 
 import "PLANEXA_backend/models"
 
-type TaskUsecase interface {
+type TaskUseCase interface {
 	GetTasks(listId uint, userId uint) ([]models.List, error)
 	GetSingleTask(listId uint, userId uint) (models.List, error)
 	CreateTask(list models.Task, userId uint) (uint, error)

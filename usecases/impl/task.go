@@ -5,7 +5,7 @@ import (
 	"PLANEXA_backend/repositories"
 )
 
-type TaskUsecase struct {
+type TaskUseCaseImpl struct {
 	rep *repositories.TaskRepository
 }
 

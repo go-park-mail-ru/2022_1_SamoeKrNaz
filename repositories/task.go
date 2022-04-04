@@ -10,7 +10,7 @@ type TaskRepository struct {
 	db *gorm.DB
 }
 
-func (taskRepository *TaskRepository) MakeRepository(db *gorm.DB) *TaskRepository {
+func MakeTaskRepository(db *gorm.DB) *TaskRepository {
 	return &TaskRepository{db: db}
 }
 
