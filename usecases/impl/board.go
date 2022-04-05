@@ -1,48 +1,79 @@
 package impl
 
 import (
+	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
+	"PLANEXA_backend/usecases"
+	"time"
 )
 
 type BoardUseCaseImpl struct {
 	rep *repositories.BoardRepository
 }
 
-func MakeBoardUsecase(rep_ *repositories.BoardRepository) *BoardUseCaseImpl {
+func MakeBoardUsecase(rep_ *repositories.BoardRepository) usecases.BoardUseCase {
 	return &BoardUseCaseImpl{rep: rep_}
 }
 
-func GetBoards(userId uint) ([]models.Board, error) {
+//++++++++++
+func (boardUseCase *BoardUseCaseImpl) GetBoards(userId uint) ([]models.Board, error) {
 	// достаю из БД доски по userId
-	var err error // обработка ошибки из бд
-	return models.BoardList, err
+	boards, err := boardUseCase.rep.GetUserBoards(userId)
+	if err != nil {
+		return nil, err
+	}
+	return boards, nil
 }
 
-func GetSingleBoard(boardId uint, userId uint) (models.Board, error) {
+//+++++++++
+func (boardUseCase *BoardUseCaseImpl) GetSingleBoard(boardId uint, userId uint) (models.Board, error) {
 	//проверить может ли юзер смотреть эту доску
 	// вызываю из бд получение доски
-	var err error
+	board, err := boardUseCase.rep.GetById(boardId)
+	if err != nil {
+		return models.Board{}, err
+	}
+
+	if board.IdU != userId {
+		return models.Board{}, customErrors.ErrUserHasntBoards
+	}
 	// обрабатываю ошибку
-	return models.Board{}, err
+	return *board, nil
 }
 
-func CreateBoard(userId uint, board models.Board) error {
+//++++++
+func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Board) error {
 	// добавляю в бд такую доску с привязкой к данному юзеру
-	var err error // обрабатываю ошибку из бд
+	board.DateCreated = time.Now().Format(time.RFC850)
+	board.IdU = userId
+	err := boardUseCase.rep.Create(board)
 	return err
 }
 
-func RefactorBoard(userId uint, board models.Board) error {
+//++++++
+func (boardUseCase *BoardUseCaseImpl) RefactorBoard(userId uint, board models.Board) error {
 	// проверяю есть ли доска с таким айди и может ли юзер её редачить
 	//вызываю репозиторий дляобновления доски
-	var err error // обрабатвываю ошибку
+	if board.IdU != userId {
+		return customErrors.ErrUnauthorized
+	}
+	err := boardUseCase.rep.Update(board)
 	return err
 }
 
-func DeleteBoard(boardId uint, userId uint) error {
+//+++++++++++
+func (boardUseCase *BoardUseCaseImpl) DeleteBoard(boardId uint, userId uint) error {
 	// проверяю есть ли такая доска и может ли юзер редачить её
 	// удаляю из бд
-	var err error
+	board, err := boardUseCase.rep.GetById(boardId)
+	if err != nil {
+		return customErrors.ErrBoardNotFound
+	}
+	if board.IdU != userId {
+		return customErrors.ErrUnauthorized
+	}
+
+	err = boardUseCase.rep.Delete(boardId)
 	return err
 }

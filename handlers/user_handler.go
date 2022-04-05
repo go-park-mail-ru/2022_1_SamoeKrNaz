@@ -5,7 +5,6 @@ import (
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/usecases"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"net/http"
 	"strconv"
 )
@@ -13,10 +12,6 @@ import (
 var (
 	CookieTime = 604800 // 3 days
 )
-
-func generateSessionToken() string {
-	return uuid.NewString()
-}
 
 type UserHandler struct {
 	usecase usecases.UserUseCase
@@ -26,7 +21,7 @@ func MakeUserHandler(usecase usecases.UserUseCase) *UserHandler {
 	return &UserHandler{usecase: usecase}
 }
 
-func (*UserHandler) Login(c *gin.Context) {
+func (userHandler *UserHandler) Login(c *gin.Context) {
 	var user models.User
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
@@ -36,7 +31,7 @@ func (*UserHandler) Login(c *gin.Context) {
 
 	// вызываю юзкейс
 
-	token, err := usecases.Login(user)
+	token, err := userHandler.usecase.Login(user)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -46,7 +41,7 @@ func (*UserHandler) Login(c *gin.Context) {
 	return
 }
 
-func (*UserHandler) Register(c *gin.Context) {
+func (userHandler *UserHandler) Register(c *gin.Context) {
 	var user models.User
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
@@ -56,7 +51,7 @@ func (*UserHandler) Register(c *gin.Context) {
 
 	//usecase
 
-	token, err := usecases.Register(user)
+	token, err := userHandler.usecase.Register(user)
 
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
@@ -68,7 +63,7 @@ func (*UserHandler) Register(c *gin.Context) {
 	return
 }
 
-func (*UserHandler) Logout(c *gin.Context) {
+func (userHandler *UserHandler) Logout(c *gin.Context) {
 	token, err := c.Cookie("token")
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -77,7 +72,7 @@ func (*UserHandler) Logout(c *gin.Context) {
 
 	//usecase
 
-	err = usecases.Logout(token)
+	err = userHandler.usecase.Logout(token)
 
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"err": err.Error()})
@@ -89,7 +84,7 @@ func (*UserHandler) Logout(c *gin.Context) {
 	return
 }
 
-func (*UserHandler) GetInfo(c *gin.Context) {
+func (userHandler *UserHandler) GetInfo(c *gin.Context) {
 	_, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -101,7 +96,7 @@ func (*UserHandler) GetInfo(c *gin.Context) {
 		return
 	}
 
-	user, err := usecases.GetInfo(uint(userId))
+	user, err := userHandler.usecase.GetInfo(uint(userId))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return

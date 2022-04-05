@@ -14,7 +14,7 @@ func MakeTaskRepository(db *gorm.DB) *TaskRepository {
 	return &TaskRepository{db: db}
 }
 
-func (taskRepository *TaskRepository) Create(task *models.Task, IdL uint, IdB uint) error {
+func (taskRepository *TaskRepository) Create(task models.Task, IdL uint, IdB uint) error {
 	task.IdL = IdL
 	task.IdB = IdB
 	var currentPosition int64
@@ -26,7 +26,13 @@ func (taskRepository *TaskRepository) Create(task *models.Task, IdL uint, IdB ui
 	return taskRepository.db.Create(task).Error
 }
 
-func (taskRepository *TaskRepository) Update(task *models.Task) error {
+func (taskRepository *TaskRepository) GetTasks(IdL uint) (*[]models.Task, error) {
+	tasks := new([]models.Task)
+	result := taskRepository.db.Where("id_b = ?", IdL).Find(tasks)
+	return tasks, result.Error
+}
+
+func (taskRepository *TaskRepository) Update(task models.Task) error {
 	currentData, err := taskRepository.GetById(task.IdT)
 	if err != nil {
 		return err

@@ -14,7 +14,7 @@ func MakeListRepository(db *gorm.DB) *ListRepository {
 	return &ListRepository{db: db}
 }
 
-func (listRepository *ListRepository) Create(list *models.List, IdB uint) error {
+func (listRepository *ListRepository) Create(list models.List, IdB uint) error {
 	list.IdB = IdB
 	var currentPosition int64
 	err := listRepository.db.Model(&models.List{}).Where("id_b = ?", list.IdB).Count(&currentPosition).Error
@@ -25,7 +25,7 @@ func (listRepository *ListRepository) Create(list *models.List, IdB uint) error 
 	return listRepository.db.Create(list).Error
 }
 
-func (listRepository *ListRepository) Update(list *models.List) error {
+func (listRepository *ListRepository) Update(list models.List) error {
 	currentData, err := listRepository.GetById(list.IdL)
 	if err != nil {
 		return err
@@ -83,6 +83,12 @@ func (listRepository *ListRepository) GetTasks(IdL uint) (*[]models.Task, error)
 	tasks := new([]models.Task)
 	result := listRepository.db.Where("id_l = ?", IdL).Find(tasks)
 	return tasks, result.Error
+}
+
+func (listRepository *ListRepository) GetLists(IdB uint) ([]models.List, error) {
+	lists := new([]models.List)
+	result := listRepository.db.Where("id_b = ?", IdB).Find(lists)
+	return *lists, result.Error
 }
 
 func (listRepository *ListRepository) GetById(IdL uint) (*models.List, error) {

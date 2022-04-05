@@ -10,14 +10,14 @@ import (
 )
 
 type ListHandler struct {
-	usecase *usecases.ListUsecase
+	usecase usecases.ListUseCase
 }
 
-func MakeListHandler(usecase_ *usecases.ListUsecase) *ListHandler {
+func MakeListHandler(usecase_ usecases.ListUseCase) *ListHandler {
 	return &ListHandler{usecase: usecase_}
 }
 
-func (*ListHandler) GetLists(c *gin.Context) {
+func (listHandler *ListHandler) GetLists(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -30,7 +30,7 @@ func (*ListHandler) GetLists(c *gin.Context) {
 		return
 	}
 
-	lists, err := usecases.GetLists(uint(boardId), userId.(uint))
+	lists, err := listHandler.usecase.GetLists(uint(boardId), userId.(uint))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -39,7 +39,7 @@ func (*ListHandler) GetLists(c *gin.Context) {
 	return
 }
 
-func (*ListHandler) GetSingleList(c *gin.Context) {
+func (listHandler *ListHandler) GetSingleList(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -52,7 +52,7 @@ func (*ListHandler) GetSingleList(c *gin.Context) {
 		return
 	}
 
-	list, err := usecases.GetSingleList(uint(listId), userId.(uint))
+	list, err := listHandler.usecase.GetSingleList(uint(listId), userId.(uint))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -61,8 +61,8 @@ func (*ListHandler) GetSingleList(c *gin.Context) {
 	return
 }
 
-func (*ListHandler) CreateList(c *gin.Context) {
-	userId, check := c.Get("Auth")
+func (listHandler *ListHandler) CreateList(c *gin.Context) {
+	_, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
@@ -75,7 +75,13 @@ func (*ListHandler) CreateList(c *gin.Context) {
 		return
 	}
 
-	listId, err := usecases.CreateList(list, userId.(uint))
+	boardId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	listId, err := listHandler.usecase.CreateList(list, uint(boardId))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -84,7 +90,7 @@ func (*ListHandler) CreateList(c *gin.Context) {
 	return
 }
 
-func (*ListHandler) RefactorList(c *gin.Context) {
+func (listHandler *ListHandler) RefactorList(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -104,7 +110,7 @@ func (*ListHandler) RefactorList(c *gin.Context) {
 		return
 	}
 
-	err = usecases.RefactorList(list, userId.(uint), uint(listId))
+	err = listHandler.usecase.RefactorList(list, userId.(uint), uint(listId))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -113,7 +119,7 @@ func (*ListHandler) RefactorList(c *gin.Context) {
 	return
 }
 
-func (*ListHandler) DeleteList(c *gin.Context) {
+func (listHandler *ListHandler) DeleteList(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -127,7 +133,7 @@ func (*ListHandler) DeleteList(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	err = usecases.DeleteList(uint(listId), userId.(uint))
+	err = listHandler.usecase.DeleteList(uint(listId), userId.(uint))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return

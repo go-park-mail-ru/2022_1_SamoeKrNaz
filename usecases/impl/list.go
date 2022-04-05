@@ -3,44 +3,51 @@ package impl
 import (
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
+	"PLANEXA_backend/usecases"
 )
 
 type ListUseCaseImpl struct {
 	rep *repositories.ListRepository
 }
 
-func MakeListUsecase(rep_ *repositories.ListRepository) *ListUseCaseImpl {
+func MakeListUsecase(rep_ *repositories.ListRepository) usecases.ListUseCase {
 	return &ListUseCaseImpl{rep: rep_}
 }
 
-func GetLists(boardId uint, userId uint) ([]models.List, error) {
+func (listUseCase *ListUseCaseImpl) GetLists(boardId uint, userId uint) ([]models.List, error) {
 	// достаю все списки тасков из БД по айди доски
-	var err error
-	return []models.List{}, err
+	lists, err := listUseCase.rep.GetLists(boardId)
+	return lists, err
 }
 
-func GetSingleList(listId uint, userId uint) (models.List, error) {
+func (listUseCase *ListUseCaseImpl) GetSingleList(listId uint) (models.List, error) {
 	// доставю список из бд
-	var err error
-	return models.List{}, err
+	list, err := listUseCase.rep.GetById(listId)
+	return *list, err
 }
 
-func CreateList(list models.List, userId uint) (uint, error) {
+func (listUseCase *ListUseCaseImpl) CreateList(list models.List, boardId uint) (uint, error) {
 	// создаю список в бд, получаю айди листа
-	var err error
+	err := listUseCase.rep.Create(list, boardId)
+
 	return 0, err
 }
 
-func RefactorList(list models.List, userId uint, boardId uint) error {
+func (listUseCase *ListUseCaseImpl) RefactorList(list models.List, userId uint, boardId uint) error {
 	// проверяю может ли юзер редачить
 	// вношу изменения в бд
-	var err error
+	err := listUseCase.rep.Update(list)
 	return err
 }
 
-func DeleteList(listId uint, userId uint) error {
+func (listUseCase *ListUseCaseImpl) DeleteList(listId uint, userId uint) error {
 	// проверяю есть ли такой лист и может ли юзер удалить его
 	// удаляю список
-	var err error
+	_, err := listUseCase.rep.GetById(listId)
+	if err != nil {
+		return err
+	}
+
+	err = listUseCase.rep.Delete(listId)
 	return err
 }
