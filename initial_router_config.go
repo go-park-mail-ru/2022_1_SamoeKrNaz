@@ -4,7 +4,7 @@ import (
 	"PLANEXA_backend/handlers"
 	"PLANEXA_backend/middleware"
 	"PLANEXA_backend/models"
-	planexa_redis "PLANEXA_backend/redis"
+	"PLANEXA_backend/redis"
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/routes"
 	"PLANEXA_backend/usecases/impl"
@@ -26,11 +26,6 @@ func initDB() (*gorm.DB, error) {
 	return db, nil
 }
 
-func initRedis() (client *planexa_redis.RedisConnect) {
-	client = planexa_redis.ConnectToRedis()
-	return
-}
-
 func initRouter() *gin.Engine {
 	router := gin.Default()
 
@@ -44,7 +39,7 @@ func initRouter() *gin.Engine {
 	if err != nil {
 		return nil
 	}
-	redis := initRedis()
+	redis := planexa_redis.ConnectToRedis()
 
 	// создание репозиториев
 	userRepository := repositories.MakeUserRepository(db)

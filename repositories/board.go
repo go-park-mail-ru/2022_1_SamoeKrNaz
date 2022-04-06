@@ -63,3 +63,14 @@ func (boardRepository *BoardRepository) GetById(IdB uint) (*models.Board, error)
 	// иначе вернем доску
 	return board, nil
 }
+
+func (boardRepository *BoardRepository) AccessToBoard(IdU uint, IdB uint) (bool, error) {
+	boards := new(models.Board)
+	err := boardRepository.db.Model(&models.User{IdU: IdU}).Where("id_b = ?", IdB).Association("Boards").Find(boards)
+	if err != nil {
+		return false, err
+	} else if boards == nil {
+		return false, err
+	}
+	return true, nil
+}
