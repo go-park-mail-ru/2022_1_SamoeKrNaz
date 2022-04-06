@@ -34,8 +34,10 @@ func (userUseCase *UserUseCaseImpl) Login(user models.User) (string, error) {
 	token := generateSessionToken()
 	err = userUseCase.red.SetSession(models.Session{UserId: user.IdU, CookieValue: token})
 	// сохраняю сессию в бд и возвращаю token
-
-	return token, err
+	if err != nil {
+		return "", err
+	}
+	return token, nil
 }
 
 func (userUseCase *UserUseCaseImpl) Register(user models.User) (string, error) {
@@ -67,8 +69,7 @@ func (userUseCase *UserUseCaseImpl) Register(user models.User) (string, error) {
 }
 
 func (userUseCase *UserUseCaseImpl) Logout(token string) error {
-	err := userUseCase.red.DeleteSession(token)
-	return err
+	return userUseCase.red.DeleteSession(token)
 }
 
 func (userUseCase *UserUseCaseImpl) GetInfo(userId uint) (models.User, error) {

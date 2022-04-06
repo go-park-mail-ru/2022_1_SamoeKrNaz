@@ -16,7 +16,6 @@ func MakeBoardUsecase(rep_ *repositories.BoardRepository) usecases.BoardUseCase 
 	return &BoardUseCaseImpl{rep: rep_}
 }
 
-//++++++++++
 func (boardUseCase *BoardUseCaseImpl) GetBoards(userId uint) ([]models.Board, error) {
 	// достаю из БД доски по userId
 	boards, err := boardUseCase.rep.GetUserBoards(userId)
@@ -26,7 +25,6 @@ func (boardUseCase *BoardUseCaseImpl) GetBoards(userId uint) ([]models.Board, er
 	return boards, nil
 }
 
-//+++++++++
 func (boardUseCase *BoardUseCaseImpl) GetSingleBoard(boardId uint, userId uint) (models.Board, error) {
 	//проверить может ли юзер смотреть эту доску
 	// вызываю из бд получение доски
@@ -42,7 +40,6 @@ func (boardUseCase *BoardUseCaseImpl) GetSingleBoard(boardId uint, userId uint) 
 	return *board, nil
 }
 
-//++++++
 func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Board) error {
 	// добавляю в бд такую доску с привязкой к данному юзеру
 	board.DateCreated = time.Now().Format(time.RFC850)
@@ -51,7 +48,6 @@ func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Boar
 	return err
 }
 
-//++++++
 func (boardUseCase *BoardUseCaseImpl) RefactorBoard(userId uint, board models.Board) error {
 	// проверяю есть ли доска с таким айди и может ли юзер её редачить
 	//вызываю репозиторий дляобновления доски
@@ -62,7 +58,6 @@ func (boardUseCase *BoardUseCaseImpl) RefactorBoard(userId uint, board models.Bo
 	return err
 }
 
-//+++++++++++
 func (boardUseCase *BoardUseCaseImpl) DeleteBoard(boardId uint, userId uint) error {
 	// проверяю есть ли такая доска и может ли юзер редачить её
 	// удаляю из бд
@@ -71,7 +66,7 @@ func (boardUseCase *BoardUseCaseImpl) DeleteBoard(boardId uint, userId uint) err
 		return customErrors.ErrBoardNotFound
 	}
 	if board.IdU != userId {
-		return customErrors.ErrUnauthorized
+		return customErrors.ErrAccess
 	}
 
 	err = boardUseCase.rep.Delete(boardId)

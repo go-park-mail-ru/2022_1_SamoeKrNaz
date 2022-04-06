@@ -15,26 +15,11 @@ import (
 )
 
 func initDB() (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.New(postgres.Config{
-		DSN:                  "host=localhost user=Planexa password=WEB21Planexa dbname=DB_Planexa port=5432",
-		PreferSimpleProtocol: true,
-	}), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open("host=localhost user=Planexa password=WEB21Planexa dbname=DB_Planexa port=5432"))
 	if err != nil {
 		return nil, err
 	}
-	err = db.AutoMigrate(&models.User{})
-	if err != nil {
-		return nil, err
-	}
-	err = db.AutoMigrate(&models.Board{})
-	if err != nil {
-		return nil, err
-	}
-	err = db.AutoMigrate(&models.List{})
-	if err != nil {
-		return nil, err
-	}
-	err = db.AutoMigrate(&models.Task{})
+	err = db.AutoMigrate(&models.User{}, &models.Board{}, &models.List{}, &models.Task{})
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +27,7 @@ func initDB() (*gorm.DB, error) {
 }
 
 func initRedis() (client *planexa_redis.RedisConnect) {
-	client = planexa_redis.RedisConnect{}.ConnectToRedis()
+	client = planexa_redis.ConnectToRedis()
 	return
 }
 
@@ -55,10 +40,13 @@ func initRouter() *gin.Engine {
 	config.AllowCredentials = true
 	router.Use(cors.New(config))
 
-	db, _ := initDB()
+	db, err := initDB()
+	if err != nil {
+		return nil
+	}
 	redis := initRedis()
 
-	// создание хендлера
+	// создание репозиториев
 	userRepository := repositories.MakeUserRepository(db)
 	taskRepository := repositories.MakeTaskRepository(db)
 	listRepository := repositories.MakeListRepository(db)
