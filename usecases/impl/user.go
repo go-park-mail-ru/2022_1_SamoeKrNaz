@@ -75,6 +75,7 @@ func (userUseCase *UserUseCaseImpl) Logout(token string) error {
 func (userUseCase *UserUseCaseImpl) GetInfo(userId uint) (models.User, error) {
 	// получаю из бд всю инфу по айдишнику кроме пароля
 	user, err := userUseCase.rep.GetUserById(userId)
+	user.Password = ""
 	return *user, err
 }
 
