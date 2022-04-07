@@ -28,7 +28,7 @@ func (taskRepository *TaskRepository) Create(task models.Task, IdL uint, IdB uin
 
 func (taskRepository *TaskRepository) GetTasks(IdL uint) (*[]models.Task, error) {
 	tasks := new([]models.Task)
-	result := taskRepository.db.Where("id_b = ?", IdL).Find(tasks)
+	result := taskRepository.db.Where("id_l = ?", IdL).Find(tasks)
 	return tasks, result.Error
 }
 

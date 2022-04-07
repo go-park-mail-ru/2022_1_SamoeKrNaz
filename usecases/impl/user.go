@@ -7,7 +7,6 @@ import (
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/usecases"
 	"PLANEXA_backend/utils"
-	"github.com/google/uuid"
 )
 
 type UserUseCaseImpl struct {
@@ -31,7 +30,7 @@ func (userUseCase *UserUseCaseImpl) Login(user models.User) (string, error) {
 		return "", customErrors.ErrUnauthorized
 	}
 
-	token := generateSessionToken()
+	token := utils.GenerateSessionToken()
 	err = userUseCase.red.SetSession(models.Session{UserId: user.IdU, CookieValue: token})
 	// сохраняю сессию в бд и возвращаю token
 	if err != nil {
@@ -62,7 +61,7 @@ func (userUseCase *UserUseCaseImpl) Register(user models.User) (string, error) {
 		return "", err
 	}
 
-	token := generateSessionToken()
+	token := utils.GenerateSessionToken()
 	err = userUseCase.red.SetSession(models.Session{UserId: user.IdU, CookieValue: token})
 	// возвращаю токен и ошибку
 	return token, err
@@ -77,8 +76,4 @@ func (userUseCase *UserUseCaseImpl) GetInfo(userId uint) (models.User, error) {
 	user, err := userUseCase.rep.GetUserById(userId)
 	user.Password = ""
 	return *user, err
-}
-
-func generateSessionToken() string {
-	return uuid.NewString()
 }

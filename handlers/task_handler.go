@@ -62,7 +62,7 @@ func (taskHandler *TaskHandler) GetSingleTask(c *gin.Context) {
 }
 
 func (taskHandler *TaskHandler) CreateTask(c *gin.Context) {
-	_, check := c.Get("Auth")
+	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
@@ -87,7 +87,7 @@ func (taskHandler *TaskHandler) CreateTask(c *gin.Context) {
 		return
 	}
 
-	taskId, err := taskHandler.usecase.CreateTask(list, uint(boardId), uint(listId))
+	taskId, err := taskHandler.usecase.CreateTask(list, uint(boardId), uint(listId), userId.(uint))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return

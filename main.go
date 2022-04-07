@@ -4,13 +4,13 @@ import "fmt"
 
 func main() {
 
-	router := initRouter()
-	if router == nil {
-		_ = fmt.Errorf("Db error")
+	router, err := initRouter()
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
-	err := router.Run(":8080")
+	err = router.Run(":8080")
 	if err != nil {
 		fmt.Println(err.Error())
 		return

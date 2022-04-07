@@ -28,15 +28,16 @@ func (boardUseCase *BoardUseCaseImpl) GetBoards(userId uint) ([]models.Board, er
 func (boardUseCase *BoardUseCaseImpl) GetSingleBoard(boardId uint, userId uint) (models.Board, error) {
 	//проверить может ли юзер смотреть эту доску
 	// вызываю из бд получение доски
+	isAccess, err := boardUseCase.rep.IsAccessToBoard(userId, boardId)
+	if isAccess == false {
+		return models.Board{}, customErrors.ErrNoAccess
+	}
+
 	board, err := boardUseCase.rep.GetById(boardId)
 	if err != nil {
 		return models.Board{}, err
 	}
 
-	if board.IdU != userId {
-		return models.Board{}, customErrors.ErrUserHasntBoards
-	}
-	// обрабатываю ошибку
 	return *board, nil
 }
 
@@ -50,25 +51,22 @@ func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Boar
 
 func (boardUseCase *BoardUseCaseImpl) RefactorBoard(userId uint, board models.Board) error {
 	// проверяю есть ли доска с таким айди и может ли юзер её редачить
-	//вызываю репозиторий дляобновления доски
-	if board.IdU != userId {
-		return customErrors.ErrUnauthorized
+	//вызываю репозиторий для обновления доски
+	isAccess, err := boardUseCase.rep.IsAccessToBoard(userId, board.IdB)
+	if isAccess == false {
+		return customErrors.ErrNoAccess
 	}
-	err := boardUseCase.rep.Update(board)
+	err = boardUseCase.rep.Update(board)
 	return err
 }
 
 func (boardUseCase *BoardUseCaseImpl) DeleteBoard(boardId uint, userId uint) error {
 	// проверяю есть ли такая доска и может ли юзер редачить её
 	// удаляю из бд
-	board, err := boardUseCase.rep.GetById(boardId)
-	if err != nil {
-		return customErrors.ErrBoardNotFound
+	isAccess, err := boardUseCase.rep.IsAccessToBoard(userId, boardId)
+	if isAccess == false {
+		return customErrors.ErrNoAccess
 	}
-	if board.IdU != userId {
-		return customErrors.ErrAccess
-	}
-
 	err = boardUseCase.rep.Delete(boardId)
 	return err
 }

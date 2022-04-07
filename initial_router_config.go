@@ -26,7 +26,7 @@ func initDB() (*gorm.DB, error) {
 	return db, nil
 }
 
-func initRouter() *gin.Engine {
+func initRouter() (*gin.Engine, error) {
 	router := gin.Default()
 
 	config := cors.DefaultConfig()
@@ -37,7 +37,7 @@ func initRouter() *gin.Engine {
 
 	db, err := initDB()
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	redis := planexa_redis.ConnectToRedis()
 
@@ -63,7 +63,6 @@ func initRouter() *gin.Engine {
 			boardRoutes.GET("/:id"+routes.ListRoute, middleware.CheckAuth, listHandler.GetLists)
 			boardRoutes.POST("/:id"+routes.ListRoute, middleware.CheckAuth, listHandler.CreateList)
 			boardRoutes.POST("/:idB"+routes.ListRoute+"/:idL"+routes.TaskRoute, middleware.CheckAuth, taskHandler.CreateTask)
-
 		}
 		listRoutes := router.Group(routes.ListRoute)
 		{
@@ -83,7 +82,6 @@ func initRouter() *gin.Engine {
 		mainRoutes.POST(routes.RegisterRoute, userHandler.Register)
 		mainRoutes.DELETE(routes.LogoutRoute, userHandler.Logout)
 		mainRoutes.GET(routes.ProfileRoute+"/:id", middleware.CheckAuth, userHandler.GetInfo)
-
 	}
-	return router
+	return router, nil
 }

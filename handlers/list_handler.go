@@ -62,7 +62,7 @@ func (listHandler *ListHandler) GetSingleList(c *gin.Context) {
 }
 
 func (listHandler *ListHandler) CreateList(c *gin.Context) {
-	_, check := c.Get("Auth")
+	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
@@ -81,7 +81,7 @@ func (listHandler *ListHandler) CreateList(c *gin.Context) {
 		return
 	}
 
-	listId, err := listHandler.usecase.CreateList(list, uint(boardId))
+	listId, err := listHandler.usecase.CreateList(list, uint(boardId), userId.(uint))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return

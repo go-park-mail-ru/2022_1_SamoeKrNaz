@@ -107,6 +107,8 @@ func (listRepository *ListRepository) GetById(IdL uint) (*models.List, error) {
 	}
 }
 
-func (listRepository *ListRepository) ChangePosition(currentPosition, newPosition uint) {
-
+func (listRepository *ListRepository) GetBoard(IdL uint) (*models.Board, error) {
+	board := new(models.Board)
+	result := listRepository.db.Where("id_l = ?", IdL).Find(board)
+	return board, result.Error
 }

@@ -12,7 +12,6 @@ var (
 	ErrUsernameExist    = errors.New("this username already exists")
 	ErrUsernameNotExist = errors.New("this username doesn`t exists")
 	ErrUserNotFound     = errors.New("this user is not found")
-	ErrUserHasntBoards  = errors.New("this user hasn`t boards")
 
 	ErrShortPassword = errors.New("password should be longer than 6 characters")
 	ErrLatinPassword = errors.New("password should contains Latin characters and numbers")
@@ -22,7 +21,7 @@ var (
 	ErrListNotFound = errors.New("this list is not found")
 
 	ErrTaskNotFound = errors.New("this task is not found")
-	ErrAccess       = errors.New("user doesn't have access")
+	ErrNoAccess     = errors.New("user doesn't have access")
 )
 
 var errorToCode = map[error]int{
@@ -40,9 +39,9 @@ var errorToCode = map[error]int{
 
 	ErrListNotFound: http.StatusNotFound,
 
-	ErrTaskNotFound:    http.StatusNotFound,
-	ErrUserHasntBoards: http.StatusForbidden,
-	ErrAccess:          http.StatusForbidden,
+	ErrTaskNotFound: http.StatusNotFound,
+
+	ErrNoAccess: http.StatusForbidden,
 }
 
 func ConvertErrorToCode(err error) (code int) {
