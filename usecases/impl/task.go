@@ -10,26 +10,26 @@ import (
 type TaskUseCaseImpl struct {
 	repTask  *repositories.TaskRepository
 	repBoard *repositories.BoardRepository
+	repList  *repositories.ListRepository
 }
 
-func MakeTaskUsecase(repTask_ *repositories.TaskRepository, repBoard_ *repositories.BoardRepository) usecases.TaskUseCase {
-	return &TaskUseCaseImpl{repTask: repTask_, repBoard: repBoard_}
+func MakeTaskUsecase(repTask_ *repositories.TaskRepository, repBoard_ *repositories.BoardRepository, repList_ *repositories.ListRepository) usecases.TaskUseCase {
+	return &TaskUseCaseImpl{repTask: repTask_, repBoard: repBoard_, repList: repList_}
 }
 
 func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models.Task, error) {
-	// достаю все таски из БД по айди доски, чтобы в дальнейшем использовать айдишник доски
-	tasks, err := taskUseCase.repTask.GetTasks(listId)
+	// достаю список из бд, чтобы получить айдишник доски
+	list, err := taskUseCase.repList.GetById(listId)
 	if err != nil {
 		return nil, err
-	} else if len(*tasks) == 0 {
-		return nil, customErrors.ErrTaskNotFound
 	}
-	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, (*tasks)[0].IdB)
+	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, list.IdB)
 	if err != nil {
 		return nil, err
 	} else if isAccess == false {
 		return nil, customErrors.ErrNoAccess
 	}
+	tasks, err := taskUseCase.repTask.GetTasks(listId)
 	return *tasks, err
 }
 
@@ -56,8 +56,8 @@ func (taskUseCase *TaskUseCaseImpl) CreateTask(task models.Task, idB uint, idL u
 		return 0, customErrors.ErrNoAccess
 	}
 	// создаю таск в бд, получаю айди таска
-	err = taskUseCase.repTask.Create(&task, idL, idB)
-	return 0, err
+	taskId, err := taskUseCase.repTask.Create(&task, idL, idB)
+	return taskId, err
 }
 
 func (taskUseCase *TaskUseCaseImpl) RefactorTask(task models.Task, userId uint, listId uint) error {

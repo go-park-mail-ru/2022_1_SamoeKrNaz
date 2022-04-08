@@ -71,12 +71,12 @@ func (boardHandler *BoardHandler) CreateBoard(c *gin.Context) {
 		return
 	}
 
-	err = boardHandler.usecase.CreateBoard(userId.(uint), board)
+	boardId, err := boardHandler.usecase.CreateBoard(userId.(uint), board)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"boardId": board.IdB})
+	c.JSON(http.StatusCreated, gin.H{"boardId": boardId})
 	return
 }
 

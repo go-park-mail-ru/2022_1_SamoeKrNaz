@@ -52,8 +52,8 @@ func (listUseCase *ListUseCaseImpl) CreateList(list models.List, boardId uint, u
 	} else if isAccess == false {
 		return 0, customErrors.ErrNoAccess
 	}
-	err = listUseCase.repList.Create(&list, boardId)
-	return 0, err
+	listId, err := listUseCase.repList.Create(&list, boardId)
+	return listId, err
 }
 
 func (listUseCase *ListUseCaseImpl) RefactorList(list models.List, userId uint, boardId uint) error {

@@ -14,16 +14,17 @@ func MakeTaskRepository(db *gorm.DB) *TaskRepository {
 	return &TaskRepository{db: db}
 }
 
-func (taskRepository *TaskRepository) Create(task *models.Task, IdL uint, IdB uint) error {
+func (taskRepository *TaskRepository) Create(task *models.Task, IdL uint, IdB uint) (uint, error) {
 	task.IdL = IdL
 	task.IdB = IdB
 	var currentPosition int64
 	err := taskRepository.db.Model(&models.Task{}).Where("id_l = ?", task.IdL).Count(&currentPosition).Error
 	if err != nil {
-		return err
+		return 0, err
 	}
 	task.Position = uint(currentPosition) + 1
-	return taskRepository.db.Create(task).Error
+	err = taskRepository.db.Create(task).Error
+	return task.IdT, err
 }
 
 func (taskRepository *TaskRepository) GetTasks(IdL uint) (*[]models.Task, error) {

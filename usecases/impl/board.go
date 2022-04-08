@@ -43,12 +43,12 @@ func (boardUseCase *BoardUseCaseImpl) GetSingleBoard(boardId uint, userId uint) 
 	return *board, nil
 }
 
-func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Board) error {
+func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Board) (uint, error) {
 	// добавляю в бд такую доску с привязкой к данному юзеру
 	board.DateCreated = time.Now().Format(time.RFC850)
 	board.IdU = userId
-	err := boardUseCase.rep.Create(&board)
-	return err
+	boardId, err := boardUseCase.rep.Create(&board)
+	return boardId, err
 }
 
 func (boardUseCase *BoardUseCaseImpl) RefactorBoard(userId uint, board models.Board) error {

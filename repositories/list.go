@@ -14,15 +14,16 @@ func MakeListRepository(db *gorm.DB) *ListRepository {
 	return &ListRepository{db: db}
 }
 
-func (listRepository *ListRepository) Create(list *models.List, IdB uint) error {
+func (listRepository *ListRepository) Create(list *models.List, IdB uint) (uint, error) {
 	list.IdB = IdB
 	var currentPosition int64
 	err := listRepository.db.Model(&models.List{}).Where("id_b = ?", list.IdB).Count(&currentPosition).Error
 	if err != nil {
-		return err
+		return 0, err
 	}
 	list.Position = uint(currentPosition) + 1
-	return listRepository.db.Create(list).Error
+	err = listRepository.db.Create(list).Error
+	return list.IdL, listRepository.db.Create(list).Error
 }
 
 func (listRepository *ListRepository) Update(list models.List) error {
@@ -108,7 +109,19 @@ func (listRepository *ListRepository) GetById(IdL uint) (*models.List, error) {
 }
 
 func (listRepository *ListRepository) GetBoard(IdL uint) (*models.Board, error) {
+	list, err := listRepository.GetById(IdL)
+	if err != nil {
+		return nil, err
+	}
 	board := new(models.Board)
-	result := listRepository.db.Where("id_l = ?", IdL).Find(board)
-	return board, result.Error
+	result := listRepository.db.Find(board, list.IdB)
+	// если выборка в 0 строк, то такой доски нет
+	if result.RowsAffected == 0 {
+		return nil, customErrors.ErrBoardNotFound
+	} else if result.Error != nil {
+		// если произошла ошибка при выборке
+		return nil, result.Error
+	}
+	// иначе вернем доску
+	return board, nil
 }
