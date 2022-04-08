@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	customErrors "PLANEXA_backend/errors"
+	"PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
 	"gorm.io/gorm"
 )
@@ -14,7 +14,7 @@ func MakeListRepository(db *gorm.DB) *ListRepository {
 	return &ListRepository{db: db}
 }
 
-func (listRepository *ListRepository) Create(list models.List, IdB uint) error {
+func (listRepository *ListRepository) Create(list *models.List, IdB uint) error {
 	list.IdB = IdB
 	var currentPosition int64
 	err := listRepository.db.Model(&models.List{}).Where("id_b = ?", list.IdB).Count(&currentPosition).Error

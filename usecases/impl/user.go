@@ -56,7 +56,7 @@ func (userUseCase *UserUseCaseImpl) Register(user models.User) (string, error) {
 
 	// добавляю юзера в бд и создаю токен для него, добавляю в бд сессию
 
-	err = userUseCase.rep.Create(user)
+	err = userUseCase.rep.Create(&user)
 	if err != nil {
 		return "", err
 	}

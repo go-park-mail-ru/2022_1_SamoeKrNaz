@@ -20,8 +20,14 @@ func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models
 	// достаю все таски из БД по айди доски, чтобы в дальнейшем использовать айдишник доски
 	tasks, err := taskUseCase.repTask.GetTasks(listId)
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, (*tasks)[0].IdB)
+	if err != nil {
+		return nil, err
+	}
 	if isAccess == false {
 		return nil, customErrors.ErrNoAccess
+	}
+	if len(*tasks) == 0 {
+		return nil, customErrors.ErrTaskNotFound
 	}
 	return *tasks, err
 }
@@ -42,7 +48,7 @@ func (taskUseCase *TaskUseCaseImpl) CreateTask(task models.Task, idB uint, idL u
 		return 0, customErrors.ErrNoAccess
 	}
 	// создаю таск в бд, получаю айди таска
-	err = taskUseCase.repTask.Create(task, idL, idB)
+	err = taskUseCase.repTask.Create(&task, idL, idB)
 	return 0, err
 }
 

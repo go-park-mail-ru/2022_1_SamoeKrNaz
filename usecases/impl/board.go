@@ -29,6 +29,9 @@ func (boardUseCase *BoardUseCaseImpl) GetSingleBoard(boardId uint, userId uint) 
 	//проверить может ли юзер смотреть эту доску
 	// вызываю из бд получение доски
 	isAccess, err := boardUseCase.rep.IsAccessToBoard(userId, boardId)
+	if err != nil {
+		return models.Board{}, err
+	}
 	if isAccess == false {
 		return models.Board{}, customErrors.ErrNoAccess
 	}
@@ -45,7 +48,7 @@ func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Boar
 	// добавляю в бд такую доску с привязкой к данному юзеру
 	board.DateCreated = time.Now().Format(time.RFC850)
 	board.IdU = userId
-	err := boardUseCase.rep.Create(board)
+	err := boardUseCase.rep.Create(&board)
 	return err
 }
 
@@ -53,6 +56,9 @@ func (boardUseCase *BoardUseCaseImpl) RefactorBoard(userId uint, board models.Bo
 	// проверяю есть ли доска с таким айди и может ли юзер её редачить
 	//вызываю репозиторий для обновления доски
 	isAccess, err := boardUseCase.rep.IsAccessToBoard(userId, board.IdB)
+	if err != nil {
+		return err
+	}
 	if isAccess == false {
 		return customErrors.ErrNoAccess
 	}
@@ -64,6 +70,9 @@ func (boardUseCase *BoardUseCaseImpl) DeleteBoard(boardId uint, userId uint) err
 	// проверяю есть ли такая доска и может ли юзер редачить её
 	// удаляю из бд
 	isAccess, err := boardUseCase.rep.IsAccessToBoard(userId, boardId)
+	if err != nil {
+		return err
+	}
 	if isAccess == false {
 		return customErrors.ErrNoAccess
 	}

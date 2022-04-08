@@ -15,7 +15,7 @@ func MakeUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
-func (userRepository *UserRepository) Create(user models.User) error {
+func (userRepository *UserRepository) Create(user *models.User) error {
 	// проверка на уже существующего пользователя
 	// пароли нужно хранить скрытно, поэтому хешируем
 	hashPassword, err := hash.HashPassword(user.Password)

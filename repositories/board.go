@@ -14,7 +14,7 @@ func MakeBoardRepository(db *gorm.DB) *BoardRepository {
 	return &BoardRepository{db: db}
 }
 
-func (boardRepository *BoardRepository) Create(board models.Board) error {
+func (boardRepository *BoardRepository) Create(board *models.Board) error {
 	return boardRepository.db.Create(board).Error
 }
 

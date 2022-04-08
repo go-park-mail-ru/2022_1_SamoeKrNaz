@@ -19,6 +19,9 @@ func MakeListUsecase(repList_ *repositories.ListRepository, repBoard_ *repositor
 func (listUseCase *ListUseCaseImpl) GetLists(boardId uint, userId uint) ([]models.List, error) {
 	// достаю все списки тасков из БД по айди доски
 	isAccess, err := listUseCase.repBoard.IsAccessToBoard(userId, boardId)
+	if err != nil {
+		return nil, err
+	}
 	if isAccess == false {
 		return nil, customErrors.ErrNoAccess
 	}
@@ -33,6 +36,9 @@ func (listUseCase *ListUseCaseImpl) GetSingleList(listId uint, userId uint) (mod
 		return models.List{}, err
 	}
 	isAccess, err := listUseCase.repBoard.IsAccessToBoard(userId, board.IdB)
+	if err != nil {
+		return models.List{}, err
+	}
 	if isAccess == false {
 		return models.List{}, customErrors.ErrNoAccess
 	}
@@ -43,10 +49,13 @@ func (listUseCase *ListUseCaseImpl) GetSingleList(listId uint, userId uint) (mod
 func (listUseCase *ListUseCaseImpl) CreateList(list models.List, boardId uint, userId uint) (uint, error) {
 	// создаю список в бд, получаю айди листа
 	isAccess, err := listUseCase.repBoard.IsAccessToBoard(userId, boardId)
+	if err != nil {
+		return 0, err
+	}
 	if isAccess == false {
 		return 0, customErrors.ErrNoAccess
 	}
-	err = listUseCase.repList.Create(list, boardId)
+	err = listUseCase.repList.Create(&list, boardId)
 	return 0, err
 }
 
@@ -54,6 +63,9 @@ func (listUseCase *ListUseCaseImpl) RefactorList(list models.List, userId uint, 
 	// проверяю может ли юзер редачить
 	// вношу изменения в бд
 	isAccess, err := listUseCase.repBoard.IsAccessToBoard(userId, boardId)
+	if err != nil {
+		return err
+	}
 	if isAccess == false {
 		return customErrors.ErrNoAccess
 	}
@@ -69,6 +81,9 @@ func (listUseCase *ListUseCaseImpl) DeleteList(listId uint, userId uint) error {
 		return err
 	}
 	isAccess, err := listUseCase.repBoard.IsAccessToBoard(userId, board.IdB)
+	if err != nil {
+		return err
+	}
 	if isAccess == false {
 		return customErrors.ErrNoAccess
 	}
