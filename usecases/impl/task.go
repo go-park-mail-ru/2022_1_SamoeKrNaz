@@ -19,15 +19,16 @@ func MakeTaskUsecase(repTask_ *repositories.TaskRepository, repBoard_ *repositor
 func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models.Task, error) {
 	// достаю все таски из БД по айди доски, чтобы в дальнейшем использовать айдишник доски
 	tasks, err := taskUseCase.repTask.GetTasks(listId)
+	if err != nil {
+		return nil, err
+	} else if len(*tasks) == 0 {
+		return nil, customErrors.ErrTaskNotFound
+	}
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, (*tasks)[0].IdB)
 	if err != nil {
 		return nil, err
-	}
-	if isAccess == false {
+	} else if isAccess == false {
 		return nil, customErrors.ErrNoAccess
-	}
-	if len(*tasks) == 0 {
-		return nil, customErrors.ErrTaskNotFound
 	}
 	return *tasks, err
 }
@@ -35,8 +36,13 @@ func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models
 func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (models.Task, error) {
 	// доставю таск из бд
 	task, err := taskUseCase.repTask.GetById(taskId)
+	if err != nil {
+		return models.Task{}, err
+	}
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, task.IdB)
-	if isAccess == false {
+	if err != nil {
+		return models.Task{}, err
+	} else if isAccess == false {
 		return models.Task{}, customErrors.ErrNoAccess
 	}
 	return *task, err
@@ -44,7 +50,9 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 
 func (taskUseCase *TaskUseCaseImpl) CreateTask(task models.Task, idB uint, idL uint, idU uint) (uint, error) {
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(idU, task.IdB)
-	if isAccess == false {
+	if err != nil {
+		return 0, err
+	} else if isAccess == false {
 		return 0, customErrors.ErrNoAccess
 	}
 	// создаю таск в бд, получаю айди таска
@@ -55,7 +63,9 @@ func (taskUseCase *TaskUseCaseImpl) CreateTask(task models.Task, idB uint, idL u
 func (taskUseCase *TaskUseCaseImpl) RefactorTask(task models.Task, userId uint, listId uint) error {
 	// проверяю может ли юзер редачить
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, task.IdB)
-	if isAccess == false {
+	if err != nil {
+		return err
+	} else if isAccess == false {
 		return customErrors.ErrNoAccess
 	}
 	// вношу изменения в бд
@@ -70,7 +80,9 @@ func (taskUseCase *TaskUseCaseImpl) DeleteTask(taskId uint, userId uint) error {
 	}
 	// проверяю есть ли такой таск и может ли юзер удалить его
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, task.IdB)
-	if isAccess == false {
+	if err != nil {
+		return err
+	} else if isAccess == false {
 		return customErrors.ErrNoAccess
 	}
 	// удаляю таск

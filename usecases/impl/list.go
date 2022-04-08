@@ -21,8 +21,7 @@ func (listUseCase *ListUseCaseImpl) GetLists(boardId uint, userId uint) ([]model
 	isAccess, err := listUseCase.repBoard.IsAccessToBoard(userId, boardId)
 	if err != nil {
 		return nil, err
-	}
-	if isAccess == false {
+	} else if isAccess == false {
 		return nil, customErrors.ErrNoAccess
 	}
 	lists, err := listUseCase.repList.GetLists(boardId)
@@ -38,8 +37,7 @@ func (listUseCase *ListUseCaseImpl) GetSingleList(listId uint, userId uint) (mod
 	isAccess, err := listUseCase.repBoard.IsAccessToBoard(userId, board.IdB)
 	if err != nil {
 		return models.List{}, err
-	}
-	if isAccess == false {
+	} else if isAccess == false {
 		return models.List{}, customErrors.ErrNoAccess
 	}
 	list, err := listUseCase.repList.GetById(listId)
@@ -51,8 +49,7 @@ func (listUseCase *ListUseCaseImpl) CreateList(list models.List, boardId uint, u
 	isAccess, err := listUseCase.repBoard.IsAccessToBoard(userId, boardId)
 	if err != nil {
 		return 0, err
-	}
-	if isAccess == false {
+	} else if isAccess == false {
 		return 0, customErrors.ErrNoAccess
 	}
 	err = listUseCase.repList.Create(&list, boardId)
@@ -65,8 +62,7 @@ func (listUseCase *ListUseCaseImpl) RefactorList(list models.List, userId uint, 
 	isAccess, err := listUseCase.repBoard.IsAccessToBoard(userId, boardId)
 	if err != nil {
 		return err
-	}
-	if isAccess == false {
+	} else if isAccess == false {
 		return customErrors.ErrNoAccess
 	}
 	err = listUseCase.repList.Update(list)
@@ -83,8 +79,7 @@ func (listUseCase *ListUseCaseImpl) DeleteList(listId uint, userId uint) error {
 	isAccess, err := listUseCase.repBoard.IsAccessToBoard(userId, board.IdB)
 	if err != nil {
 		return err
-	}
-	if isAccess == false {
+	} else if isAccess == false {
 		return customErrors.ErrNoAccess
 	}
 	_, err = listUseCase.repList.GetById(listId)

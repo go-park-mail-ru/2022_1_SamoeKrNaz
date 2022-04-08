@@ -31,8 +31,7 @@ func (boardUseCase *BoardUseCaseImpl) GetSingleBoard(boardId uint, userId uint) 
 	isAccess, err := boardUseCase.rep.IsAccessToBoard(userId, boardId)
 	if err != nil {
 		return models.Board{}, err
-	}
-	if isAccess == false {
+	} else if isAccess == false {
 		return models.Board{}, customErrors.ErrNoAccess
 	}
 
@@ -58,8 +57,7 @@ func (boardUseCase *BoardUseCaseImpl) RefactorBoard(userId uint, board models.Bo
 	isAccess, err := boardUseCase.rep.IsAccessToBoard(userId, board.IdB)
 	if err != nil {
 		return err
-	}
-	if isAccess == false {
+	} else if isAccess == false {
 		return customErrors.ErrNoAccess
 	}
 	err = boardUseCase.rep.Update(board)
@@ -72,8 +70,7 @@ func (boardUseCase *BoardUseCaseImpl) DeleteBoard(boardId uint, userId uint) err
 	isAccess, err := boardUseCase.rep.IsAccessToBoard(userId, boardId)
 	if err != nil {
 		return err
-	}
-	if isAccess == false {
+	} else if isAccess == false {
 		return customErrors.ErrNoAccess
 	}
 	err = boardUseCase.rep.Delete(boardId)
