@@ -9,7 +9,15 @@ import (
 	"strconv"
 )
 
-func GetBoards(c *gin.Context) {
+type BoardHandler struct {
+	usecase usecases.BoardUseCase
+}
+
+func MakeBoardHandler(usecase_ usecases.BoardUseCase) *BoardHandler {
+	return &BoardHandler{usecase: usecase_}
+}
+
+func (boardHandler *BoardHandler) GetBoards(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -17,7 +25,7 @@ func GetBoards(c *gin.Context) {
 	}
 
 	//Получаю доски от БД
-	boards, err := usecases.GetBoards(userId.(uint))
+	boards, err := boardHandler.usecase.GetBoards(userId.(uint))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -26,7 +34,7 @@ func GetBoards(c *gin.Context) {
 	return
 }
 
-func GetSingleBoard(c *gin.Context) {
+func (boardHandler *BoardHandler) GetSingleBoard(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -40,7 +48,7 @@ func GetSingleBoard(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	board, err := usecases.GetSingleBoard(uint(boardId), userId.(uint))
+	board, err := boardHandler.usecase.GetSingleBoard(uint(boardId), userId.(uint))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -49,7 +57,7 @@ func GetSingleBoard(c *gin.Context) {
 	return
 }
 
-func CreateBoard(c *gin.Context) {
+func (boardHandler *BoardHandler) CreateBoard(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -63,16 +71,16 @@ func CreateBoard(c *gin.Context) {
 		return
 	}
 
-	err = usecases.CreateBoard(userId.(uint), board)
+	boardId, err := boardHandler.usecase.CreateBoard(userId.(uint), board)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"boardId": board.Id})
+	c.JSON(http.StatusCreated, gin.H{"boardId": boardId})
 	return
 }
 
-func RefactorBoard(c *gin.Context) {
+func (boardHandler *BoardHandler) RefactorBoard(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -86,7 +94,7 @@ func RefactorBoard(c *gin.Context) {
 		return
 	}
 
-	err = usecases.RefactorBoard(userId.(uint), board)
+	err = boardHandler.usecase.RefactorBoard(userId.(uint), board)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -95,7 +103,7 @@ func RefactorBoard(c *gin.Context) {
 	return
 }
 
-func DeleteBoard(c *gin.Context) {
+func (boardHandler *BoardHandler) DeleteBoard(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -109,7 +117,7 @@ func DeleteBoard(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	err = usecases.DeleteBoard(uint(boardId), userId.(uint))
+	err = boardHandler.usecase.DeleteBoard(uint(boardId), userId.(uint))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return

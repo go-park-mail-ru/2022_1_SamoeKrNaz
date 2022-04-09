@@ -1,4 +1,4 @@
-package main
+package planexa_redis
 
 import (
 	"PLANEXA_backend/handlers"
@@ -11,7 +11,7 @@ type RedisConnect struct {
 	client *redis.Client
 }
 
-func (redisConnect RedisConnect) ConnectToRedis() *RedisConnect {
+func ConnectToRedis() *RedisConnect {
 	return &RedisConnect{redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",

@@ -4,25 +4,22 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
 	"gorm.io/gorm"
-	"time"
 )
 
 type BoardRepository struct {
 	db *gorm.DB
 }
 
-func (boardRepository *BoardRepository) MakeRepository(db *gorm.DB) *BoardRepository {
+func MakeBoardRepository(db *gorm.DB) *BoardRepository {
 	return &BoardRepository{db: db}
 }
 
-func (boardRepository *BoardRepository) Create(board *models.Board, IdU uint) error {
-	// TODO: вынести две нижние строки в юзкейс
-	board.DateCreated = time.Now().Format(time.RFC850)
-	board.IdU = IdU
-	return boardRepository.db.Create(board).Error
+func (boardRepository *BoardRepository) Create(board *models.Board) (uint, error) {
+	err := boardRepository.db.Create(board).Error
+	return board.IdB, err
 }
 
-func (boardRepository *BoardRepository) Update(board *models.Board) error {
+func (boardRepository *BoardRepository) Update(board models.Board) error {
 	// возьмем из бд текущую запись по айдишнику
 	currentData, err := boardRepository.GetById(board.IdB)
 	// обработка ошибки при взятии
@@ -44,25 +41,13 @@ func (boardRepository *BoardRepository) Delete(IdB uint) error {
 	return boardRepository.db.Delete(&models.Board{}, IdB).Error
 }
 
-func (boardRepository *BoardRepository) GetUserBoards(IdU uint) (*[]models.Board, error) {
+func (boardRepository *BoardRepository) GetUserBoards(IdU uint) ([]models.Board, error) {
 	boards := new([]models.Board)
 	err := boardRepository.db.Model(&models.User{IdU: IdU}).Association("Boards").Find(boards)
 	if err != nil {
 		return nil, err
 	}
-	return boards, nil
-}
-
-func (boardRepository *BoardRepository) GetLists(IdB uint) (*[]models.List, error) {
-	lists := new([]models.List)
-	result := boardRepository.db.Where("id_b = ?", IdB).Find(lists)
-	return lists, result.Error
-}
-
-func (boardRepository *BoardRepository) GetTasks(IdB uint) (*[]models.Task, error) {
-	tasks := new([]models.Task)
-	result := boardRepository.db.Where("id_b = ?", IdB).Find(tasks)
-	return tasks, result.Error
+	return *boards, nil
 }
 
 func (boardRepository *BoardRepository) GetById(IdB uint) (*models.Board, error) {
@@ -78,4 +63,15 @@ func (boardRepository *BoardRepository) GetById(IdB uint) (*models.Board, error)
 	}
 	// иначе вернем доску
 	return board, nil
+}
+
+func (boardRepository *BoardRepository) IsAccessToBoard(IdU uint, IdB uint) (bool, error) {
+	board := new(models.Board)
+	err := boardRepository.db.Model(&models.User{IdU: IdU}).Where("id_b = ?", IdB).Association("Boards").Find(board)
+	if err != nil {
+		return false, err
+	} else if board == nil {
+		return false, nil
+	}
+	return true, nil
 }

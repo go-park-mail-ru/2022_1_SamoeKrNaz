@@ -11,18 +11,12 @@ type UserRepository struct {
 	db *gorm.DB
 }
 
-func (userRepository *UserRepository) MakeRepository(db *gorm.DB) *UserRepository {
+func MakeUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
 func (userRepository *UserRepository) Create(user *models.User) error {
 	// проверка на уже существующего пользователя
-	isExist, err := userRepository.IsExist(user.Username)
-	if isExist {
-		return customErrors.ErrUsernameExist
-	} else if err != nil {
-		return err
-	}
 	// пароли нужно хранить скрытно, поэтому хешируем
 	hashPassword, err := hash.HashPassword(user.Password)
 	if err != nil {

@@ -9,7 +9,15 @@ import (
 	"strconv"
 )
 
-func GetTasks(c *gin.Context) {
+type TaskHandler struct {
+	usecase usecases.TaskUseCase
+}
+
+func MakeTaskHandler(usecase_ usecases.TaskUseCase) *TaskHandler {
+	return &TaskHandler{usecase: usecase_}
+}
+
+func (taskHandler *TaskHandler) GetTasks(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -22,7 +30,7 @@ func GetTasks(c *gin.Context) {
 		return
 	}
 
-	tasks, err := usecases.GetTasks(uint(listId), userId.(uint))
+	tasks, err := taskHandler.usecase.GetTasks(uint(listId), userId.(uint))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -31,7 +39,7 @@ func GetTasks(c *gin.Context) {
 	return
 }
 
-func GetSingleTask(c *gin.Context) {
+func (taskHandler *TaskHandler) GetSingleTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -44,7 +52,7 @@ func GetSingleTask(c *gin.Context) {
 		return
 	}
 
-	list, err := usecases.GetSingleTask(uint(taskId), userId.(uint))
+	list, err := taskHandler.usecase.GetSingleTask(uint(taskId), userId.(uint))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -53,7 +61,7 @@ func GetSingleTask(c *gin.Context) {
 	return
 }
 
-func CreateTask(c *gin.Context) {
+func (taskHandler *TaskHandler) CreateTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -67,7 +75,19 @@ func CreateTask(c *gin.Context) {
 		return
 	}
 
-	taskId, err := usecases.CreateTaks(list, userId.(uint))
+	listId, err := strconv.ParseUint(c.Param("idL"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	boardId, err := strconv.ParseUint(c.Param("idB"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	taskId, err := taskHandler.usecase.CreateTask(list, uint(boardId), uint(listId), userId.(uint))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -76,7 +96,7 @@ func CreateTask(c *gin.Context) {
 	return
 }
 
-func RefactorTask(c *gin.Context) {
+func (taskHandler *TaskHandler) RefactorTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -96,7 +116,7 @@ func RefactorTask(c *gin.Context) {
 		return
 	}
 
-	err = usecases.RefactorTask(task, userId.(uint), uint(taskId))
+	err = taskHandler.usecase.RefactorTask(task, userId.(uint), uint(taskId))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -105,7 +125,7 @@ func RefactorTask(c *gin.Context) {
 	return
 }
 
-func DeleteTask(c *gin.Context) {
+func (taskHandler *TaskHandler) DeleteTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -119,7 +139,7 @@ func DeleteTask(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	err = usecases.DeleteList(uint(taskId), userId.(uint))
+	err = taskHandler.usecase.DeleteTask(uint(taskId), userId.(uint))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return

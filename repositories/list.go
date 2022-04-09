@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	customErrors "PLANEXA_backend/errors"
+	"PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
 	"gorm.io/gorm"
 )
@@ -10,22 +10,23 @@ type ListRepository struct {
 	db *gorm.DB
 }
 
-func (listRepository *ListRepository) MakeRepository(db *gorm.DB) *ListRepository {
+func MakeListRepository(db *gorm.DB) *ListRepository {
 	return &ListRepository{db: db}
 }
 
-func (listRepository *ListRepository) Create(list *models.List, IdB uint) error {
+func (listRepository *ListRepository) Create(list *models.List, IdB uint) (uint, error) {
 	list.IdB = IdB
 	var currentPosition int64
 	err := listRepository.db.Model(&models.List{}).Where("id_b = ?", list.IdB).Count(&currentPosition).Error
 	if err != nil {
-		return err
+		return 0, err
 	}
 	list.Position = uint(currentPosition) + 1
-	return listRepository.db.Create(list).Error
+	err = listRepository.db.Create(list).Error
+	return list.IdL, listRepository.db.Create(list).Error
 }
 
-func (listRepository *ListRepository) Update(list *models.List) error {
+func (listRepository *ListRepository) Update(list models.List) error {
 	currentData, err := listRepository.GetById(list.IdL)
 	if err != nil {
 		return err
@@ -85,6 +86,12 @@ func (listRepository *ListRepository) GetTasks(IdL uint) (*[]models.Task, error)
 	return tasks, result.Error
 }
 
+func (listRepository *ListRepository) GetLists(IdB uint) ([]models.List, error) {
+	lists := new([]models.List)
+	result := listRepository.db.Where("id_b = ?", IdB).Find(lists)
+	return *lists, result.Error
+}
+
 func (listRepository *ListRepository) GetById(IdL uint) (*models.List, error) {
 	// указатель на структуру, которую вернем
 	list := new(models.List)
@@ -101,6 +108,20 @@ func (listRepository *ListRepository) GetById(IdL uint) (*models.List, error) {
 	}
 }
 
-func (listRepository *ListRepository) ChangePosition(currentPosition, newPosition uint) {
-
+func (listRepository *ListRepository) GetBoard(IdL uint) (*models.Board, error) {
+	list, err := listRepository.GetById(IdL)
+	if err != nil {
+		return nil, err
+	}
+	board := new(models.Board)
+	result := listRepository.db.Find(board, list.IdB)
+	// если выборка в 0 строк, то такой доски нет
+	if result.RowsAffected == 0 {
+		return nil, customErrors.ErrBoardNotFound
+	} else if result.Error != nil {
+		// если произошла ошибка при выборке
+		return nil, result.Error
+	}
+	// иначе вернем доску
+	return board, nil
 }
