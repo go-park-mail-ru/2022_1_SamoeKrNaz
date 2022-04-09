@@ -43,6 +43,10 @@ func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models
 func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (models.Task, error) {
 	// доставю таск из бд
 	task, err := taskUseCase.repTask.GetById(taskId)
+	sanitizer := bluemonday.UGCPolicy()
+	task.Title = sanitizer.Sanitize(task.Title)
+	task.DateCreated = sanitizer.Sanitize(task.DateCreated)
+	task.Description = sanitizer.Sanitize(task.Description)
 	if err != nil {
 		return models.Task{}, err
 	}
