@@ -62,11 +62,6 @@ func (listHandler *ListHandler) GetSingleList(c *gin.Context) {
 }
 
 func (listHandler *ListHandler) CreateList(c *gin.Context) {
-	token, check := c.Get("content")
-	if !check || token != "application/json" {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadContentType), gin.H{"error": customErrors.ErrBadContentType.Error()})
-		return
-	}
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -96,11 +91,6 @@ func (listHandler *ListHandler) CreateList(c *gin.Context) {
 }
 
 func (listHandler *ListHandler) RefactorList(c *gin.Context) {
-	token, check := c.Get("content")
-	if !check || token != "application/json" {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadContentType), gin.H{"error": customErrors.ErrBadContentType.Error()})
-		return
-	}
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -130,11 +120,6 @@ func (listHandler *ListHandler) RefactorList(c *gin.Context) {
 }
 
 func (listHandler *ListHandler) DeleteList(c *gin.Context) {
-	token, check := c.Get("content")
-	if !check || token != "application/json" {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadContentType), gin.H{"error": customErrors.ErrBadContentType.Error()})
-		return
-	}
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})

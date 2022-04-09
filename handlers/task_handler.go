@@ -62,11 +62,6 @@ func (taskHandler *TaskHandler) GetSingleTask(c *gin.Context) {
 }
 
 func (taskHandler *TaskHandler) CreateTask(c *gin.Context) {
-	token, check := c.Get("content")
-	if !check || token != "application/json" {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadContentType), gin.H{"error": customErrors.ErrBadContentType.Error()})
-		return
-	}
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -102,11 +97,6 @@ func (taskHandler *TaskHandler) CreateTask(c *gin.Context) {
 }
 
 func (taskHandler *TaskHandler) RefactorTask(c *gin.Context) {
-	token, check := c.Get("content")
-	if !check || token != "application/json" {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadContentType), gin.H{"error": customErrors.ErrBadContentType.Error()})
-		return
-	}
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -136,11 +126,6 @@ func (taskHandler *TaskHandler) RefactorTask(c *gin.Context) {
 }
 
 func (taskHandler *TaskHandler) DeleteTask(c *gin.Context) {
-	token, check := c.Get("content")
-	if !check || token != "application/json" {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadContentType), gin.H{"error": customErrors.ErrBadContentType.Error()})
-		return
-	}
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})

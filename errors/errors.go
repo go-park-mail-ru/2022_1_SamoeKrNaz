@@ -20,9 +20,8 @@ var (
 
 	ErrListNotFound = errors.New("this list is not found")
 
-	ErrTaskNotFound   = errors.New("this task is not found")
-	ErrNoAccess       = errors.New("user doesn't have access")
-	ErrBadContentType = errors.New("wrong content-type")
+	ErrTaskNotFound = errors.New("this task is not found")
+	ErrNoAccess     = errors.New("user doesn't have access")
 )
 
 var errorToCode = map[error]int{
@@ -43,8 +42,6 @@ var errorToCode = map[error]int{
 	ErrTaskNotFound: http.StatusNotFound,
 
 	ErrNoAccess: http.StatusForbidden,
-
-	ErrBadContentType: http.StatusBadRequest,
 }
 
 func ConvertErrorToCode(err error) (code int) {

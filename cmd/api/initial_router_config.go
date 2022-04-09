@@ -56,26 +56,26 @@ func initRouter() (*gin.Engine, error) {
 	{
 		boardRoutes := router.Group(routes.BoardRoute)
 		{
-			boardRoutes.POST("", middleware.CheckContentType, middleware.CheckAuth, boardHandler.CreateBoard)
-			boardRoutes.PUT("", middleware.CheckContentType, middleware.CheckAuth, boardHandler.RefactorBoard)
+			boardRoutes.POST("", middleware.CheckAuth, boardHandler.CreateBoard)
+			boardRoutes.PUT("", middleware.CheckAuth, boardHandler.RefactorBoard)
 			boardRoutes.GET("/:id", middleware.CheckAuth, boardHandler.GetSingleBoard)
-			boardRoutes.DELETE("/:id", middleware.CheckContentType, middleware.CheckAuth, boardHandler.DeleteBoard)
+			boardRoutes.DELETE("/:id", middleware.CheckAuth, boardHandler.DeleteBoard)
 			boardRoutes.GET("/:id"+routes.ListRoute, middleware.CheckAuth, listHandler.GetLists)
-			boardRoutes.POST("/:id"+routes.ListRoute, middleware.CheckContentType, middleware.CheckAuth, listHandler.CreateList)
-			boardRoutes.POST("/:id"+routes.ListRoute+"/:idL"+routes.TaskRoute, middleware.CheckContentType, middleware.CheckAuth, taskHandler.CreateTask)
+			boardRoutes.POST("/:id"+routes.ListRoute, middleware.CheckAuth, listHandler.CreateList)
+			boardRoutes.POST("/:id"+routes.ListRoute+"/:idL"+routes.TaskRoute, middleware.CheckAuth, taskHandler.CreateTask)
 		}
 		listRoutes := router.Group(routes.ListRoute)
 		{
 			listRoutes.GET("/:id", middleware.CheckAuth, listHandler.GetSingleList)
-			listRoutes.PUT("/:id", middleware.CheckContentType, middleware.CheckAuth, listHandler.RefactorList)
-			listRoutes.DELETE("/:id", middleware.CheckContentType, middleware.CheckAuth, listHandler.DeleteList)
+			listRoutes.PUT("/:id", middleware.CheckAuth, listHandler.RefactorList)
+			listRoutes.DELETE("/:id", middleware.CheckAuth, listHandler.DeleteList)
 			listRoutes.GET("/:id"+routes.TaskRoute, middleware.CheckAuth, taskHandler.GetTasks)
 		}
 		taskRoutes := router.Group(routes.TaskRoute)
 		{
 			taskRoutes.GET("/:id", middleware.CheckAuth, taskHandler.GetSingleTask)
-			taskRoutes.PUT("/:id", middleware.CheckContentType, middleware.CheckAuth, taskHandler.RefactorTask)
-			taskRoutes.DELETE("/:id", middleware.CheckContentType, middleware.CheckAuth, taskHandler.DeleteTask)
+			taskRoutes.PUT("/:id", middleware.CheckAuth, taskHandler.RefactorTask)
+			taskRoutes.DELETE("/:id", middleware.CheckAuth, taskHandler.DeleteTask)
 		}
 		mainRoutes.POST(routes.LoginRoute, userHandler.Login)
 		mainRoutes.GET("", middleware.CheckAuth, boardHandler.GetBoards)

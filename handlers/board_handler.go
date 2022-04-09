@@ -58,11 +58,6 @@ func (boardHandler *BoardHandler) GetSingleBoard(c *gin.Context) {
 }
 
 func (boardHandler *BoardHandler) CreateBoard(c *gin.Context) {
-	token, check := c.Get("content")
-	if !check || token != "application/json" {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadContentType), gin.H{"error": customErrors.ErrBadContentType.Error()})
-		return
-	}
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -86,11 +81,6 @@ func (boardHandler *BoardHandler) CreateBoard(c *gin.Context) {
 }
 
 func (boardHandler *BoardHandler) RefactorBoard(c *gin.Context) {
-	token, check := c.Get("content")
-	if !check || token != "application/json" {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadContentType), gin.H{"error": customErrors.ErrBadContentType.Error()})
-		return
-	}
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -114,11 +104,6 @@ func (boardHandler *BoardHandler) RefactorBoard(c *gin.Context) {
 }
 
 func (boardHandler *BoardHandler) DeleteBoard(c *gin.Context) {
-	token, check := c.Get("content")
-	if !check || token != "application/json" {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadContentType), gin.H{"error": customErrors.ErrBadContentType.Error()})
-		return
-	}
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
