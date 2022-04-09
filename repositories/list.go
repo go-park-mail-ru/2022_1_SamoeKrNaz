@@ -23,7 +23,7 @@ func (listRepository *ListRepository) Create(list *models.List, IdB uint) (uint,
 	}
 	list.Position = uint(currentPosition) + 1
 	err = listRepository.db.Create(list).Error
-	return list.IdL, listRepository.db.Create(list).Error
+	return list.IdL, err
 }
 
 func (listRepository *ListRepository) Update(list models.List) error {
@@ -75,7 +75,7 @@ func (listRepository *ListRepository) Delete(IdL uint) error {
 	if err != nil {
 		return err
 	}
-	return listRepository.db.Model(&models.Task{}).
+	return listRepository.db.Model(&models.List{}).
 		Where("position > ? AND id_b = ?", listToDelete.Position, listToDelete.IdB).
 		UpdateColumn("position", gorm.Expr("position - 1")).Error
 }

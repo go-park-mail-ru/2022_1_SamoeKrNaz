@@ -17,13 +17,6 @@ func MakeUserRepository(db *gorm.DB) *UserRepository {
 
 func (userRepository *UserRepository) Create(user *models.User) error {
 	// проверка на уже существующего пользователя
-	// пароли нужно хранить скрытно, поэтому хешируем
-	hashPassword, err := hash.HashPassword(user.Password)
-	if err != nil {
-		return err
-	}
-	//задаем текущему пользователю "новый" пароль
-	user.Password = hashPassword
 	return userRepository.db.Create(user).Error
 }
 
@@ -41,7 +34,7 @@ func (userRepository *UserRepository) Update(user *models.User) error {
 		//если такой никнейм уже занят, то отправляем ошибку
 		if isExist {
 			return customErrors.ErrUsernameExist
-		} else if err != nil {
+		} else if err != nil && err != customErrors.ErrUserNotFound {
 			return err
 		} else {
 			currentData.Username = user.Username
@@ -103,10 +96,10 @@ func (userRepository *UserRepository) GetUserByLogin(username string) (*models.U
 	}
 }
 
-func (userRepository *UserRepository) GetUserById(IdP uint) (*models.User, error) {
+func (userRepository *UserRepository) GetUserById(IdU uint) (*models.User, error) {
 	// указатель на структуру, которую вернем
 	user := new(models.User)
-	result := userRepository.db.Find(user, IdP)
+	result := userRepository.db.Find(user, IdU)
 	// если выборка в 0 строк, то такого пользователя нет
 	if result.RowsAffected == 0 {
 		return nil, customErrors.ErrUserNotFound
