@@ -9,6 +9,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292
+	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0
 	gorm.io/driver/postgres v1.3.3
 	gorm.io/gorm v1.23.3
 )

@@ -18,18 +18,19 @@ func CreateListMock() (*ListRepository, sqlmock.Sqlmock, error) {
 		return nil, nil, err
 	}
 
-	gorm, err := gorm.Open(postgres.New(postgres.Config{Conn: db}))
+	openGorm, err := gorm.Open(postgres.New(postgres.Config{Conn: db}))
 
 	if err != nil {
 		db.Close()
 		return nil, nil, err
 	}
 
-	repoList := MakeListRepository(gorm)
+	repoList := MakeListRepository(openGorm)
 	return repoList, mock, err
 }
 
 func TestSelectByIdList(t *testing.T) {
+	t.Parallel()
 
 	var elemID uint = 1
 
@@ -87,6 +88,8 @@ func TestSelectByIdList(t *testing.T) {
 }
 
 func TestCreateList(t *testing.T) {
+	t.Parallel()
+
 	repoList, mock, err := CreateListMock()
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
@@ -152,6 +155,8 @@ func TestCreateList(t *testing.T) {
 }
 
 func TestDeleteList(t *testing.T) {
+	t.Parallel()
+
 	repoList, mock, err := CreateListMock()
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
@@ -210,6 +215,8 @@ func TestDeleteList(t *testing.T) {
 }
 
 func TestGetTasksList(t *testing.T) {
+	t.Parallel()
+
 	var elemID uint = 1
 
 	//создание мока
@@ -269,6 +276,8 @@ func TestGetTasksList(t *testing.T) {
 }
 
 func TestGetLists(t *testing.T) {
+	t.Parallel()
+
 	//создание мока
 	repoList, mock, err := CreateListMock()
 	if err != nil {
@@ -325,6 +334,8 @@ func TestGetLists(t *testing.T) {
 }
 
 func TestGetBoard(t *testing.T) {
+	t.Parallel()
+
 	//создание мока
 	repoList, mock, err := CreateListMock()
 	if err != nil {

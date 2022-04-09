@@ -18,18 +18,19 @@ func CreateBoardMock() (*BoardRepository, sqlmock.Sqlmock, error) {
 		return nil, nil, err
 	}
 
-	gorm, err := gorm.Open(postgres.New(postgres.Config{Conn: db}))
+	openGorm, err := gorm.Open(postgres.New(postgres.Config{Conn: db}))
 
 	if err != nil {
 		db.Close()
 		return nil, nil, err
 	}
 
-	repoBoard := MakeBoardRepository(gorm)
+	repoBoard := MakeBoardRepository(openGorm)
 	return repoBoard, mock, err
 }
 
 func TestSelectByIdBoard(t *testing.T) {
+	t.Parallel()
 
 	var elemID uint = 1
 
@@ -89,6 +90,8 @@ func TestSelectByIdBoard(t *testing.T) {
 }
 
 func TestCreateBoard(t *testing.T) {
+	t.Parallel()
+
 	repoBoard, mock, err := CreateBoardMock()
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
@@ -151,6 +154,8 @@ func TestCreateBoard(t *testing.T) {
 }
 
 func TestDeleteBoard(t *testing.T) {
+	t.Parallel()
+
 	repoBoard, mock, err := CreateBoardMock()
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
@@ -191,6 +196,8 @@ func TestDeleteBoard(t *testing.T) {
 }
 
 func TestUpdateBoard(t *testing.T) {
+	t.Parallel()
+
 	repoBoard, mock, err := CreateBoardMock()
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)

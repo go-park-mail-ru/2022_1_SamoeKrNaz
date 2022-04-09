@@ -18,18 +18,19 @@ func CreateUserMock() (*UserRepository, sqlmock.Sqlmock, error) {
 		return nil, nil, err
 	}
 
-	gorm, err := gorm.Open(postgres.New(postgres.Config{Conn: db}))
+	openGorm, err := gorm.Open(postgres.New(postgres.Config{Conn: db}))
 
 	if err != nil {
 		db.Close()
 		return nil, nil, err
 	}
 
-	repoUser := MakeUserRepository(gorm)
+	repoUser := MakeUserRepository(openGorm)
 	return repoUser, mock, err
 }
 
 func TestSelectByIdUser(t *testing.T) {
+	t.Parallel()
 
 	var elemID uint = 1
 
@@ -87,6 +88,8 @@ func TestSelectByIdUser(t *testing.T) {
 }
 
 func TestCreateUser(t *testing.T) {
+	t.Parallel()
+
 	repoUser, mock, err := CreateUserMock()
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
@@ -140,6 +143,7 @@ func TestCreateUser(t *testing.T) {
 }
 
 func TestGetUserByLogin(t *testing.T) {
+	t.Parallel()
 
 	//создание мока
 	repoUser, mock, err := CreateUserMock()
@@ -195,6 +199,8 @@ func TestGetUserByLogin(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
+	t.Parallel()
+
 	repoUser, mock, err := CreateUserMock()
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
@@ -238,20 +244,4 @@ func TestUpdateUser(t *testing.T) {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
 	}
-
-	// айдишника не существует
-	//mock.
-	//	ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "boards" WHERE "boards"."id_b" = $1`)).
-	//	WithArgs(3).
-	//	WillReturnError(customErrors.ErrBoardNotFound)
-	//
-	//err = repoUser.Update(models.Board{IdB: 3})
-	//if err := mock.ExpectationsWereMet(); err != nil {
-	//	t.Errorf("there were unfulfilled expectations: %s", err)
-	//	return
-	//}
-	//if err == nil {
-	//	t.Errorf("expected error, got nil")
-	//	return
-	//}
 }

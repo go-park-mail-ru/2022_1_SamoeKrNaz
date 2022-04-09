@@ -18,18 +18,19 @@ func CreateTaskMock() (*TaskRepository, sqlmock.Sqlmock, error) {
 		return nil, nil, err
 	}
 
-	gorm, err := gorm.Open(postgres.New(postgres.Config{Conn: db}))
+	openGorm, err := gorm.Open(postgres.New(postgres.Config{Conn: db}))
 
 	if err != nil {
 		db.Close()
 		return nil, nil, err
 	}
 
-	repoTask := MakeTaskRepository(gorm)
+	repoTask := MakeTaskRepository(openGorm)
 	return repoTask, mock, err
 }
 
 func TestSelectByIdTask(t *testing.T) {
+	t.Parallel()
 
 	var elemID uint = 1
 
@@ -89,6 +90,8 @@ func TestSelectByIdTask(t *testing.T) {
 }
 
 func TestCreateTask(t *testing.T) {
+	t.Parallel()
+
 	repoTask, mock, err := CreateTaskMock()
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
@@ -160,6 +163,8 @@ func TestCreateTask(t *testing.T) {
 }
 
 func TestGetTasks(t *testing.T) {
+	t.Parallel()
+
 	var elemID uint = 1
 
 	//создание мока
@@ -219,6 +224,8 @@ func TestGetTasks(t *testing.T) {
 }
 
 func TestDeleteTask(t *testing.T) {
+	t.Parallel()
+
 	repoTask, mock, err := CreateTaskMock()
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
