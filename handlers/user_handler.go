@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	CookieTime = 604800 // 3 days
+	threeDays = 72 * time.Hour
 )
 
 type UserHandler struct {
@@ -38,7 +38,7 @@ func (userHandler *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	expiration := time.Now().Add(72 * time.Hour)
+	expiration := time.Now().Add(threeDays)
 	cookie := http.Cookie{
 		Name:     "token",
 		Value:    token,
@@ -48,6 +48,7 @@ func (userHandler *UserHandler) Login(c *gin.Context) {
 		Path:     "/",
 	}
 	http.SetCookie(c.Writer, &cookie)
+	c.JSON(http.StatusOK, gin.H{"is_logged": true})
 	return
 }
 
@@ -66,7 +67,7 @@ func (userHandler *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	expiration := time.Now().Add(72 * time.Hour)
+	expiration := time.Now().Add(threeDays)
 	cookie := http.Cookie{
 		Name:     "token",
 		Value:    token,
@@ -76,6 +77,7 @@ func (userHandler *UserHandler) Register(c *gin.Context) {
 		Path:     "/",
 	}
 	http.SetCookie(c.Writer, &cookie)
+	c.JSON(http.StatusCreated, gin.H{"is_registered": true})
 	return
 }
 

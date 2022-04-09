@@ -7,6 +7,7 @@ import (
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/usecases"
 	"PLANEXA_backend/utils"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 type UserUseCaseImpl struct {
@@ -74,6 +75,11 @@ func (userUseCase *UserUseCaseImpl) Logout(token string) error {
 func (userUseCase *UserUseCaseImpl) GetInfo(userId uint) (models.User, error) {
 	// получаю из бд всю инфу по айдишнику кроме пароля
 	user, err := userUseCase.rep.GetUserById(userId)
+	sanitizer := bluemonday.UGCPolicy()
+	user.Password = sanitizer.Sanitize(user.Password)
+	user.Username = sanitizer.Sanitize(user.Username)
+	user.ImgAvatar = sanitizer.Sanitize(user.ImgAvatar)
+
 	user.Password = ""
 	return *user, err
 }
