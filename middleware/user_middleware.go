@@ -21,3 +21,12 @@ func CheckAuth(c *gin.Context) {
 	}
 	return
 }
+
+func CheckContentType(c *gin.Context) {
+	content, check := c.Get("Content-Type")
+	if !check {
+		return
+	} else {
+		c.Set("content", content)
+	}
+}
