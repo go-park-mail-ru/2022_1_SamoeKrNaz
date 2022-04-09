@@ -7,10 +7,10 @@ COPY go.sum ./
 
 RUN go mod download
 
-RUN go get github.com/githubnemo/CompileDaemon && go mod tidy
+RUN go install github.com/githubnemo/CompileDaemon@latest && go mod tidy
 
 COPY . .
 
 EXPOSE 8080
 
-ENTRYPOINT CompileDaemon --build="go build initial_router_config.go main.go" --command=./main
+ENTRYPOINT CompileDaemon -build="go build ./cmd/api/" -command=./api
