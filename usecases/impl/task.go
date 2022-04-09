@@ -5,6 +5,7 @@ import (
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/usecases"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 type TaskUseCaseImpl struct {
@@ -30,6 +31,12 @@ func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models
 		return nil, customErrors.ErrNoAccess
 	}
 	tasks, err := taskUseCase.repTask.GetTasks(listId)
+	sanitizer := bluemonday.UGCPolicy()
+	for _, task := range *tasks {
+		task.Title = sanitizer.Sanitize(task.Title)
+		task.DateCreated = sanitizer.Sanitize(task.DateCreated)
+		task.Description = sanitizer.Sanitize(task.Description)
+	}
 	return *tasks, err
 }
 

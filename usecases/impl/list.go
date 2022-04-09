@@ -5,6 +5,7 @@ import (
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/usecases"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 type ListUseCaseImpl struct {
@@ -25,6 +26,10 @@ func (listUseCase *ListUseCaseImpl) GetLists(boardId uint, userId uint) ([]model
 		return nil, customErrors.ErrNoAccess
 	}
 	lists, err := listUseCase.repList.GetLists(boardId)
+	sanitizer := bluemonday.UGCPolicy()
+	for _, list := range lists {
+		list.Title = sanitizer.Sanitize(list.Title)
+	}
 	return lists, err
 }
 
@@ -41,6 +46,8 @@ func (listUseCase *ListUseCaseImpl) GetSingleList(listId uint, userId uint) (mod
 		return models.List{}, customErrors.ErrNoAccess
 	}
 	list, err := listUseCase.repList.GetById(listId)
+	sanitizer := bluemonday.UGCPolicy()
+	list.Title = sanitizer.Sanitize(list.Title)
 	return *list, err
 }
 

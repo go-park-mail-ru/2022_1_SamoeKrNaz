@@ -37,7 +37,7 @@ func (userHandler *UserHandler) Login(c *gin.Context) {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	
+
 	expiration := time.Now().Add(72 * time.Hour)
 	cookie := http.Cookie{
 		Name:     "token",
