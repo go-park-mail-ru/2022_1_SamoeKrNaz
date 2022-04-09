@@ -5,6 +5,7 @@ import (
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/usecases"
+	"github.com/microcosm-cc/bluemonday"
 	"time"
 )
 
@@ -22,6 +23,13 @@ func (boardUseCase *BoardUseCaseImpl) GetBoards(userId uint) ([]models.Board, er
 	if err != nil {
 		return nil, err
 	}
+	sanitizer := bluemonday.UGCPolicy()
+	for _, board := range boards {
+		board.DateCreated = sanitizer.Sanitize(board.DateCreated)
+		board.Title = sanitizer.Sanitize(board.Title)
+		board.Description = sanitizer.Sanitize(board.Description)
+		board.ImgDesk = sanitizer.Sanitize(board.ImgDesk)
+	}
 	return boards, nil
 }
 
@@ -36,6 +44,11 @@ func (boardUseCase *BoardUseCaseImpl) GetSingleBoard(boardId uint, userId uint) 
 	}
 
 	board, err := boardUseCase.rep.GetById(boardId)
+	sanitizer := bluemonday.UGCPolicy()
+	board.DateCreated = sanitizer.Sanitize(board.DateCreated)
+	board.Title = sanitizer.Sanitize(board.Title)
+	board.Description = sanitizer.Sanitize(board.Description)
+	board.ImgDesk = sanitizer.Sanitize(board.ImgDesk)
 	if err != nil {
 		return models.Board{}, err
 	}

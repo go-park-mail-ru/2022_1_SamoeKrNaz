@@ -7,10 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 var (
-	CookieTime = 604800 // 3 days
+	threeDays = 72 * time.Hour
 )
 
 type UserHandler struct {
@@ -36,7 +37,17 @@ func (userHandler *UserHandler) Login(c *gin.Context) {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.SetCookie("token", token, CookieTime, "", "", false, true)
+
+	expiration := time.Now().Add(threeDays)
+	cookie := http.Cookie{
+		Name:     "token",
+		Value:    token,
+		Expires:  expiration,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Path:     "/",
+	}
+	http.SetCookie(c.Writer, &cookie)
 	c.JSON(http.StatusOK, gin.H{"is_logged": true})
 	return
 }
@@ -49,8 +60,6 @@ func (userHandler *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	//usecase
-
 	token, err := userHandler.usecase.Register(user)
 
 	if err != nil {
@@ -58,7 +67,16 @@ func (userHandler *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("token", token, CookieTime, "", "", false, true)
+	expiration := time.Now().Add(threeDays)
+	cookie := http.Cookie{
+		Name:     "token",
+		Value:    token,
+		Expires:  expiration,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Path:     "/",
+	}
+	http.SetCookie(c.Writer, &cookie)
 	c.JSON(http.StatusCreated, gin.H{"is_registered": true})
 	return
 }
