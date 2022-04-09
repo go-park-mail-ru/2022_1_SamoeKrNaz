@@ -1,7 +1,9 @@
 version: "3"
 services:
   go-docker:
-    build: Dockerfile-server
+    build:
+      context: .
+      dockerfile: ./Dockerfile-server
     depends_on:
       - postgres
       - redis

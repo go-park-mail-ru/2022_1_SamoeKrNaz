@@ -15,7 +15,7 @@ import (
 )
 
 func initDB() (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open("host=localhost user=Planexa password=WEB21Planexa dbname=DB_Planexa port=5432"))
+	db, err := gorm.Open(postgres.Open("host=postgres user=Planexa password=WEB21Planexa dbname=DB_Planexa port=5432"))
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func initRouter() (*gin.Engine, error) {
 	boardRepository := repositories.MakeBoardRepository(db)
 
 	userHandler := handlers.MakeUserHandler(impl.MakeUserUsecase(userRepository, redis))
-	taskHandler := handlers.MakeTaskHandler(impl.MakeTaskUsecase(taskRepository, boardRepository))
+	taskHandler := handlers.MakeTaskHandler(impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository))
 	boardHandler := handlers.MakeBoardHandler(impl.MakeBoardUsecase(boardRepository))
 	listHandler := handlers.MakeListHandler(impl.MakeListUsecase(listRepository, boardRepository))
 
@@ -62,7 +62,7 @@ func initRouter() (*gin.Engine, error) {
 			boardRoutes.DELETE("/:id", middleware.CheckAuth, boardHandler.DeleteBoard)
 			boardRoutes.GET("/:id"+routes.ListRoute, middleware.CheckAuth, listHandler.GetLists)
 			boardRoutes.POST("/:id"+routes.ListRoute, middleware.CheckAuth, listHandler.CreateList)
-			boardRoutes.POST("/:idB"+routes.ListRoute+"/:idL"+routes.TaskRoute, middleware.CheckAuth, taskHandler.CreateTask)
+			boardRoutes.POST("/:id"+routes.ListRoute+"/:idL"+routes.TaskRoute, middleware.CheckAuth, taskHandler.CreateTask)
 		}
 		listRoutes := router.Group(routes.ListRoute)
 		{

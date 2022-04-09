@@ -81,7 +81,7 @@ func (taskHandler *TaskHandler) CreateTask(c *gin.Context) {
 		return
 	}
 
-	boardId, err := strconv.ParseUint(c.Param("idB"), 10, 32)
+	boardId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
