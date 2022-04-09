@@ -62,7 +62,7 @@ func initRouter() (*gin.Engine, error) {
 			boardRoutes.DELETE("/:id", middleware.CheckAuth, boardHandler.DeleteBoard)
 			boardRoutes.GET("/:id"+routes.ListRoute, middleware.CheckAuth, listHandler.GetLists)
 			boardRoutes.POST("/:id"+routes.ListRoute, middleware.CheckAuth, listHandler.CreateList)
-			boardRoutes.POST("/:idB"+routes.ListRoute+"/:idL"+routes.TaskRoute, middleware.CheckAuth, taskHandler.CreateTask)
+			boardRoutes.POST("/:id"+routes.ListRoute+"/:idL"+routes.TaskRoute, middleware.CheckAuth, taskHandler.CreateTask)
 		}
 		listRoutes := router.Group(routes.ListRoute)
 		{
