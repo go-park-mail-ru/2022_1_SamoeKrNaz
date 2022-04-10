@@ -82,6 +82,7 @@ func initRouter() (*gin.Engine, error) {
 		mainRoutes.POST(routes.RegisterRoute, userHandler.Register)
 		mainRoutes.DELETE(routes.LogoutRoute, userHandler.Logout)
 		mainRoutes.GET(routes.ProfileRoute+"/:id", middleware.CheckAuth, userHandler.GetInfo)
+		mainRoutes.PUT(routes.ProfileRoute+"/upload", middleware.CheckAuth, userHandler.SaveAvatar)
 	}
 	return router, nil
 }
