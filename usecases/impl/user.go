@@ -27,13 +27,13 @@ func (userUseCase *UserUseCaseImpl) Login(user models.User) (uint, string, error
 	if err != nil {
 		return 0, "", err
 	}
+	if !isAble {
+		return 0, "", customErrors.ErrUnauthorized
+	}
+
 	newUser, err := userUseCase.rep.GetUserByLogin(user.Username)
 	if err != nil {
 		return 0, "", err
-	}
-
-	if !isAble {
-		return 0, "", customErrors.ErrUnauthorized
 	}
 
 	token := utils.GenerateSessionToken()
