@@ -125,28 +125,33 @@ func (userHandler *UserHandler) GetInfo(c *gin.Context) {
 }
 
 func (userHandler *UserHandler) SaveAvatar(c *gin.Context) {
-	userId, check := c.Get("Auth")
+	_, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
 
-	_, header, err := c.Request.FormFile("avatar")
+	token, err := c.Cookie("token")
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+
+	header, err := c.FormFile("avatar")
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
 
 	user := new(models.User)
-	user.IdU = userId.(uint)
 	user.ImgAvatar = header.Filename
 
-	err = userHandler.usecase.SaveAvatar(user, header)
+	err = userHandler.usecase.SaveAvatar(user, header, token)
 
 	if err != nil {
 		return
 	}
 
-	c.JSON(http.StatusOK, user.ImgAvatar)
+	c.JSON(http.StatusOK, gin.H{"avatar_path": user.ImgAvatar})
 	return
 }

@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 	"mime/multipart"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/kolesa-team/go-webp/webp"
@@ -67,7 +68,7 @@ func (userRepository *UserRepository) SaveAvatar(user *models.User, header *mult
 			return err
 		}
 
-		fileName := strings.Join([]string{filePath, currentData.Username, ".webp"}, "")
+		fileName := strings.Join([]string{filePath, strconv.Itoa(int(currentData.IdU)), ".webp"}, "")
 		output, err := os.Create(fileName)
 		if err != nil {
 			return err
@@ -84,8 +85,12 @@ func (userRepository *UserRepository) SaveAvatar(user *models.User, header *mult
 			return err
 		}
 
-		err = webp.Encode(output, img, &encoder.Options{})
+		options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
 		if err != nil {
+			return err
+		}
+
+		if err := webp.Encode(output, img, options); err != nil {
 			return err
 		}
 

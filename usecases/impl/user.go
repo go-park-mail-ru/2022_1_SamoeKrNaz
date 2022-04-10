@@ -12,8 +12,6 @@ import (
 	"mime/multipart"
 )
 
-const filePath = "/avatar/"
-
 type UserUseCaseImpl struct {
 	rep *repositories.UserRepository
 	red *planexa_redis.RedisConnect
@@ -95,6 +93,15 @@ func (userUseCase *UserUseCaseImpl) GetInfo(userId uint) (models.User, error) {
 	return *user, err
 }
 
-func (userUseCase *UserUseCaseImpl) SaveAvatar(user *models.User, header *multipart.FileHeader) error {
-	return userUseCase.rep.SaveAvatar(user, header)
+func (userUseCase *UserUseCaseImpl) SaveAvatar(user *models.User, header *multipart.FileHeader, token string) error {
+	userID, err := userUseCase.red.GetSession(token)
+	if err != nil {
+		return err
+	}
+	currentData, err := userUseCase.rep.GetUserById(uint(userID))
+	currentData.ImgAvatar = user.ImgAvatar
+	if err != nil {
+		return err
+	}
+	return userUseCase.rep.SaveAvatar(currentData, header)
 }
