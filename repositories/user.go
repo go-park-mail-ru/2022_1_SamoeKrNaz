@@ -4,8 +4,17 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
+	"github.com/kolesa-team/go-webp/decoder"
+	"github.com/kolesa-team/go-webp/encoder"
 	"gorm.io/gorm"
+	"mime/multipart"
+	"os"
+	"strings"
+
+	"github.com/kolesa-team/go-webp/webp"
 )
+
+const filePath = "/avatars/"
 
 type UserRepository struct {
 	db *gorm.DB
@@ -16,7 +25,8 @@ func MakeUserRepository(db *gorm.DB) *UserRepository {
 }
 
 func (userRepository *UserRepository) Create(user *models.User) error {
-	// проверка на уже существующего пользователя
+	// дефолтная пикча
+	user.ImgAvatar = strings.Join([]string{filePath, "default.webp"}, "")
 	return userRepository.db.Create(user).Error
 }
 
@@ -48,6 +58,41 @@ func (userRepository *UserRepository) Update(user *models.User) error {
 		}
 	}
 	return userRepository.db.Save(currentData).Error
+}
+
+func (userRepository *UserRepository) SaveAvatar(user *models.User, header *multipart.FileHeader) error {
+	if user.ImgAvatar != "" {
+		currentData, err := userRepository.GetUserById(user.IdU)
+		if err != nil {
+			return err
+		}
+
+		fileName := strings.Join([]string{filePath, currentData.Username, ".webp"}, "")
+		output, err := os.Create(fileName)
+		if err != nil {
+			return err
+		}
+		defer output.Close()
+
+		openFile, err := header.Open()
+		if err != nil {
+			return err
+		}
+
+		img, err := webp.Decode(openFile, &decoder.Options{})
+		if err != nil {
+			return err
+		}
+
+		err = webp.Encode(output, img, &encoder.Options{})
+		if err != nil {
+			return err
+		}
+
+		currentData.ImgAvatar = fileName
+		return userRepository.db.Save(currentData).Error
+	}
+	return nil
 }
 
 func (userRepository *UserRepository) IsAbleToLogin(username string, password string) (bool, error) {

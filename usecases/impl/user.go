@@ -9,7 +9,10 @@ import (
 	"PLANEXA_backend/usecases"
 	"PLANEXA_backend/utils"
 	"github.com/microcosm-cc/bluemonday"
+	"mime/multipart"
 )
+
+const filePath = "/avatar/"
 
 type UserUseCaseImpl struct {
 	rep *repositories.UserRepository
@@ -90,4 +93,8 @@ func (userUseCase *UserUseCaseImpl) GetInfo(userId uint) (models.User, error) {
 
 	user.Password = ""
 	return *user, err
+}
+
+func (userUseCase *UserUseCaseImpl) SaveAvatar(user *models.User, header *multipart.FileHeader) error {
+	return userUseCase.rep.SaveAvatar(user, header)
 }

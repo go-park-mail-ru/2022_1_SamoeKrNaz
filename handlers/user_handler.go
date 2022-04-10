@@ -123,3 +123,30 @@ func (userHandler *UserHandler) GetInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 	return
 }
+
+func (userHandler *UserHandler) SaveAvatar(c *gin.Context) {
+	userId, check := c.Get("Auth")
+	if !check {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+
+	_, header, err := c.Request.FormFile("avatar")
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		return
+	}
+
+	user := new(models.User)
+	user.IdU = userId.(uint)
+	user.ImgAvatar = header.Filename
+
+	err = userHandler.usecase.SaveAvatar(user, header)
+
+	if err != nil {
+		return
+	}
+
+	c.JSON(http.StatusOK, user.ImgAvatar)
+	return
+}
