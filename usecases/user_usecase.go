@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"PLANEXA_backend/models"
+	"mime/multipart"
 )
 
 type UserUseCase interface {
@@ -10,4 +11,5 @@ type UserUseCase interface {
 	Logout(token string) error
 	GetInfoById(userId uint) (models.User, error)
 	GetInfoByCookie(token string) (models.User, error)
+	SaveAvatar(*models.User, *multipart.FileHeader) error
 }
