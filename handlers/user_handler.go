@@ -32,7 +32,7 @@ func (userHandler *UserHandler) Login(c *gin.Context) {
 
 	// вызываю юзкейс
 
-	token, err := userHandler.usecase.Login(user)
+	userId, token, err := userHandler.usecase.Login(user)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -48,7 +48,7 @@ func (userHandler *UserHandler) Login(c *gin.Context) {
 		Path:     "/",
 	}
 	http.SetCookie(c.Writer, &cookie)
-	c.JSON(http.StatusOK, gin.H{"is_logged": true})
+	c.JSON(http.StatusOK, gin.H{"is_logged": true, "userId": userId})
 	return
 }
 
@@ -60,7 +60,7 @@ func (userHandler *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	token, err := userHandler.usecase.Register(user)
+	userId, token, err := userHandler.usecase.Register(user)
 
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
@@ -77,7 +77,7 @@ func (userHandler *UserHandler) Register(c *gin.Context) {
 		Path:     "/",
 	}
 	http.SetCookie(c.Writer, &cookie)
-	c.JSON(http.StatusCreated, gin.H{"is_registered": true})
+	c.JSON(http.StatusCreated, gin.H{"is_registered": true, "userId": userId})
 	return
 }
 

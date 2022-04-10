@@ -20,60 +20,64 @@ func MakeUserUsecase(rep_ *repositories.UserRepository, red_ *planexa_redis.Redi
 	return &UserUseCaseImpl{rep: rep_, red: red_}
 }
 
-func (userUseCase *UserUseCaseImpl) Login(user models.User) (string, error) {
+func (userUseCase *UserUseCaseImpl) Login(user models.User) (uint, string, error) {
 	// вызываю из бд проверку есть ли юзер
 	//сравниваю пароли
 	isAble, err := userUseCase.rep.IsAbleToLogin(user.Username, user.Password)
 	if err != nil {
-		return "", err
+		return 0, "", err
+	}
+	newUser, err := userUseCase.rep.GetUserByLogin(user.Username)
+	if err != nil {
+		return 0, "", err
 	}
 
 	if !isAble {
-		return "", customErrors.ErrUnauthorized
+		return 0, "", customErrors.ErrUnauthorized
 	}
 
 	token := utils.GenerateSessionToken()
-	err = userUseCase.red.SetSession(models.Session{UserId: user.IdU, CookieValue: token})
+	err = userUseCase.red.SetSession(models.Session{UserId: newUser.IdU, CookieValue: token})
 	// сохраняю сессию в бд и возвращаю token
 	if err != nil {
-		return "", err
+		return 0, "", err
 	}
-	return token, nil
+	return newUser.IdU, token, nil
 }
 
-func (userUseCase *UserUseCaseImpl) Register(user models.User) (string, error) {
+func (userUseCase *UserUseCaseImpl) Register(user models.User) (uint, string, error) {
 	err := utils.CheckPassword(user.Password)
 	if err != nil {
-		return "", err
+		return 0, "", err
 	}
 
 	// проверяю в БД есть ли такой юзер и обрабатываю ошибку в случае чего
 
 	isExist, err := userUseCase.rep.IsExist(user.Username)
 	if isExist {
-		return "", customErrors.ErrUsernameExist
+		return 0, "", customErrors.ErrUsernameExist
 	} else if err != nil {
-		return "", err
+		return 0, "", err
 	}
 
 	hashPassword, err := hash.HashPassword(user.Password)
 	if err != nil {
-		return "", err
+		return 0, "", err
 	}
 	//задаем текущему пользователю "новый" пароль
 	user.Password = hashPassword
 
 	// добавляю юзера в бд и создаю токен для него, добавляю в бд сессию
 
-	err = userUseCase.rep.Create(&user)
+	userId, err := userUseCase.rep.Create(&user)
 	if err != nil {
-		return "", err
+		return 0, "", err
 	}
 
 	token := utils.GenerateSessionToken()
 	err = userUseCase.red.SetSession(models.Session{UserId: user.IdU, CookieValue: token})
 	// возвращаю токен и ошибку
-	return token, err
+	return userId, token, err
 }
 
 func (userUseCase *UserUseCaseImpl) Logout(token string) error {
