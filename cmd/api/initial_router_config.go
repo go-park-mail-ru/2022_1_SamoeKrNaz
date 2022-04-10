@@ -12,6 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"io"
+	"os"
 )
 
 func initDB() (*gorm.DB, error) {
@@ -27,6 +29,13 @@ func initDB() (*gorm.DB, error) {
 }
 
 func initRouter() (*gin.Engine, error) {
+	gin.DisableConsoleColor()
+	f, err := os.Create("gin.log")
+	if err != nil {
+		return nil, err
+	}
+
+	gin.DefaultWriter = io.MultiWriter(f)
 	router := gin.Default()
 
 	config := cors.DefaultConfig()
