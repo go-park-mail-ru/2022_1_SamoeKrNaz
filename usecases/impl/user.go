@@ -2,6 +2,7 @@ package impl
 
 import (
 	customErrors "PLANEXA_backend/errors"
+	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/redis"
 	"PLANEXA_backend/repositories"
@@ -54,6 +55,13 @@ func (userUseCase *UserUseCaseImpl) Register(user models.User) (string, error) {
 	} else if err != nil {
 		return "", err
 	}
+
+	hashPassword, err := hash.HashPassword(user.Password)
+	if err != nil {
+		return "", err
+	}
+	//задаем текущему пользователю "новый" пароль
+	user.Password = hashPassword
 
 	// добавляю юзера в бд и создаю токен для него, добавляю в бд сессию
 
