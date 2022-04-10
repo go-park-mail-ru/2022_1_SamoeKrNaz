@@ -1,4 +1,4 @@
-package planexa_redis
+package repositories
 
 import (
 	"PLANEXA_backend/models"
@@ -6,25 +6,27 @@ import (
 	"time"
 )
 
-const CookieTime = 259200
+const (
+	CookieTime = 259200 // 3 суток
+)
 
-type RedisConnect struct {
+type RedisRepository struct {
 	client *redis.Client
 }
 
-func ConnectToRedis() *RedisConnect {
-	return &RedisConnect{redis.NewClient(&redis.Options{
+func ConnectToRedis() *RedisRepository {
+	return &RedisRepository{redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
 		DB:       0,
 	})}
 }
 
-func (redisConnect RedisConnect) SetSession(session models.Session) error {
+func (redisConnect RedisRepository) SetSession(session models.Session) error {
 	return redisConnect.client.Set(session.CookieValue, session.UserId, time.Duration(CookieTime)).Err()
 }
 
-func (redisConnect RedisConnect) GetSession(cookieValue string) (uint64, error) {
+func (redisConnect RedisRepository) GetSession(cookieValue string) (uint64, error) {
 	value, err := redisConnect.client.Get(cookieValue).Uint64()
 	if err != nil {
 		return 0, err
@@ -32,7 +34,7 @@ func (redisConnect RedisConnect) GetSession(cookieValue string) (uint64, error) 
 	return value, nil
 }
 
-func (redisConnect RedisConnect) DeleteSession(cookieValue string) error {
+func (redisConnect RedisRepository) DeleteSession(cookieValue string) error {
 	err := redisConnect.client.Del(cookieValue).Err()
 	if err != nil {
 		return err

@@ -25,10 +25,10 @@ func MakeUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
-func (userRepository *UserRepository) Create(user *models.User) error {
-	// дефолтная пикча
-	user.ImgAvatar = strings.Join([]string{filePath, "default.webp"}, "")
-	return userRepository.db.Create(user).Error
+func (userRepository *UserRepository) Create(user *models.User) (uint, error) {
+	// проверка на уже существующего пользователя
+	err := userRepository.db.Create(user).Error
+	return user.IdU, err
 }
 
 func (userRepository *UserRepository) Update(user *models.User) error {

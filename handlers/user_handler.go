@@ -32,7 +32,7 @@ func (userHandler *UserHandler) Login(c *gin.Context) {
 
 	// вызываю юзкейс
 
-	token, err := userHandler.usecase.Login(user)
+	userId, token, err := userHandler.usecase.Login(user)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -48,7 +48,7 @@ func (userHandler *UserHandler) Login(c *gin.Context) {
 		Path:     "/",
 	}
 	http.SetCookie(c.Writer, &cookie)
-	c.JSON(http.StatusOK, gin.H{"is_logged": true})
+	c.JSON(http.StatusOK, gin.H{"userId": userId})
 	return
 }
 
@@ -60,7 +60,7 @@ func (userHandler *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	token, err := userHandler.usecase.Register(user)
+	userId, token, err := userHandler.usecase.Register(user)
 
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
@@ -77,7 +77,7 @@ func (userHandler *UserHandler) Register(c *gin.Context) {
 		Path:     "/",
 	}
 	http.SetCookie(c.Writer, &cookie)
-	c.JSON(http.StatusCreated, gin.H{"is_registered": true})
+	c.JSON(http.StatusCreated, gin.H{"userId": userId})
 	return
 }
 
@@ -102,7 +102,7 @@ func (userHandler *UserHandler) Logout(c *gin.Context) {
 	return
 }
 
-func (userHandler *UserHandler) GetInfo(c *gin.Context) {
+func (userHandler *UserHandler) GetInfoById(c *gin.Context) {
 	_, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -114,7 +114,29 @@ func (userHandler *UserHandler) GetInfo(c *gin.Context) {
 		return
 	}
 
-	user, err := userHandler.usecase.GetInfo(uint(userId))
+	user, err := userHandler.usecase.GetInfoById(uint(userId))
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
+	return
+}
+
+func (userHandler *UserHandler) GetInfoByCookie(c *gin.Context) {
+	_, check := c.Get("Auth")
+	if !check {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+	token, err := c.Cookie("token")
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+
+	user, err := userHandler.usecase.GetInfoByCookie(token)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return

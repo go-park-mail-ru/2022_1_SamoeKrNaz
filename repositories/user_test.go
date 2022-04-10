@@ -109,7 +109,7 @@ func TestCreateUser(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"1"}))
 	mock.ExpectCommit()
 
-	err = repoUser.Create(&user)
+	_, err = repoUser.Create(&user)
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
 		return
@@ -132,7 +132,7 @@ func TestCreateUser(t *testing.T) {
 		WillReturnError(fmt.Errorf("bad_result"))
 	mock.ExpectRollback()
 
-	err = repoUser.Create(&user)
+	_, err = repoUser.Create(&user)
 	if err == nil {
 		t.Errorf("expected error, got nil")
 		return

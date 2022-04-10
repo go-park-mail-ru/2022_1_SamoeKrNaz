@@ -6,9 +6,10 @@ import (
 )
 
 type UserUseCase interface {
-	Login(user models.User) (string, error)
-	Register(user models.User) (string, error)
+	Login(user models.User) (uint, string, error)
+	Register(user models.User) (uint, string, error)
 	Logout(token string) error
-	GetInfo(userId uint) (models.User, error)
+	GetInfoById(userId uint) (models.User, error)
+	GetInfoByCookie(token string) (models.User, error)
 	SaveAvatar(*models.User, *multipart.FileHeader) error
 }

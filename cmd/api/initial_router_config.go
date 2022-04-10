@@ -4,7 +4,6 @@ import (
 	"PLANEXA_backend/handlers"
 	"PLANEXA_backend/middleware"
 	"PLANEXA_backend/models"
-	"PLANEXA_backend/redis"
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/routes"
 	"PLANEXA_backend/usecases/impl"
@@ -12,6 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"io"
+	"os"
 )
 
 func initDB() (*gorm.DB, error) {
@@ -27,6 +28,13 @@ func initDB() (*gorm.DB, error) {
 }
 
 func initRouter() (*gin.Engine, error) {
+	gin.DisableConsoleColor()
+	f, err := os.Create("gin.log")
+	if err != nil {
+		return nil, err
+	}
+
+	gin.DefaultWriter = io.MultiWriter(f)
 	router := gin.Default()
 
 	config := cors.DefaultConfig()
@@ -39,7 +47,7 @@ func initRouter() (*gin.Engine, error) {
 	if err != nil {
 		return nil, err
 	}
-	redis := planexa_redis.ConnectToRedis()
+	redis := repositories.ConnectToRedis()
 
 	// создание репозиториев
 	userRepository := repositories.MakeUserRepository(db)
@@ -81,7 +89,8 @@ func initRouter() (*gin.Engine, error) {
 		mainRoutes.GET("", middleware.CheckAuth, boardHandler.GetBoards)
 		mainRoutes.POST(routes.RegisterRoute, userHandler.Register)
 		mainRoutes.DELETE(routes.LogoutRoute, userHandler.Logout)
-		mainRoutes.GET(routes.ProfileRoute+"/:id", middleware.CheckAuth, userHandler.GetInfo)
+		mainRoutes.GET(routes.ProfileRoute+"/:id", middleware.CheckAuth, userHandler.GetInfoById)
+		mainRoutes.GET(routes.ProfileRoute, middleware.CheckAuth, userHandler.GetInfoByCookie)
 		mainRoutes.PUT(routes.ProfileRoute+"/upload", middleware.CheckAuth, userHandler.SaveAvatar)
 	}
 	return router, nil
