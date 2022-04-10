@@ -4,7 +4,6 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
-	"PLANEXA_backend/redis"
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/usecases"
 	"PLANEXA_backend/utils"
@@ -13,10 +12,10 @@ import (
 
 type UserUseCaseImpl struct {
 	rep *repositories.UserRepository
-	red *planexa_redis.RedisRepository
+	red *repositories.RedisRepository
 }
 
-func MakeUserUsecase(rep_ *repositories.UserRepository, red_ *planexa_redis.RedisRepository) usecases.UserUseCase {
+func MakeUserUsecase(rep_ *repositories.UserRepository, red_ *repositories.RedisRepository) usecases.UserUseCase {
 	return &UserUseCaseImpl{rep: rep_, red: red_}
 }
 

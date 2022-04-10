@@ -4,7 +4,6 @@ import (
 	"PLANEXA_backend/handlers"
 	"PLANEXA_backend/middleware"
 	"PLANEXA_backend/models"
-	"PLANEXA_backend/redis"
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/routes"
 	"PLANEXA_backend/usecases/impl"
@@ -48,10 +47,10 @@ func initRouter() (*gin.Engine, error) {
 	if err != nil {
 		return nil, err
 	}
-	redis := planexa_redis.ConnectToRedis()
+	redis := repositories.ConnectToRedis()
 
 	// создание репозиториев
-	userRepository := repositories.MakeUserRepository(db, redis)
+	userRepository := repositories.MakeUserRepository(db)
 	taskRepository := repositories.MakeTaskRepository(db)
 	listRepository := repositories.MakeListRepository(db)
 	boardRepository := repositories.MakeBoardRepository(db)

@@ -1,4 +1,4 @@
-package planexa_redis
+package repositories
 
 import (
 	"PLANEXA_backend/models"
