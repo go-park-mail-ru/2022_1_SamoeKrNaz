@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	customErrors "PLANEXA_backend/errors"
+	"PLANEXA_backend/errors"
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
 	"github.com/kolesa-team/go-webp/decoder"
