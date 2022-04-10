@@ -1,10 +1,13 @@
 package planexa_redis
 
 import (
-	"PLANEXA_backend/handlers"
 	"PLANEXA_backend/models"
 	"github.com/go-redis/redis"
 	"time"
+)
+
+const (
+	CookieTime = 259200
 )
 
 type RedisConnect struct {
@@ -20,7 +23,7 @@ func ConnectToRedis() *RedisConnect {
 }
 
 func (redisConnect RedisConnect) SetSession(session models.Session) error {
-	return redisConnect.client.Set(session.CookieValue, session.UserId, time.Duration(handlers.CookieTime)).Err()
+	return redisConnect.client.Set(session.CookieValue, session.UserId, time.Duration(CookieTime)).Err()
 }
 
 func (redisConnect RedisConnect) GetSession(cookieValue string) (uint64, error) {
