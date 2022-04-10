@@ -138,7 +138,7 @@ func (userHandler *UserHandler) SaveAvatar(c *gin.Context) {
 	}
 
 	user := new(models.User)
-	user.IdU = userId
+	user.IdU = userId.(uint)
 	user.ImgAvatar = header.Filename
 
 	err = userHandler.usecase.SaveAvatar(user, header)
