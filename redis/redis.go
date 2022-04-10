@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	CookieTime = 259200
+	CookieTime = 259200 // 3 суток
 )
 
 type RedisConnect struct {

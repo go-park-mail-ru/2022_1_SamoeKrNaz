@@ -42,7 +42,7 @@ func initRouter() (*gin.Engine, error) {
 	redis := planexa_redis.ConnectToRedis()
 
 	// создание репозиториев
-	userRepository := repositories.MakeUserRepository(db)
+	userRepository := repositories.MakeUserRepository(db, redis)
 	taskRepository := repositories.MakeTaskRepository(db)
 	listRepository := repositories.MakeListRepository(db)
 	boardRepository := repositories.MakeBoardRepository(db)
