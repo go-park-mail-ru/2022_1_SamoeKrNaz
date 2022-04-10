@@ -4,9 +4,9 @@ import (
 	"PLANEXA_backend/errors"
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
-	"github.com/kolesa-team/go-webp/decoder"
 	"github.com/kolesa-team/go-webp/encoder"
 	"gorm.io/gorm"
+	"image"
 	"mime/multipart"
 	"os"
 	"strconv"
@@ -80,17 +80,13 @@ func (userRepository *UserRepository) SaveAvatar(user *models.User, header *mult
 			return err
 		}
 
-		img, err := webp.Decode(openFile, &decoder.Options{})
+		img, _, err := image.Decode(openFile)
 		if err != nil {
 			return err
 		}
 
-		options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
+		err = webp.Encode(output, img, &encoder.Options{})
 		if err != nil {
-			return err
-		}
-
-		if err := webp.Encode(output, img, options); err != nil {
 			return err
 		}
 

@@ -125,14 +125,8 @@ func (userHandler *UserHandler) GetInfo(c *gin.Context) {
 }
 
 func (userHandler *UserHandler) SaveAvatar(c *gin.Context) {
-	_, check := c.Get("Auth")
+	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
-		return
-	}
-
-	token, err := c.Cookie("token")
-	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
@@ -144,9 +138,10 @@ func (userHandler *UserHandler) SaveAvatar(c *gin.Context) {
 	}
 
 	user := new(models.User)
+	user.IdU = userId
 	user.ImgAvatar = header.Filename
 
-	err = userHandler.usecase.SaveAvatar(user, header, token)
+	err = userHandler.usecase.SaveAvatar(user, header)
 
 	if err != nil {
 		return
