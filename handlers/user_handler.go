@@ -48,7 +48,7 @@ func (userHandler *UserHandler) Login(c *gin.Context) {
 		Path:     "/",
 	}
 	http.SetCookie(c.Writer, &cookie)
-	c.JSON(http.StatusOK, gin.H{"is_logged": true, "userId": userId})
+	c.JSON(http.StatusOK, gin.H{"userId": userId})
 	return
 }
 
@@ -77,7 +77,7 @@ func (userHandler *UserHandler) Register(c *gin.Context) {
 		Path:     "/",
 	}
 	http.SetCookie(c.Writer, &cookie)
-	c.JSON(http.StatusCreated, gin.H{"is_registered": true, "userId": userId})
+	c.JSON(http.StatusCreated, gin.H{"userId": userId})
 	return
 }
 

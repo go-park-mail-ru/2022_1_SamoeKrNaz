@@ -4,17 +4,15 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
-	"PLANEXA_backend/redis"
 	"gorm.io/gorm"
 )
 
 type UserRepository struct {
-	db    *gorm.DB
-	redis *planexa_redis.RedisConnect
+	db *gorm.DB
 }
 
-func MakeUserRepository(db *gorm.DB, redis *planexa_redis.RedisConnect) *UserRepository {
-	return &UserRepository{db: db, redis: redis}
+func MakeUserRepository(db *gorm.DB) *UserRepository {
+	return &UserRepository{db: db}
 }
 
 func (userRepository *UserRepository) Create(user *models.User) (uint, error) {
@@ -123,13 +121,4 @@ func (userRepository *UserRepository) IsExist(username string) (bool, error) {
 		return false, nil
 	}
 	return true, nil
-}
-
-func (userRepository *UserRepository) GetUserByCookie(cookie string) (*models.User, error) {
-	userId, _ := userRepository.redis.GetSession(cookie)
-	user, err := userRepository.GetUserById(uint(userId))
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
 }

@@ -13,10 +13,10 @@ import (
 
 type UserUseCaseImpl struct {
 	rep *repositories.UserRepository
-	red *planexa_redis.RedisConnect
+	red *planexa_redis.RedisRepository
 }
 
-func MakeUserUsecase(rep_ *repositories.UserRepository, red_ *planexa_redis.RedisConnect) usecases.UserUseCase {
+func MakeUserUsecase(rep_ *repositories.UserRepository, red_ *planexa_redis.RedisRepository) usecases.UserUseCase {
 	return &UserUseCaseImpl{rep: rep_, red: red_}
 }
 
@@ -98,7 +98,8 @@ func (userUseCase *UserUseCaseImpl) GetInfoById(userId uint) (models.User, error
 
 func (userUseCase *UserUseCaseImpl) GetInfoByCookie(token string) (models.User, error) {
 	// получаю из бд всю инфу по айдишнику кроме пароля
-	user, err := userUseCase.rep.GetUserByCookie(token)
+	userID, err := userUseCase.red.GetSession(token)
+	user, err := userUseCase.rep.GetUserById(uint(userID))
 	sanitizer := bluemonday.UGCPolicy()
 	user.Username = sanitizer.Sanitize(user.Username)
 	user.ImgAvatar = sanitizer.Sanitize(user.ImgAvatar)
