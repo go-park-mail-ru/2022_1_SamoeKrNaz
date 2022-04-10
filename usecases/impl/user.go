@@ -84,11 +84,22 @@ func (userUseCase *UserUseCaseImpl) Logout(token string) error {
 	return userUseCase.red.DeleteSession(token)
 }
 
-func (userUseCase *UserUseCaseImpl) GetInfo(userId uint) (models.User, error) {
+func (userUseCase *UserUseCaseImpl) GetInfoById(userId uint) (models.User, error) {
 	// получаю из бд всю инфу по айдишнику кроме пароля
 	user, err := userUseCase.rep.GetUserById(userId)
 	sanitizer := bluemonday.UGCPolicy()
 	user.Password = sanitizer.Sanitize(user.Password)
+	user.Username = sanitizer.Sanitize(user.Username)
+	user.ImgAvatar = sanitizer.Sanitize(user.ImgAvatar)
+
+	user.Password = ""
+	return *user, err
+}
+
+func (userUseCase *UserUseCaseImpl) GetInfoByCookie(token string) (models.User, error) {
+	// получаю из бд всю инфу по айдишнику кроме пароля
+	user, err := userUseCase.rep.GetUserByCookie(token)
+	sanitizer := bluemonday.UGCPolicy()
 	user.Username = sanitizer.Sanitize(user.Username)
 	user.ImgAvatar = sanitizer.Sanitize(user.ImgAvatar)
 
