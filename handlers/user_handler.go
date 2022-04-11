@@ -73,6 +73,12 @@ func (userHandler *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
+	user, err = userHandler.usecase.GetInfoById(userId)
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		return
+	}
+
 	expiration := time.Now().Add(threeDays)
 	cookie := http.Cookie{
 		Name:     "token",
@@ -83,7 +89,7 @@ func (userHandler *UserHandler) Register(c *gin.Context) {
 		Path:     "/",
 	}
 	http.SetCookie(c.Writer, &cookie)
-	c.JSON(http.StatusCreated, gin.H{"userId": userId})
+	c.JSON(http.StatusCreated, &user)
 	return
 }
 

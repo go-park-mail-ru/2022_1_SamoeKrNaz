@@ -30,7 +30,7 @@ func (listHandler *ListHandler) GetLists(c *gin.Context) {
 		return
 	}
 
-	lists, err := listHandler.usecase.GetLists(uint(boardId), userId.(uint))
+	lists, err := listHandler.usecase.GetLists(uint(boardId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -52,7 +52,7 @@ func (listHandler *ListHandler) GetSingleList(c *gin.Context) {
 		return
 	}
 
-	list, err := listHandler.usecase.GetSingleList(uint(listId), userId.(uint))
+	list, err := listHandler.usecase.GetSingleList(uint(listId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -81,7 +81,7 @@ func (listHandler *ListHandler) CreateList(c *gin.Context) {
 		return
 	}
 
-	listId, err := listHandler.usecase.CreateList(list, uint(boardId), userId.(uint))
+	listId, err := listHandler.usecase.CreateList(list, uint(boardId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -109,8 +109,8 @@ func (listHandler *ListHandler) RefactorList(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	err = listHandler.usecase.RefactorList(list, userId.(uint), uint(listId))
+	list.IdL = uint(listId)
+	err = listHandler.usecase.RefactorList(list, uint(userId.(uint64)), uint(listId))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -133,7 +133,7 @@ func (listHandler *ListHandler) DeleteList(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	err = listHandler.usecase.DeleteList(uint(listId), userId.(uint))
+	err = listHandler.usecase.DeleteList(uint(listId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return

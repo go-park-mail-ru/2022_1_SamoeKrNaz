@@ -28,7 +28,7 @@ func (boardRepository *BoardRepository) Update(board models.Board) error {
 		return err
 	}
 	// ищем, какое поле поменялось
-	if currentData.Title != board.Title && board.Description != "" {
+	if currentData.Title != board.Title && board.Title != "" {
 		currentData.Title = board.Title
 	}
 	if currentData.Description != board.Description && board.Description != "" {

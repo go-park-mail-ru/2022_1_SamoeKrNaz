@@ -63,7 +63,7 @@ func (taskRepository *TaskRepository) Update(task models.Task) error {
 		}
 		currentData.Position = task.Position
 	}
-	if currentData.Position != task.Position && currentData.IdL != task.IdL {
+	if currentData.Position != task.Position && currentData.IdL != task.IdL && task.IdL != 0 {
 		// если мы переместили таску из одного списка в другой и поменяли список
 		// то нужно в старом списке поменять позиции после текущей таски
 		err := taskRepository.db.Model(&models.Task{}).

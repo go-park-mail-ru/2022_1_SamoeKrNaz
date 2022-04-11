@@ -93,7 +93,12 @@ func (boardHandler *BoardHandler) RefactorBoard(c *gin.Context) {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
-
+	boardId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	board.IdB = uint(boardId)
 	err = boardHandler.usecase.RefactorBoard(uint(userId.(uint64)), board)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
