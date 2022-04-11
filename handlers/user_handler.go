@@ -181,7 +181,7 @@ func (userHandler *UserHandler) SaveAvatar(c *gin.Context) {
 }
 
 func (userHandler *UserHandler) RefactorProfile(c *gin.Context) {
-	_, check := c.Get("Auth")
+	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
@@ -193,7 +193,7 @@ func (userHandler *UserHandler) RefactorProfile(c *gin.Context) {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
-
+	user.IdU = userId.(uint)
 	err = userHandler.usecase.RefactorProfile(user)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
