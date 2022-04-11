@@ -60,6 +60,7 @@ func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Boar
 	board.DateCreated = time.Now().Format(time.RFC850)
 	board.IdU = userId
 	boardId, err := boardUseCase.rep.Create(&board)
+	err = boardUseCase.rep.AppendUser(&board)
 	return boardId, err
 }
 
