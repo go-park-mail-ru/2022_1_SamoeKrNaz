@@ -4,7 +4,6 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/usecases"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -133,7 +132,6 @@ func (userHandler *UserHandler) GetInfoByCookie(c *gin.Context) {
 	}
 
 	user, err := userHandler.usecase.GetInfoById(uint(userId.(uint64)))
-	fmt.Println(user)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
