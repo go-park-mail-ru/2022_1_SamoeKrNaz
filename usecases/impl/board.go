@@ -60,8 +60,14 @@ func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Boar
 	board.DateCreated = time.Now().Format(time.RFC850)
 	board.IdU = userId
 	boardId, err := boardUseCase.rep.Create(&board)
+	if err != nil {
+		return 0, err
+	}
 	err = boardUseCase.rep.AppendUser(&board)
-	return boardId, err
+	if err != nil {
+		return 0, err
+	}
+	return boardId, nil
 }
 
 func (boardUseCase *BoardUseCaseImpl) RefactorBoard(userId uint, board models.Board) error {
