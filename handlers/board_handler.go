@@ -25,7 +25,7 @@ func (boardHandler *BoardHandler) GetBoards(c *gin.Context) {
 	}
 
 	//Получаю доски от БД
-	boards, err := boardHandler.usecase.GetBoards(userId.(uint))
+	boards, err := boardHandler.usecase.GetBoards(uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -48,7 +48,7 @@ func (boardHandler *BoardHandler) GetSingleBoard(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	board, err := boardHandler.usecase.GetSingleBoard(uint(boardId), userId.(uint))
+	board, err := boardHandler.usecase.GetSingleBoard(uint(boardId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -71,7 +71,7 @@ func (boardHandler *BoardHandler) CreateBoard(c *gin.Context) {
 		return
 	}
 
-	boardId, err := boardHandler.usecase.CreateBoard(userId.(uint), board)
+	boardId, err := boardHandler.usecase.CreateBoard(uint(userId.(uint64)), board)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -93,8 +93,13 @@ func (boardHandler *BoardHandler) RefactorBoard(c *gin.Context) {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
-
-	err = boardHandler.usecase.RefactorBoard(userId.(uint), board)
+	boardId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	board.IdB = uint(boardId)
+	err = boardHandler.usecase.RefactorBoard(uint(userId.(uint64)), board)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -117,7 +122,7 @@ func (boardHandler *BoardHandler) DeleteBoard(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	err = boardHandler.usecase.DeleteBoard(uint(boardId), userId.(uint))
+	err = boardHandler.usecase.DeleteBoard(uint(boardId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return

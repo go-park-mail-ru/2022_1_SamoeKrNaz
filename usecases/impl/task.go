@@ -31,6 +31,9 @@ func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models
 		return nil, customErrors.ErrNoAccess
 	}
 	tasks, err := taskUseCase.repTask.GetTasks(listId)
+	if err != nil {
+		return nil, err
+	}
 	sanitizer := bluemonday.UGCPolicy()
 	for _, task := range *tasks {
 		task.Title = sanitizer.Sanitize(task.Title)
@@ -43,13 +46,13 @@ func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models
 func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (models.Task, error) {
 	// доставю таск из бд
 	task, err := taskUseCase.repTask.GetById(taskId)
+	if err != nil {
+		return models.Task{}, err
+	}
 	sanitizer := bluemonday.UGCPolicy()
 	task.Title = sanitizer.Sanitize(task.Title)
 	task.DateCreated = sanitizer.Sanitize(task.DateCreated)
 	task.Description = sanitizer.Sanitize(task.Description)
-	if err != nil {
-		return models.Task{}, err
-	}
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, task.IdB)
 	if err != nil {
 		return models.Task{}, err
@@ -71,7 +74,7 @@ func (taskUseCase *TaskUseCaseImpl) CreateTask(task models.Task, idB uint, idL u
 	return taskId, err
 }
 
-func (taskUseCase *TaskUseCaseImpl) RefactorTask(task models.Task, userId uint, listId uint) error {
+func (taskUseCase *TaskUseCaseImpl) RefactorTask(task models.Task, userId uint) error {
 	// проверяю может ли юзер редачить
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, task.IdB)
 	if err != nil {

@@ -44,15 +44,14 @@ func (boardUseCase *BoardUseCaseImpl) GetSingleBoard(boardId uint, userId uint) 
 	}
 
 	board, err := boardUseCase.rep.GetById(boardId)
+	if err != nil {
+		return models.Board{}, err
+	}
 	sanitizer := bluemonday.UGCPolicy()
 	board.DateCreated = sanitizer.Sanitize(board.DateCreated)
 	board.Title = sanitizer.Sanitize(board.Title)
 	board.Description = sanitizer.Sanitize(board.Description)
 	board.ImgDesk = sanitizer.Sanitize(board.ImgDesk)
-	if err != nil {
-		return models.Board{}, err
-	}
-
 	return *board, nil
 }
 
@@ -61,7 +60,14 @@ func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Boar
 	board.DateCreated = time.Now().Format(time.RFC850)
 	board.IdU = userId
 	boardId, err := boardUseCase.rep.Create(&board)
-	return boardId, err
+	if err != nil {
+		return 0, err
+	}
+	err = boardUseCase.rep.AppendUser(&board)
+	if err != nil {
+		return 0, err
+	}
+	return boardId, nil
 }
 
 func (boardUseCase *BoardUseCaseImpl) RefactorBoard(userId uint, board models.Board) error {

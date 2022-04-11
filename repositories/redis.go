@@ -3,7 +3,6 @@ package repositories
 import (
 	"PLANEXA_backend/models"
 	"github.com/go-redis/redis"
-	"time"
 )
 
 const (
@@ -16,14 +15,14 @@ type RedisRepository struct {
 
 func ConnectToRedis() *RedisRepository {
 	return &RedisRepository{redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     "redis:6379",
 		Password: "",
 		DB:       0,
 	})}
 }
 
 func (redisConnect RedisRepository) SetSession(session models.Session) error {
-	return redisConnect.client.Set(session.CookieValue, session.UserId, time.Duration(CookieTime)).Err()
+	return redisConnect.client.Do("SETEX", session.CookieValue, CookieTime, session.UserId).Err()
 }
 
 func (redisConnect RedisRepository) GetSession(cookieValue string) (uint64, error) {

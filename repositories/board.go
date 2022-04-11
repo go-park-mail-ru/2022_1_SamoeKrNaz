@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	customErrors "PLANEXA_backend/errors"
+	"PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
 	"gorm.io/gorm"
 )
@@ -19,6 +19,11 @@ func (boardRepository *BoardRepository) Create(board *models.Board) (uint, error
 	return board.IdB, err
 }
 
+func (boardRepository *BoardRepository) AppendUser(board *models.Board) error {
+	err := boardRepository.db.Model(&models.User{IdU: board.IdU}).Association("Boards").Append(board)
+	return err
+}
+
 func (boardRepository *BoardRepository) Update(board models.Board) error {
 	// возьмем из бд текущую запись по айдишнику
 	currentData, err := boardRepository.GetById(board.IdB)
@@ -27,7 +32,7 @@ func (boardRepository *BoardRepository) Update(board models.Board) error {
 		return err
 	}
 	// ищем, какое поле поменялось
-	if currentData.Title != board.Title && board.Description != "" {
+	if currentData.Title != board.Title && board.Title != "" {
 		currentData.Title = board.Title
 	}
 	if currentData.Description != board.Description && board.Description != "" {

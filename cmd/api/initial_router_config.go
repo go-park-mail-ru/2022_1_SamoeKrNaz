@@ -38,7 +38,7 @@ func initRouter() (*gin.Engine, error) {
 	router := gin.Default()
 
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://planexa.netlify.app", "http://89.208.199.114:3000", "http://89.208.199.114:8080"}
+	config.AllowOrigins = []string{"http://localhost:3000", "http://planexa.netlify.app", "http://89.208.199.114:3000", "http://89.208.199.114:8080"}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowCredentials = true
 	router.Use(cors.New(config))
@@ -65,7 +65,7 @@ func initRouter() (*gin.Engine, error) {
 		boardRoutes := router.Group(routes.BoardRoute)
 		{
 			boardRoutes.POST("", middleware.CheckAuth, boardHandler.CreateBoard)
-			boardRoutes.PUT("", middleware.CheckAuth, boardHandler.RefactorBoard)
+			boardRoutes.PUT("/:id", middleware.CheckAuth, boardHandler.RefactorBoard)
 			boardRoutes.GET("/:id", middleware.CheckAuth, boardHandler.GetSingleBoard)
 			boardRoutes.DELETE("/:id", middleware.CheckAuth, boardHandler.DeleteBoard)
 			boardRoutes.GET("/:id"+routes.ListRoute, middleware.CheckAuth, listHandler.GetLists)

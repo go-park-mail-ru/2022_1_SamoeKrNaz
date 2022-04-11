@@ -30,7 +30,7 @@ func (taskHandler *TaskHandler) GetTasks(c *gin.Context) {
 		return
 	}
 
-	tasks, err := taskHandler.usecase.GetTasks(uint(listId), userId.(uint))
+	tasks, err := taskHandler.usecase.GetTasks(uint(listId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -52,7 +52,7 @@ func (taskHandler *TaskHandler) GetSingleTask(c *gin.Context) {
 		return
 	}
 
-	list, err := taskHandler.usecase.GetSingleTask(uint(taskId), userId.(uint))
+	list, err := taskHandler.usecase.GetSingleTask(uint(taskId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -87,7 +87,7 @@ func (taskHandler *TaskHandler) CreateTask(c *gin.Context) {
 		return
 	}
 
-	taskId, err := taskHandler.usecase.CreateTask(list, uint(boardId), uint(listId), userId.(uint))
+	taskId, err := taskHandler.usecase.CreateTask(list, uint(boardId), uint(listId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -115,8 +115,8 @@ func (taskHandler *TaskHandler) RefactorTask(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	err = taskHandler.usecase.RefactorTask(task, userId.(uint), uint(taskId))
+	task.IdT = uint(taskId)
+	err = taskHandler.usecase.RefactorTask(task, uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -139,7 +139,7 @@ func (taskHandler *TaskHandler) DeleteTask(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	err = taskHandler.usecase.DeleteTask(uint(taskId), userId.(uint))
+	err = taskHandler.usecase.DeleteTask(uint(taskId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return

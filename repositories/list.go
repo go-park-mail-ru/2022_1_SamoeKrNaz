@@ -34,7 +34,7 @@ func (listRepository *ListRepository) Update(list models.List) error {
 	if currentData.Title != list.Title {
 		currentData.Title = list.Title
 	}
-	if currentData.Position != list.Position {
+	if currentData.Position != list.Position && list.Position != 0 {
 		// если список переместили вниз
 		if currentData.Position > list.Position {
 			// допустим, что был список 1 2 3 4

@@ -10,6 +10,5 @@ type UserUseCase interface {
 	Register(user models.User) (uint, string, error)
 	Logout(token string) error
 	GetInfoById(userId uint) (models.User, error)
-	GetInfoByCookie(token string) (models.User, error)
 	SaveAvatar(*models.User, *multipart.FileHeader) error
 }

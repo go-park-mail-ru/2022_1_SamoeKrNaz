@@ -87,20 +87,11 @@ func (userUseCase *UserUseCaseImpl) Logout(token string) error {
 func (userUseCase *UserUseCaseImpl) GetInfoById(userId uint) (models.User, error) {
 	// получаю из бд всю инфу по айдишнику кроме пароля
 	user, err := userUseCase.rep.GetUserById(userId)
+	if err != nil {
+		return models.User{}, err
+	}
 	sanitizer := bluemonday.UGCPolicy()
 	user.Password = sanitizer.Sanitize(user.Password)
-	user.Username = sanitizer.Sanitize(user.Username)
-	user.ImgAvatar = sanitizer.Sanitize(user.ImgAvatar)
-
-	user.Password = ""
-	return *user, err
-}
-
-func (userUseCase *UserUseCaseImpl) GetInfoByCookie(token string) (models.User, error) {
-	// получаю из бд всю инфу по айдишнику кроме пароля
-	userID, err := userUseCase.red.GetSession(token)
-	user, err := userUseCase.rep.GetUserById(uint(userID))
-	sanitizer := bluemonday.UGCPolicy()
 	user.Username = sanitizer.Sanitize(user.Username)
 	user.ImgAvatar = sanitizer.Sanitize(user.ImgAvatar)
 
