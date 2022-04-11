@@ -194,7 +194,7 @@ func (userHandler *UserHandler) RefactorProfile(c *gin.Context) {
 		return
 	}
 
-	if userId != user.IdU {
+	if uint(userId.(uint64)) != user.IdU {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
