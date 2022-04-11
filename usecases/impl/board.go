@@ -5,7 +5,6 @@ import (
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/usecases"
-	"fmt"
 	"github.com/microcosm-cc/bluemonday"
 	"time"
 )
@@ -21,7 +20,6 @@ func MakeBoardUsecase(rep_ *repositories.BoardRepository) usecases.BoardUseCase 
 func (boardUseCase *BoardUseCaseImpl) GetBoards(userId uint) ([]models.Board, error) {
 	// достаю из БД доски по userId
 	boards, err := boardUseCase.rep.GetUserBoards(userId)
-	fmt.Println(boards)
 	if err != nil {
 		return nil, err
 	}

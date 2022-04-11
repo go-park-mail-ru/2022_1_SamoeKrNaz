@@ -16,6 +16,7 @@ func MakeBoardRepository(db *gorm.DB) *BoardRepository {
 
 func (boardRepository *BoardRepository) Create(board *models.Board) (uint, error) {
 	err := boardRepository.db.Create(board).Error
+	err = boardRepository.db.Model(&models.User{IdU: board.IdU}).Association("Boards").Append(board)
 	return board.IdB, err
 }
 
