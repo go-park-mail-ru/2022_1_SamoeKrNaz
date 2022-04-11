@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -162,21 +163,22 @@ func (userHandler *UserHandler) SaveAvatar(c *gin.Context) {
 
 	header, err := c.FormFile("avatar")
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUsernameExist), gin.H{"error": customErrors.ErrUsernameExist.Error()})
 		return
 	}
 
 	user := new(models.User)
-	user.IdU = userId.(uint)
+	user.IdU = uint(userId.(uint64))
 	user.ImgAvatar = header.Filename
 
 	err = userHandler.usecase.SaveAvatar(user, header)
 
 	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"avatar_path": user.ImgAvatar})
+	c.JSON(http.StatusOK, gin.H{"avatar_path": strings.Join([]string{strconv.Itoa(int(user.IdU)), ".webp"}, "")})
 	return
 }
 
@@ -193,7 +195,7 @@ func (userHandler *UserHandler) RefactorProfile(c *gin.Context) {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
-	user.IdU = userId.(uint)
+	user.IdU = uint(userId.(uint64))
 	err = userHandler.usecase.RefactorProfile(user)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})

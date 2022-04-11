@@ -7,6 +7,10 @@ import (
 	"github.com/kolesa-team/go-webp/encoder"
 	"gorm.io/gorm"
 	"image"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
+	"log"
 	"mime/multipart"
 	"os"
 	"strconv"
@@ -15,7 +19,7 @@ import (
 	"github.com/kolesa-team/go-webp/webp"
 )
 
-const filePath = "/avatars/"
+const filePath = "avatars/"
 
 type UserRepository struct {
 	db *gorm.DB
@@ -85,7 +89,12 @@ func (userRepository *UserRepository) SaveAvatar(user *models.User, header *mult
 			return err
 		}
 
-		err = webp.Encode(output, img, &encoder.Options{})
+		options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		err = webp.Encode(output, img, options)
 		if err != nil {
 			return err
 		}
