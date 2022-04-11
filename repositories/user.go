@@ -160,7 +160,7 @@ func (userRepository *UserRepository) GetUserById(IdU uint) (*models.User, error
 
 func (userRepository *UserRepository) IsExist(username string) (bool, error) {
 	result, err := userRepository.GetUserByLogin(username)
-	if err != nil {
+	if err != nil && err != customErrors.ErrUserNotFound {
 		return false, err
 	} else if result == nil {
 		return false, nil

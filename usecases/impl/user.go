@@ -96,18 +96,6 @@ func (userUseCase *UserUseCaseImpl) GetInfoById(userId uint) (models.User, error
 	return *user, err
 }
 
-func (userUseCase *UserUseCaseImpl) GetInfoByCookie(token string) (models.User, error) {
-	// получаю из бд всю инфу по айдишнику кроме пароля
-	userID, err := userUseCase.red.GetSession(token)
-	user, err := userUseCase.rep.GetUserById(uint(userID))
-	sanitizer := bluemonday.UGCPolicy()
-	user.Username = sanitizer.Sanitize(user.Username)
-	user.ImgAvatar = sanitizer.Sanitize(user.ImgAvatar)
-
-	user.Password = ""
-	return *user, err
-}
-
 func (userUseCase *UserUseCaseImpl) SaveAvatar(user *models.User, header *multipart.FileHeader) error {
 	return userUseCase.rep.SaveAvatar(user, header)
 }

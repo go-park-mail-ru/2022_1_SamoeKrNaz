@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	customErrors "PLANEXA_backend/errors"
+	"PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
 	"gorm.io/gorm"
 )

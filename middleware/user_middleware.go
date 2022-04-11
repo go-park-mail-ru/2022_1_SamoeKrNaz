@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"PLANEXA_backend/models"
+	"PLANEXA_backend/repositories"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,13 +11,11 @@ func CheckAuth(c *gin.Context) {
 		return
 	}
 	// Получаю сессии из БД
-
-	for _, sess := range models.SessionList {
-		if token == sess.CookieValue {
-			//c.JSON(http.StatusOK, models.TasksAndBoards)
-			c.Set("Auth", sess.UserId)
-			return
-		}
+	redis := repositories.ConnectToRedis()
+	userId, err := redis.GetSession(token)
+	if err != nil {
+		return
 	}
+	c.Set("Auth", userId)
 	return
 }
