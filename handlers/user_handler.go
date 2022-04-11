@@ -179,3 +179,32 @@ func (userHandler *UserHandler) SaveAvatar(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"avatar_path": user.ImgAvatar})
 	return
 }
+
+func (userHandler *UserHandler) RefactorProfile(c *gin.Context) {
+	userId, check := c.Get("Auth")
+	if !check {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+
+	var user models.User
+	err := c.ShouldBindJSON(&user)
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		return
+	}
+
+	if uint(userId.(uint64)) != user.IdU {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+
+	err = userHandler.usecase.RefactorProfile(user)
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"avatar_path": user.ImgAvatar})
+	return
+}

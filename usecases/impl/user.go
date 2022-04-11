@@ -102,3 +102,7 @@ func (userUseCase *UserUseCaseImpl) GetInfoById(userId uint) (models.User, error
 func (userUseCase *UserUseCaseImpl) SaveAvatar(user *models.User, header *multipart.FileHeader) error {
 	return userUseCase.rep.SaveAvatar(user, header)
 }
+
+func (userUseCase *UserUseCaseImpl) RefactorProfile(user models.User) error {
+	return userUseCase.rep.Update(&user)
+}
