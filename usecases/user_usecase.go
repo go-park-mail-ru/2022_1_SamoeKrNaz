@@ -11,4 +11,5 @@ type UserUseCase interface {
 	Logout(token string) error
 	GetInfoById(userId uint) (models.User, error)
 	SaveAvatar(*models.User, *multipart.FileHeader) error
+	RefactorProfile(user models.User) error
 }

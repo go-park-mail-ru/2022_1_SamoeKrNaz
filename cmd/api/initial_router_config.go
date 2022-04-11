@@ -92,6 +92,7 @@ func initRouter() (*gin.Engine, error) {
 		mainRoutes.GET(routes.ProfileRoute+"/:id", middleware.CheckAuth, userHandler.GetInfoById)
 		mainRoutes.GET(routes.ProfileRoute, middleware.CheckAuth, userHandler.GetInfoByCookie)
 		mainRoutes.PUT(routes.ProfileRoute+"/upload", middleware.CheckAuth, userHandler.SaveAvatar)
+		mainRoutes.PUT(routes.ProfileRoute, middleware.CheckAuth)
 	}
 	return router, nil
 }
