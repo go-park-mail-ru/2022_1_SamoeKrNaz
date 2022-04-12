@@ -4,7 +4,7 @@ import (
 	"PLANEXA_backend/handlers"
 	"PLANEXA_backend/middleware"
 	"PLANEXA_backend/models"
-	"PLANEXA_backend/repositories"
+	impl2 "PLANEXA_backend/repositories/impl"
 	"PLANEXA_backend/routes"
 	"PLANEXA_backend/usecases/impl"
 	"github.com/gin-contrib/cors"
@@ -47,15 +47,15 @@ func initRouter() (*gin.Engine, error) {
 	if err != nil {
 		return nil, err
 	}
-	redis := repositories.ConnectToRedis()
+	redis := impl2.ConnectToRedis()
 
 	// создание репозиториев
-	userRepository := repositories.MakeUserRepository(db)
-	taskRepository := repositories.MakeTaskRepository(db)
-	listRepository := repositories.MakeListRepository(db)
-	boardRepository := repositories.MakeBoardRepository(db)
+	userRepository := impl2.MakeUserRepository(db)
+	taskRepository := impl2.MakeTaskRepository(db)
+	listRepository := impl2.MakeListRepository(db)
+	boardRepository := impl2.MakeBoardRepository(db)
 
-	userHandler := handlers.MakeUserHandler(impl.MakeUserUsecase(userRepository, redis))
+	userHandler := handlers.MakeUserHandler(impl.MakeUserUsecase(userRepository, &redis))
 	taskHandler := handlers.MakeTaskHandler(impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository))
 	boardHandler := handlers.MakeBoardHandler(impl.MakeBoardUsecase(boardRepository))
 	listHandler := handlers.MakeListHandler(impl.MakeListUsecase(listRepository, boardRepository))

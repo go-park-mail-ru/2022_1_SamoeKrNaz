@@ -3,17 +3,17 @@ package impl
 import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
-	"PLANEXA_backend/repositories"
+	"PLANEXA_backend/repositories/impl"
 	"PLANEXA_backend/usecases"
 	"github.com/microcosm-cc/bluemonday"
 	"time"
 )
 
 type BoardUseCaseImpl struct {
-	rep *repositories.BoardRepository
+	rep *impl.BoardRepository
 }
 
-func MakeBoardUsecase(rep_ *repositories.BoardRepository) usecases.BoardUseCase {
+func MakeBoardUsecase(rep_ *impl.BoardRepository) usecases.BoardUseCase {
 	return &BoardUseCaseImpl{rep: rep_}
 }
 

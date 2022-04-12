@@ -4,7 +4,7 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
-	"PLANEXA_backend/repositories"
+	"PLANEXA_backend/repositories/impl"
 	"PLANEXA_backend/usecases"
 	"PLANEXA_backend/utils"
 	"github.com/microcosm-cc/bluemonday"
@@ -12,11 +12,11 @@ import (
 )
 
 type UserUseCaseImpl struct {
-	rep *repositories.UserRepository
-	red *repositories.RedisRepository
+	rep *impl.UserRepository
+	red *impl.RedisRepository
 }
 
-func MakeUserUsecase(rep_ *repositories.UserRepository, red_ *repositories.RedisRepository) usecases.UserUseCase {
+func MakeUserUsecase(rep_ *impl.UserRepository, red_ *impl.RedisRepository) usecases.UserUseCase {
 	return &UserUseCaseImpl{rep: rep_, red: red_}
 }
 
