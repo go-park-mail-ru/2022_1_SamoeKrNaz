@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	customErrors "PLANEXA_backend/errors"
 	mock_usecases "PLANEXA_backend/handlers/mocks"
 	"PLANEXA_backend/middleware"
 	mock_repositories "PLANEXA_backend/repositories/mocks"
@@ -14,7 +15,7 @@ import (
 	"testing"
 )
 
-func TestCreateBoard(t *testing.T) {
+func TestGetBoard(t *testing.T) {
 	t.Parallel()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
@@ -38,17 +39,24 @@ func TestCreateBoard(t *testing.T) {
 
 	redis.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
 	boardUseCase.EXPECT().GetBoards(uint(22)).Return(nil, nil)
+	authMiddleware := middleware.CreateMiddleware(redis)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
-		mainRoutes.GET("", middleware.CheckAuth, boardHandler.GetBoards)
+		mainRoutes.GET("", authMiddleware.CheckAuth, boardHandler.GetBoards)
 	}
 
+	//good
 	request, _ := http.NewRequest("GET", routes.HomeRoute, nil)
-
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusOK, writer.Code)
 
+	//bad
+	redis.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
+	request, _ = http.NewRequest("GET", routes.HomeRoute, nil)
+	request.AddCookie(cookie)
+	router.ServeHTTP(writer, request)
+	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }

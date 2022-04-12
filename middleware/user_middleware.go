@@ -1,18 +1,25 @@
 package middleware
 
 import (
-	"PLANEXA_backend/repositories/impl"
+	"PLANEXA_backend/repositories"
 	"github.com/gin-gonic/gin"
 )
 
-func CheckAuth(c *gin.Context) {
+type Middleware struct {
+	redisRep repositories.RedisRepository
+}
+
+func CreateMiddleware(rep repositories.RedisRepository) *Middleware {
+	return &Middleware{redisRep: rep}
+}
+
+func (mw *Middleware) CheckAuth(c *gin.Context) {
 	token, err := c.Cookie("token")
 	if err != nil {
 		return
 	}
 	// Получаю сессии из БД
-	redis := impl.ConnectToRedis()
-	userId, err := redis.GetSession(token)
+	userId, err := mw.redisRep.GetSession(token)
 	if err != nil {
 		return
 	}

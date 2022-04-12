@@ -55,6 +55,8 @@ func initRouter() (*gin.Engine, error) {
 	listRepository := impl2.MakeListRepository(db)
 	boardRepository := impl2.MakeBoardRepository(db)
 
+	authMiddleware := middleware.CreateMiddleware(redis)
+
 	userHandler := handlers.MakeUserHandler(impl.MakeUserUsecase(userRepository, &redis))
 	taskHandler := handlers.MakeTaskHandler(impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository))
 	boardHandler := handlers.MakeBoardHandler(impl.MakeBoardUsecase(boardRepository))
@@ -64,35 +66,35 @@ func initRouter() (*gin.Engine, error) {
 	{
 		boardRoutes := router.Group(routes.BoardRoute)
 		{
-			boardRoutes.POST("", middleware.CheckAuth, boardHandler.CreateBoard)
-			boardRoutes.PUT("/:id", middleware.CheckAuth, boardHandler.RefactorBoard)
-			boardRoutes.GET("/:id", middleware.CheckAuth, boardHandler.GetSingleBoard)
-			boardRoutes.DELETE("/:id", middleware.CheckAuth, boardHandler.DeleteBoard)
-			boardRoutes.GET("/:id"+routes.ListRoute, middleware.CheckAuth, listHandler.GetLists)
-			boardRoutes.POST("/:id"+routes.ListRoute, middleware.CheckAuth, listHandler.CreateList)
-			boardRoutes.POST("/:id"+routes.ListRoute+"/:idL"+routes.TaskRoute, middleware.CheckAuth, taskHandler.CreateTask)
+			boardRoutes.POST("", authMiddleware.CheckAuth, boardHandler.CreateBoard)
+			boardRoutes.PUT("/:id", authMiddleware.CheckAuth, boardHandler.RefactorBoard)
+			boardRoutes.GET("/:id", authMiddleware.CheckAuth, boardHandler.GetSingleBoard)
+			boardRoutes.DELETE("/:id", authMiddleware.CheckAuth, boardHandler.DeleteBoard)
+			boardRoutes.GET("/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.GetLists)
+			boardRoutes.POST("/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.CreateList)
+			boardRoutes.POST("/:id"+routes.ListRoute+"/:idL"+routes.TaskRoute, authMiddleware.CheckAuth, taskHandler.CreateTask)
 		}
 		listRoutes := router.Group(routes.ListRoute)
 		{
-			listRoutes.GET("/:id", middleware.CheckAuth, listHandler.GetSingleList)
-			listRoutes.PUT("/:id", middleware.CheckAuth, listHandler.RefactorList)
-			listRoutes.DELETE("/:id", middleware.CheckAuth, listHandler.DeleteList)
-			listRoutes.GET("/:id"+routes.TaskRoute, middleware.CheckAuth, taskHandler.GetTasks)
+			listRoutes.GET("/:id", authMiddleware.CheckAuth, listHandler.GetSingleList)
+			listRoutes.PUT("/:id", authMiddleware.CheckAuth, listHandler.RefactorList)
+			listRoutes.DELETE("/:id", authMiddleware.CheckAuth, listHandler.DeleteList)
+			listRoutes.GET("/:id"+routes.TaskRoute, authMiddleware.CheckAuth, taskHandler.GetTasks)
 		}
 		taskRoutes := router.Group(routes.TaskRoute)
 		{
-			taskRoutes.GET("/:id", middleware.CheckAuth, taskHandler.GetSingleTask)
-			taskRoutes.PUT("/:id", middleware.CheckAuth, taskHandler.RefactorTask)
-			taskRoutes.DELETE("/:id", middleware.CheckAuth, taskHandler.DeleteTask)
+			taskRoutes.GET("/:id", authMiddleware.CheckAuth, taskHandler.GetSingleTask)
+			taskRoutes.PUT("/:id", authMiddleware.CheckAuth, taskHandler.RefactorTask)
+			taskRoutes.DELETE("/:id", authMiddleware.CheckAuth, taskHandler.DeleteTask)
 		}
 		mainRoutes.POST(routes.LoginRoute, userHandler.Login)
-		mainRoutes.GET("", middleware.CheckAuth, boardHandler.GetBoards)
+		mainRoutes.GET("", authMiddleware.CheckAuth, boardHandler.GetBoards)
 		mainRoutes.POST(routes.RegisterRoute, userHandler.Register)
 		mainRoutes.DELETE(routes.LogoutRoute, userHandler.Logout)
-		mainRoutes.GET(routes.ProfileRoute+"/:id", middleware.CheckAuth, userHandler.GetInfoById)
-		mainRoutes.GET(routes.ProfileRoute, middleware.CheckAuth, userHandler.GetInfoByCookie)
-		mainRoutes.PUT(routes.ProfileRoute+"/upload", middleware.CheckAuth, userHandler.SaveAvatar)
-		mainRoutes.PUT(routes.ProfileRoute, middleware.CheckAuth, userHandler.RefactorProfile)
+		mainRoutes.GET(routes.ProfileRoute+"/:id", authMiddleware.CheckAuth, userHandler.GetInfoById)
+		mainRoutes.GET(routes.ProfileRoute, authMiddleware.CheckAuth, userHandler.GetInfoByCookie)
+		mainRoutes.PUT(routes.ProfileRoute+"/upload", authMiddleware.CheckAuth, userHandler.SaveAvatar)
+		mainRoutes.PUT(routes.ProfileRoute, authMiddleware.CheckAuth, userHandler.RefactorProfile)
 	}
 	return router, nil
 }
