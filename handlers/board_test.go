@@ -57,6 +57,7 @@ func TestGetBoard(t *testing.T) {
 	redis.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
 	request, _ = http.NewRequest("GET", routes.HomeRoute, nil)
 	request.AddCookie(cookie)
+	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
