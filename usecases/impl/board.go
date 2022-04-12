@@ -95,3 +95,32 @@ func (boardUseCase *BoardUseCaseImpl) DeleteBoard(boardId uint, userId uint) err
 	err = boardUseCase.rep.Delete(boardId)
 	return err
 }
+
+func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Board, error) {
+	isAccess, err := boardUseCase.rep.IsAccessToBoard(userId, boardId)
+	if err != nil {
+		return models.Board{}, err
+	} else if isAccess == false {
+		return models.Board{}, customErrors.ErrNoAccess
+	}
+	lists, err := boardUseCase.rep.GetLists(boardId)
+	if err != nil {
+		return models.Board{}, err
+	}
+	for i, list := range lists {
+		tasks := new([]models.Task)
+		tasks, err = boardUseCase.rep.GetListTasks(list.IdL)
+		if err != nil {
+			return models.Board{}, err
+		}
+		lists[i].Tasks = *tasks
+	}
+	var board models.Board
+	sanitizer := bluemonday.UGCPolicy()
+	board.DateCreated = sanitizer.Sanitize(board.DateCreated)
+	board.Title = sanitizer.Sanitize(board.Title)
+	board.Description = sanitizer.Sanitize(board.Description)
+	board.ImgDesk = sanitizer.Sanitize(board.ImgDesk)
+	board.Lists = lists
+	return board, nil
+}

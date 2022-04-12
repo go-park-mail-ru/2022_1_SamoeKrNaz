@@ -24,6 +24,12 @@ func (boardRepository *BoardRepository) AppendUser(board *models.Board) error {
 	return err
 }
 
+func (boardRepository *BoardRepository) GetLists(IdB uint) ([]models.List, error) {
+	lists := new([]models.List)
+	result := boardRepository.db.Where("id_b = ?", IdB).Order("position").Find(lists)
+	return *lists, result.Error
+}
+
 func (boardRepository *BoardRepository) Update(board models.Board) error {
 	// возьмем из бд текущую запись по айдишнику
 	currentData, err := boardRepository.GetById(board.IdB)
@@ -79,4 +85,10 @@ func (boardRepository *BoardRepository) IsAccessToBoard(IdU uint, IdB uint) (boo
 		return false, nil
 	}
 	return true, nil
+}
+
+func (boardRepository *BoardRepository) GetListTasks(IdL uint) (*[]models.Task, error) {
+	tasks := new([]models.Task)
+	result := boardRepository.db.Where("id_l = ?", IdL).Find(tasks)
+	return tasks, result.Error
 }
