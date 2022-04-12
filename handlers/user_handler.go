@@ -163,7 +163,7 @@ func (userHandler *UserHandler) SaveAvatar(c *gin.Context) {
 
 	header, err := c.FormFile("avatar")
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUsernameExist), gin.H{"error": customErrors.ErrUsernameExist.Error()})
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
 
