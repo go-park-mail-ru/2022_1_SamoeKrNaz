@@ -31,7 +31,7 @@ func MakeUserRepository(db *gorm.DB) *UserRepository {
 
 func (userRepository *UserRepository) Create(user *models.User) (uint, error) {
 	// проверка на уже существующего пользователя
-	user.ImgAvatar = "default.png"
+	user.ImgAvatar = filePath + "default.png"
 	err := userRepository.db.Create(user).Error
 	return user.IdU, err
 }
