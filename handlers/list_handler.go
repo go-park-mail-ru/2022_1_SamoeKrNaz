@@ -86,7 +86,12 @@ func (listHandler *ListHandler) CreateList(c *gin.Context) {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"listId": listId})
+	list, err = listHandler.usecase.GetSingleList(listId, uint(userId.(uint64)))
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, list)
 	return
 }
 
