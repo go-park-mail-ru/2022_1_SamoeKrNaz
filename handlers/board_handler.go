@@ -76,7 +76,9 @@ func (boardHandler *BoardHandler) CreateBoard(c *gin.Context) {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"boardId": boardId})
+
+	board, err = boardHandler.usecase.GetSingleBoard(boardId, uint(userId.(uint64))
+	c.JSON(http.StatusCreated, &board)
 	return
 }
 
