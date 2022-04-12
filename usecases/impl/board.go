@@ -115,12 +115,15 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 		}
 		lists[i].Tasks = *tasks
 	}
-	var board models.Board
+	board, err := boardUseCase.rep.GetById(boardId)
+	if err != nil {
+		return models.Board{}, err
+	}
 	sanitizer := bluemonday.UGCPolicy()
 	board.DateCreated = sanitizer.Sanitize(board.DateCreated)
 	board.Title = sanitizer.Sanitize(board.Title)
 	board.Description = sanitizer.Sanitize(board.Description)
 	board.ImgDesk = sanitizer.Sanitize(board.ImgDesk)
 	board.Lists = lists
-	return board, nil
+	return *board, nil
 }
