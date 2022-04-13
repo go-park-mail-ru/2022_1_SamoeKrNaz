@@ -3,7 +3,7 @@ package impl
 import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
-	"PLANEXA_backend/repositories/impl"
+	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/usecases"
 	rtime "github.com/ivahaev/russian-time"
 	"github.com/microcosm-cc/bluemonday"
@@ -12,11 +12,11 @@ import (
 )
 
 type BoardUseCaseImpl struct {
-	repBoard *impl.BoardRepository
-	repList  *impl.ListRepository
+	repBoard repositories.BoardRepository
+	repList  repositories.ListRepository
 }
 
-func MakeBoardUsecase(repBoard_ *impl.BoardRepository, repList_ *impl.ListRepository) usecases.BoardUseCase {
+func MakeBoardUsecase(repBoard_ repositories.BoardRepository, repList_ repositories.ListRepository) usecases.BoardUseCase {
 	return &BoardUseCaseImpl{repBoard: repBoard_, repList: repList_}
 }
 

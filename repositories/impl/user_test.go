@@ -3,6 +3,7 @@ package impl
 import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
+	"PLANEXA_backend/repositories"
 	"fmt"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"gorm.io/driver/postgres"
@@ -12,7 +13,7 @@ import (
 	"testing"
 )
 
-func CreateUserMock() (*UserRepository, sqlmock.Sqlmock, error) {
+func CreateUserMock() (repositories.UserRepository, sqlmock.Sqlmock, error) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		return nil, nil, err
@@ -104,7 +105,7 @@ func TestCreateUser(t *testing.T) {
 		WithArgs(
 			user.Username,
 			user.Password,
-			user.ImgAvatar,
+			"avatars/default.webp",
 			user.IdU).
 		WillReturnRows(sqlmock.NewRows([]string{"1"}))
 	mock.ExpectCommit()
@@ -127,7 +128,7 @@ func TestCreateUser(t *testing.T) {
 		WithArgs(
 			user.Username,
 			user.Password,
-			user.ImgAvatar,
+			"avatars/default.webp",
 			user.IdU).
 		WillReturnError(fmt.Errorf("bad_result"))
 	mock.ExpectRollback()
