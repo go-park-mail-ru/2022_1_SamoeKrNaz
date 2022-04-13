@@ -2,11 +2,10 @@ package handlers
 
 import (
 	customErrors "PLANEXA_backend/errors"
-	mock_usecases "PLANEXA_backend/handlers/mocks"
 	"PLANEXA_backend/middleware"
 	mock_repositories "PLANEXA_backend/repositories/mocks"
 	"PLANEXA_backend/routes"
-	"github.com/gin-contrib/cors"
+	"PLANEXA_backend/usecases/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -24,12 +23,6 @@ func TestGetBoard(t *testing.T) {
 
 	router := gin.Default()
 
-	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000", "http://planexa.netlify.app", "http://89.208.199.114:3000", "http://89.208.199.114:8080"}
-	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-	config.AllowCredentials = true
-	router.Use(cors.New(config))
-
 	redis := mock_repositories.NewMockRedisRepository(controller)
 
 	cookie := &http.Cookie{
@@ -37,8 +30,6 @@ func TestGetBoard(t *testing.T) {
 		Value: "sess1",
 	}
 
-	redis.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
-	boardUseCase.EXPECT().GetBoards(uint(22)).Return(nil, nil)
 	authMiddleware := middleware.CreateMiddleware(redis)
 
 	mainRoutes := router.Group(routes.HomeRoute)
@@ -47,6 +38,8 @@ func TestGetBoard(t *testing.T) {
 	}
 
 	//good
+	redis.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
+	boardUseCase.EXPECT().GetBoards(uint(22)).Return(nil, nil)
 	request, _ := http.NewRequest("GET", routes.HomeRoute, nil)
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()

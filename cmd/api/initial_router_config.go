@@ -4,7 +4,7 @@ import (
 	"PLANEXA_backend/handlers"
 	"PLANEXA_backend/middleware"
 	"PLANEXA_backend/models"
-	impl2 "PLANEXA_backend/repositories/impl"
+	impl_rep "PLANEXA_backend/repositories/impl"
 	"PLANEXA_backend/routes"
 	"PLANEXA_backend/usecases/impl"
 	"github.com/gin-contrib/cors"
@@ -47,13 +47,13 @@ func initRouter() (*gin.Engine, error) {
 	if err != nil {
 		return nil, err
 	}
-	redis := impl2.ConnectToRedis()
+	redis := impl_rep.ConnectToRedis()
 
 	// создание репозиториев
-	userRepository := impl2.MakeUserRepository(db)
-	taskRepository := impl2.MakeTaskRepository(db)
-	listRepository := impl2.MakeListRepository(db)
-	boardRepository := impl2.MakeBoardRepository(db)
+	userRepository := impl_rep.MakeUserRepository(db)
+	taskRepository := impl_rep.MakeTaskRepository(db)
+	listRepository := impl_rep.MakeListRepository(db)
+	boardRepository := impl_rep.MakeBoardRepository(db)
 
 	authMiddleware := middleware.CreateMiddleware(redis)
 
