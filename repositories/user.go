@@ -4,14 +4,12 @@ import (
 	"PLANEXA_backend/errors"
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
-	"fmt"
 	"github.com/kolesa-team/go-webp/encoder"
 	"gorm.io/gorm"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
-	"log"
 	"mime/multipart"
 	"os"
 	"strconv"
@@ -60,7 +58,6 @@ func (userRepository *UserRepository) Update(user *models.User) error {
 	// если мы поменяли пароль, то надо его захешировать
 	if !hash.CheckPasswordHash(user.Password, currentData.Password) && user.Password != "" {
 		currentData.Password, err = hash.HashPassword(user.Password)
-		fmt.Println("vnutri")
 		if err != nil {
 			return err
 		}
@@ -94,7 +91,7 @@ func (userRepository *UserRepository) SaveAvatar(user *models.User, header *mult
 
 		options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
 		if err != nil {
-			log.Fatalln(err)
+			return err
 		}
 
 		err = webp.Encode(output, img, options)

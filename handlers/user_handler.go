@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -171,14 +170,14 @@ func (userHandler *UserHandler) SaveAvatar(c *gin.Context) {
 	user.IdU = uint(userId.(uint64))
 	user.ImgAvatar = header.Filename
 
-	err = userHandler.usecase.SaveAvatar(user, header)
+	path, err := userHandler.usecase.SaveAvatar(user, header)
 
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"avatar_path": strings.Join([]string{strconv.Itoa(int(user.IdU)), ".webp"}, "")})
+	c.JSON(http.StatusOK, gin.H{"avatar_path": path})
 	return
 }
 

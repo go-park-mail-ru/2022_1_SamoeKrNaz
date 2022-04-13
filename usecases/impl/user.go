@@ -9,6 +9,8 @@ import (
 	"PLANEXA_backend/utils"
 	"github.com/microcosm-cc/bluemonday"
 	"mime/multipart"
+	"strconv"
+	"strings"
 )
 
 type UserUseCaseImpl struct {
@@ -99,8 +101,9 @@ func (userUseCase *UserUseCaseImpl) GetInfoById(userId uint) (models.User, error
 	return *user, err
 }
 
-func (userUseCase *UserUseCaseImpl) SaveAvatar(user *models.User, header *multipart.FileHeader) error {
-	return userUseCase.rep.SaveAvatar(user, header)
+func (userUseCase *UserUseCaseImpl) SaveAvatar(user *models.User, header *multipart.FileHeader) (string, error) {
+	err := userUseCase.rep.SaveAvatar(user, header)
+	return strings.Join([]string{strconv.Itoa(int(user.IdU)), ".webp"}, ""), err
 }
 
 func (userUseCase *UserUseCaseImpl) RefactorProfile(user models.User) error {

@@ -57,16 +57,20 @@ func (listUseCase *ListUseCaseImpl) GetSingleList(listId uint, userId uint) (mod
 	return *list, err
 }
 
-func (listUseCase *ListUseCaseImpl) CreateList(list models.List, boardId uint, userId uint) (uint, error) {
+func (listUseCase *ListUseCaseImpl) CreateList(list models.List, boardId uint, userId uint) (*models.List, error) {
 	// создаю список в бд, получаю айди листа
 	isAccess, err := listUseCase.repBoard.IsAccessToBoard(userId, boardId)
 	if err != nil {
-		return 0, err
+		return nil, err
 	} else if isAccess == false {
-		return 0, customErrors.ErrNoAccess
+		return nil, customErrors.ErrNoAccess
 	}
 	listId, err := listUseCase.repList.Create(&list, boardId)
-	return listId, err
+	if err != nil {
+		return nil, err
+	}
+	createdList, err := listUseCase.repList.GetById(listId)
+	return createdList, err
 }
 
 func (listUseCase *ListUseCaseImpl) RefactorList(list models.List, userId uint, boardId uint) error {

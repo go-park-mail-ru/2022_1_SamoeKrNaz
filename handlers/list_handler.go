@@ -81,17 +81,12 @@ func (listHandler *ListHandler) CreateList(c *gin.Context) {
 		return
 	}
 
-	listId, err := listHandler.usecase.CreateList(list, uint(boardId), uint(userId.(uint64)))
+	createdList, err := listHandler.usecase.CreateList(list, uint(boardId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	list, err = listHandler.usecase.GetSingleList(listId, uint(userId.(uint64)))
-	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, list)
+	c.JSON(http.StatusOK, createdList)
 	return
 }
 

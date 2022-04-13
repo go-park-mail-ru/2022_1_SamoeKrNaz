@@ -57,23 +57,24 @@ func (boardUseCase *BoardUseCaseImpl) GetSingleBoard(boardId uint, userId uint) 
 	return *board, nil
 }
 
-func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Board) (uint, error) {
+func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Board) (*models.Board, error) {
 	// добавляю в бд такую доску с привязкой к данному юзеру
 	moscow, err := time.LoadLocation("Europe/Moscow")
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	board.DateCreated = strconv.Itoa(time.Now().In(moscow).Day()) + " " + rtime.Now().Month().StringInCase() + " " + strconv.Itoa(time.Now().In(moscow).Year()) + ", " + strconv.Itoa(time.Now().In(moscow).Hour()) + ":" + strconv.Itoa(time.Now().In(moscow).Minute())
 	board.IdU = userId
 	boardId, err := boardUseCase.rep.Create(&board)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	err = boardUseCase.rep.AppendUser(&board)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return boardId, nil
+	createdBoard, err := boardUseCase.rep.GetById(boardId)
+	return createdBoard, nil
 }
 
 func (boardUseCase *BoardUseCaseImpl) RefactorBoard(userId uint, board models.Board) error {
