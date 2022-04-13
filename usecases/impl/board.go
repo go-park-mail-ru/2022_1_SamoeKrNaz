@@ -59,7 +59,11 @@ func (boardUseCase *BoardUseCaseImpl) GetSingleBoard(boardId uint, userId uint) 
 
 func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Board) (uint, error) {
 	// добавляю в бд такую доску с привязкой к данному юзеру
-	board.DateCreated = strconv.Itoa(time.Now().Day()) + " " + rtime.Now().Month().StringInCase() + " " + strconv.Itoa(time.Now().Year()) + ", " + strconv.Itoa(time.Now().UTC().Hour()) + ":" + strconv.Itoa(time.Now().UTC().Minute())
+	moscow, err := time.LoadLocation("Europe/Moscow")
+	if err != nil {
+		return 0, err
+	}
+	board.DateCreated = strconv.Itoa(time.Now().In(moscow).Day()) + " " + rtime.Now().Month().StringInCase() + " " + strconv.Itoa(time.Now().In(moscow).Year()) + ", " + strconv.Itoa(time.Now().In(moscow).Hour()) + ":" + strconv.Itoa(time.Now().In(moscow).Minute())
 	board.IdU = userId
 	boardId, err := boardUseCase.rep.Create(&board)
 	if err != nil {
