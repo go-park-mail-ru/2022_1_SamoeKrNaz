@@ -90,9 +90,3 @@ func (boardRepository *BoardRepository) IsAccessToBoard(IdU uint, IdB uint) (boo
 	}
 	return true, nil
 }
-
-func (boardRepository *BoardRepository) GetListTasks(IdL uint) (*[]models.Task, error) {
-	tasks := new([]models.Task)
-	result := boardRepository.db.Where("id_l = ?", IdL).Find(tasks)
-	return tasks, result.Error
-}
