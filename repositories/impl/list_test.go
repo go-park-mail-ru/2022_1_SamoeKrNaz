@@ -3,6 +3,7 @@ package impl
 import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
+	"PLANEXA_backend/repositories"
 	"fmt"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"gorm.io/driver/postgres"
@@ -12,7 +13,7 @@ import (
 	"testing"
 )
 
-func CreateListMock() (*ListRepository, sqlmock.Sqlmock, error) {
+func CreateListMock() (repositories.ListRepository, sqlmock.Sqlmock, error) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		return nil, nil, err

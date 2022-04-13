@@ -3,18 +3,19 @@ package impl
 import (
 	"PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
+	"PLANEXA_backend/repositories"
 	"gorm.io/gorm"
 )
 
-type ListRepository struct {
+type ListRepositoryImpl struct {
 	db *gorm.DB
 }
 
-func MakeListRepository(db *gorm.DB) *ListRepository {
-	return &ListRepository{db: db}
+func MakeListRepository(db *gorm.DB) repositories.ListRepository {
+	return &ListRepositoryImpl{db: db}
 }
 
-func (listRepository *ListRepository) Create(list *models.List, IdB uint) (uint, error) {
+func (listRepository *ListRepositoryImpl) Create(list *models.List, IdB uint) (uint, error) {
 	list.IdB = IdB
 	var currentPosition int64
 	err := listRepository.db.Model(&models.List{}).Where("id_b = ?", list.IdB).Count(&currentPosition).Error
@@ -26,7 +27,7 @@ func (listRepository *ListRepository) Create(list *models.List, IdB uint) (uint,
 	return list.IdL, err
 }
 
-func (listRepository *ListRepository) Update(list models.List) error {
+func (listRepository *ListRepositoryImpl) Update(list models.List) error {
 	currentData, err := listRepository.GetById(list.IdL)
 	if err != nil {
 		return err
@@ -65,7 +66,7 @@ func (listRepository *ListRepository) Update(list models.List) error {
 	//сохраняем новую структуру
 	return listRepository.db.Save(currentData).Error
 }
-func (listRepository *ListRepository) Delete(IdL uint) error {
+func (listRepository *ListRepositoryImpl) Delete(IdL uint) error {
 	// при удалении необходимо изменить позиции списков, которые следуют после удаляемого списка
 	listToDelete, err := listRepository.GetById(IdL)
 	if err != nil {
@@ -80,13 +81,13 @@ func (listRepository *ListRepository) Delete(IdL uint) error {
 		UpdateColumn("position", gorm.Expr("position - 1")).Error
 }
 
-func (listRepository *ListRepository) GetTasks(IdL uint) (*[]models.Task, error) {
+func (listRepository *ListRepositoryImpl) GetTasks(IdL uint) (*[]models.Task, error) {
 	tasks := new([]models.Task)
 	result := listRepository.db.Where("id_l = ?", IdL).Find(tasks)
 	return tasks, result.Error
 }
 
-func (listRepository *ListRepository) GetById(IdL uint) (*models.List, error) {
+func (listRepository *ListRepositoryImpl) GetById(IdL uint) (*models.List, error) {
 	// указатель на структуру, которую вернем
 	list := new(models.List)
 	result := listRepository.db.Find(list, IdL)
@@ -102,7 +103,7 @@ func (listRepository *ListRepository) GetById(IdL uint) (*models.List, error) {
 	}
 }
 
-func (listRepository *ListRepository) GetBoard(IdL uint) (*models.Board, error) {
+func (listRepository *ListRepositoryImpl) GetBoard(IdL uint) (*models.Board, error) {
 	list, err := listRepository.GetById(IdL)
 	if err != nil {
 		return nil, err
