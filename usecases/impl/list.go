@@ -99,7 +99,6 @@ func (listUseCase *ListUseCaseImpl) DeleteList(listId uint, userId uint) error {
 	if err != nil {
 		return err
 	}
-
 	err = listUseCase.repList.Delete(listId)
 	return err
 }

@@ -10,8 +10,8 @@ type Board struct {
 	DateCreated string `json:"date"`
 	IdU         uint   `json:"idu" gorm:"foreignKey:IdB;"`
 	Users       []User `gorm:"many2many:users_boards"`
-	Lists       []List `gorm:"foreignKey:IdB;"`
-	Tasks       []Task `gorm:"foreignKey:IdB;"`
+	Lists       []List `gorm:"foreignKey:IdB;constraint:OnDelete:CASCADE;"`
+	Tasks       []Task `gorm:"foreignKey:IdB;constraint:OnDelete:CASCADE;"`
 }
 
 var BoardList = []Board{

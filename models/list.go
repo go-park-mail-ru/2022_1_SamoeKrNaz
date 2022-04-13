@@ -5,5 +5,5 @@ type List struct {
 	Title    string `json:"title" gorm:"not null"`
 	Position uint   `json:"position" gorm:"not null"`
 	IdB      uint   `json:"idb" gorm:"not null;"`
-	Tasks    []Task `gorm:"foreignKey:IdL;"`
+	Tasks    []Task `gorm:"foreignKey:IdL;constraint:OnDelete:CASCADE;"`
 }
