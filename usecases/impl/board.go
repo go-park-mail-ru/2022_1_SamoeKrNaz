@@ -5,7 +5,9 @@ import (
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/usecases"
+	rtime "github.com/ivahaev/russian-time"
 	"github.com/microcosm-cc/bluemonday"
+	"strconv"
 	"time"
 )
 
@@ -57,7 +59,7 @@ func (boardUseCase *BoardUseCaseImpl) GetSingleBoard(boardId uint, userId uint) 
 
 func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Board) (uint, error) {
 	// добавляю в бд такую доску с привязкой к данному юзеру
-	board.DateCreated = time.Now().Format(time.RFC850)
+	board.DateCreated = strconv.Itoa(time.Now().Day()) + " " + rtime.Now().Month().StringInCase() + " " + strconv.Itoa(time.Now().Year()) + ", " + strconv.Itoa(rtime.Now().Hour()) + ":" + strconv.Itoa(rtime.Now().Minute())
 	board.IdU = userId
 	boardId, err := boardUseCase.rep.Create(&board)
 	if err != nil {
