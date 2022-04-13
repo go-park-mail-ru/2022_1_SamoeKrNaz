@@ -3,18 +3,18 @@ package impl
 import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
-	"PLANEXA_backend/repositories"
+	"PLANEXA_backend/repositories/impl"
 	"PLANEXA_backend/usecases"
 	"github.com/microcosm-cc/bluemonday"
 )
 
 type TaskUseCaseImpl struct {
-	repTask  *repositories.TaskRepository
-	repBoard *repositories.BoardRepository
-	repList  *repositories.ListRepository
+	repTask  *impl.TaskRepository
+	repBoard *impl.BoardRepository
+	repList  *impl.ListRepository
 }
 
-func MakeTaskUsecase(repTask_ *repositories.TaskRepository, repBoard_ *repositories.BoardRepository, repList_ *repositories.ListRepository) usecases.TaskUseCase {
+func MakeTaskUsecase(repTask_ *impl.TaskRepository, repBoard_ *impl.BoardRepository, repList_ *impl.ListRepository) usecases.TaskUseCase {
 	return &TaskUseCaseImpl{repTask: repTask_, repBoard: repBoard_, repList: repList_}
 }
 

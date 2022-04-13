@@ -1,4 +1,4 @@
-package repositories
+package impl
 
 import (
 	customErrors "PLANEXA_backend/errors"
