@@ -3,6 +3,7 @@ package impl
 import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
+	"PLANEXA_backend/repositories"
 	"fmt"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"gorm.io/driver/postgres"
@@ -12,7 +13,7 @@ import (
 	"testing"
 )
 
-func CreateBoardMock() (*BoardRepository, sqlmock.Sqlmock, error) {
+func CreateBoardMock() (repositories.BoardRepository, sqlmock.Sqlmock, error) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		return nil, nil, err
@@ -162,6 +163,12 @@ func TestDeleteBoard(t *testing.T) {
 	}
 	// нормальный результат
 	mock.ExpectBegin()
+	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users_boards" WHERE "users_boards"."board_id_b" = $1`)).
+		WithArgs(
+			1,
+		).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+	mock.ExpectBegin()
 	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "boards" WHERE "boards"."id_b" = $1`)).
 		WithArgs(
 			1,
@@ -179,7 +186,7 @@ func TestDeleteBoard(t *testing.T) {
 
 	// ошибка
 	mock.ExpectBegin()
-	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "boards" WHERE "boards"."id_b" = $1`)).
+	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users_boards" WHERE "users_boards"."board_id_b" = $1`)).
 		WithArgs(
 			1,
 		).WillReturnError(fmt.Errorf("bad_result"))

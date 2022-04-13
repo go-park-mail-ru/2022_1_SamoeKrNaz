@@ -3,18 +3,19 @@ package impl
 import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
+	"PLANEXA_backend/repositories"
 	"gorm.io/gorm"
 )
 
-type TaskRepository struct {
+type TaskRepositoryImpl struct {
 	db *gorm.DB
 }
 
-func MakeTaskRepository(db *gorm.DB) *TaskRepository {
-	return &TaskRepository{db: db}
+func MakeTaskRepository(db *gorm.DB) repositories.TaskRepository {
+	return &TaskRepositoryImpl{db: db}
 }
 
-func (taskRepository *TaskRepository) Create(task *models.Task, IdL uint, IdB uint) (uint, error) {
+func (taskRepository *TaskRepositoryImpl) Create(task *models.Task, IdL uint, IdB uint) (uint, error) {
 	task.IdL = IdL
 	task.IdB = IdB
 	var currentPosition int64
@@ -27,13 +28,13 @@ func (taskRepository *TaskRepository) Create(task *models.Task, IdL uint, IdB ui
 	return task.IdT, err
 }
 
-func (taskRepository *TaskRepository) GetTasks(IdL uint) (*[]models.Task, error) {
+func (taskRepository *TaskRepositoryImpl) GetTasks(IdL uint) (*[]models.Task, error) {
 	tasks := new([]models.Task)
 	result := taskRepository.db.Where("id_l = ?", IdL).Find(tasks)
 	return tasks, result.Error
 }
 
-func (taskRepository *TaskRepository) Update(task models.Task) error {
+func (taskRepository *TaskRepositoryImpl) Update(task models.Task) error {
 	currentData, err := taskRepository.GetById(task.IdT)
 	if err != nil {
 		return err
@@ -94,7 +95,7 @@ func (taskRepository *TaskRepository) Update(task models.Task) error {
 	return taskRepository.db.Save(currentData).Error
 }
 
-func (taskRepository *TaskRepository) Delete(IdT uint) error {
+func (taskRepository *TaskRepositoryImpl) Delete(IdT uint) error {
 	// при удалении необходимо изменить позиции тасков, которые следуют после удаляемой задачи
 	taskToDelete, err := taskRepository.GetById(IdT)
 	if err != nil {
@@ -109,7 +110,7 @@ func (taskRepository *TaskRepository) Delete(IdT uint) error {
 		UpdateColumn("position", gorm.Expr("position - 1")).Error
 }
 
-func (taskRepository *TaskRepository) GetById(IdT uint) (*models.Task, error) {
+func (taskRepository *TaskRepositoryImpl) GetById(IdT uint) (*models.Task, error) {
 	// указатель на структуру, которую вернем
 	task := new(models.Task)
 	result := taskRepository.db.Find(task, IdT)
