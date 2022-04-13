@@ -48,8 +48,15 @@ func (boardRepository *BoardRepository) Update(board models.Board) error {
 	return boardRepository.db.Save(currentData).Error
 }
 
-func (boardRepository *BoardRepository) Delete(IdB uint) error {
-	return boardRepository.db.Delete(&models.Board{}, IdB).Error
+func (boardRepository *BoardRepository) Delete(IdU, IdB uint) error {
+	user := new(models.User)
+	result := boardRepository.db.Find(user, IdU)
+	if result.RowsAffected == 0 {
+		return customErrors.ErrUserNotFound
+	} else if result.Error != nil {
+		return result.Error
+	}
+	return boardRepository.db.Model(&models.Board{IdB: IdB}).Association("Users").Delete(user)
 }
 
 func (boardRepository *BoardRepository) GetUserBoards(IdU uint) ([]models.Board, error) {

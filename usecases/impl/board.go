@@ -92,7 +92,7 @@ func (boardUseCase *BoardUseCaseImpl) DeleteBoard(boardId uint, userId uint) err
 	} else if isAccess == false {
 		return customErrors.ErrNoAccess
 	}
-	err = boardUseCase.rep.Delete(boardId)
+	err = boardUseCase.rep.Delete(boardId, userId)
 	return err
 }
 
