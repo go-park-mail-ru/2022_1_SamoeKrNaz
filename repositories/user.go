@@ -4,6 +4,7 @@ import (
 	"PLANEXA_backend/errors"
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
+	"fmt"
 	"github.com/kolesa-team/go-webp/encoder"
 	"gorm.io/gorm"
 	"image"
@@ -57,8 +58,9 @@ func (userRepository *UserRepository) Update(user *models.User) error {
 		}
 	}
 	// если мы поменяли пароль, то надо его захешировать
-	if hash.CheckPasswordHash(user.Password, currentData.Password) && user.Password != "" {
+	if !hash.CheckPasswordHash(user.Password, currentData.Password) && user.Password != "" {
 		currentData.Password, err = hash.HashPassword(user.Password)
+		fmt.Println("vnutri")
 		if err != nil {
 			return err
 		}
