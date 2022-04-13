@@ -25,7 +25,7 @@ func (listUseCase *ListUseCaseImpl) GetLists(boardId uint, userId uint) ([]model
 	} else if isAccess == false {
 		return nil, customErrors.ErrNoAccess
 	}
-	lists, err := listUseCase.repList.GetLists(boardId)
+	lists, err := listUseCase.repBoard.GetLists(boardId)
 	if err != nil {
 		return nil, err
 	}

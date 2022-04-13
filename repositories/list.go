@@ -26,12 +26,6 @@ func (listRepository *ListRepository) Create(list *models.List, IdB uint) (uint,
 	return list.IdL, err
 }
 
-func (listRepository *ListRepository) GetLists(IdB uint) ([]models.List, error) {
-	lists := new([]models.List)
-	result := listRepository.db.Where("id_b = ?", IdB).Order("position").Find(lists)
-	return *lists, result.Error
-}
-
 func (listRepository *ListRepository) Update(list models.List) error {
 	currentData, err := listRepository.GetById(list.IdL)
 	if err != nil {

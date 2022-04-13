@@ -77,7 +77,7 @@ func (boardHandler *BoardHandler) CreateBoard(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, &createdBoard)
+	c.JSON(http.StatusCreated, createdBoard)
 	return
 }
 
