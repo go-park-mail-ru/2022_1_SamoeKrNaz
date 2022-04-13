@@ -1,22 +1,25 @@
 package impl
 
 import (
-	customErrors "PLANEXA_backend/errors"
+	"PLANEXA_backend/errors"
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
+	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/repositories/impl"
 	"PLANEXA_backend/usecases"
 	"PLANEXA_backend/utils"
 	"github.com/microcosm-cc/bluemonday"
 	"mime/multipart"
+	"strconv"
+	"strings"
 )
 
 type UserUseCaseImpl struct {
 	rep *impl.UserRepository
-	red *impl.RedisRepository
+	red repositories.RedisRepository
 }
 
-func MakeUserUsecase(rep_ *impl.UserRepository, red_ *impl.RedisRepository) usecases.UserUseCase {
+func MakeUserUsecase(rep_ *impl.UserRepository, red_ repositories.RedisRepository) usecases.UserUseCase {
 	return &UserUseCaseImpl{rep: rep_, red: red_}
 }
 
@@ -99,8 +102,9 @@ func (userUseCase *UserUseCaseImpl) GetInfoById(userId uint) (models.User, error
 	return *user, err
 }
 
-func (userUseCase *UserUseCaseImpl) SaveAvatar(user *models.User, header *multipart.FileHeader) error {
-	return userUseCase.rep.SaveAvatar(user, header)
+func (userUseCase *UserUseCaseImpl) SaveAvatar(user *models.User, header *multipart.FileHeader) (string, error) {
+	err := userUseCase.rep.SaveAvatar(user, header)
+	return strings.Join([]string{strconv.Itoa(int(user.IdU)), ".webp"}, ""), err
 }
 
 func (userUseCase *UserUseCaseImpl) RefactorProfile(user models.User) error {

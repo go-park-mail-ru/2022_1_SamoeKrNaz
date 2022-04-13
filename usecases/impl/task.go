@@ -62,16 +62,20 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 	return *task, err
 }
 
-func (taskUseCase *TaskUseCaseImpl) CreateTask(task models.Task, idB uint, idL uint, idU uint) (uint, error) {
+func (taskUseCase *TaskUseCaseImpl) CreateTask(task models.Task, idB uint, idL uint, idU uint) (*models.Task, error) {
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(idU, task.IdB)
 	if err != nil {
-		return 0, err
+		return nil, err
 	} else if isAccess == false {
-		return 0, customErrors.ErrNoAccess
+		return nil, customErrors.ErrNoAccess
 	}
 	// создаю таск в бд, получаю айди таска
 	taskId, err := taskUseCase.repTask.Create(&task, idL, idB)
-	return taskId, err
+	if err != nil {
+		return nil, err
+	}
+	createdTask, err := taskUseCase.repTask.GetById(taskId)
+	return createdTask, err
 }
 
 func (taskUseCase *TaskUseCaseImpl) RefactorTask(task models.Task, userId uint) error {

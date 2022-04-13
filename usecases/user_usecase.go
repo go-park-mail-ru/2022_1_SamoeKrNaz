@@ -10,6 +10,6 @@ type UserUseCase interface {
 	Register(user models.User) (uint, string, error)
 	Logout(token string) error
 	GetInfoById(userId uint) (models.User, error)
-	SaveAvatar(*models.User, *multipart.FileHeader) error
+	SaveAvatar(*models.User, *multipart.FileHeader) (string, error)
 	RefactorProfile(user models.User) error
 }

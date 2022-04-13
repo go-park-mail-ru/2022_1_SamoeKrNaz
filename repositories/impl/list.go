@@ -86,12 +86,6 @@ func (listRepository *ListRepository) GetTasks(IdL uint) (*[]models.Task, error)
 	return tasks, result.Error
 }
 
-func (listRepository *ListRepository) GetLists(IdB uint) ([]models.List, error) {
-	lists := new([]models.List)
-	result := listRepository.db.Where("id_b = ?", IdB).Find(lists)
-	return *lists, result.Error
-}
-
 func (listRepository *ListRepository) GetById(IdL uint) (*models.List, error) {
 	// указатель на структуру, которую вернем
 	list := new(models.List)

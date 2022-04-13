@@ -4,18 +4,13 @@ import (
 	"PLANEXA_backend/errors"
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
-	"github.com/kolesa-team/go-webp/encoder"
 	"gorm.io/gorm"
-	"image"
-	"mime/multipart"
-	"os"
-	"strconv"
-	"strings"
-
-	"github.com/kolesa-team/go-webp/webp"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 )
 
-const filePath = "/avatars/"
+const filePath = "avatars/"
 
 type UserRepository struct {
 	db *gorm.DB
@@ -27,6 +22,7 @@ func MakeUserRepository(db *gorm.DB) *UserRepository {
 
 func (userRepository *UserRepository) Create(user *models.User) (uint, error) {
 	// проверка на уже существующего пользователя
+	user.ImgAvatar = filePath + "default.webp"
 	err := userRepository.db.Create(user).Error
 	return user.IdU, err
 }
@@ -52,7 +48,7 @@ func (userRepository *UserRepository) Update(user *models.User) error {
 		}
 	}
 	// если мы поменяли пароль, то надо его захешировать
-	if hash.CheckPasswordHash(user.Password, currentData.Password) && user.Password != "" {
+	if !hash.CheckPasswordHash(user.Password, currentData.Password) && user.Password != "" {
 		currentData.Password, err = hash.HashPassword(user.Password)
 		if err != nil {
 			return err
@@ -61,40 +57,45 @@ func (userRepository *UserRepository) Update(user *models.User) error {
 	return userRepository.db.Save(currentData).Error
 }
 
-func (userRepository *UserRepository) SaveAvatar(user *models.User, header *multipart.FileHeader) error {
-	if user.ImgAvatar != "" {
-		currentData, err := userRepository.GetUserById(user.IdU)
-		if err != nil {
-			return err
-		}
-
-		fileName := strings.Join([]string{filePath, strconv.Itoa(int(currentData.IdU)), ".webp"}, "")
-		output, err := os.Create(fileName)
-		if err != nil {
-			return err
-		}
-		defer output.Close()
-
-		openFile, err := header.Open()
-		if err != nil {
-			return err
-		}
-
-		img, _, err := image.Decode(openFile)
-		if err != nil {
-			return err
-		}
-
-		err = webp.Encode(output, img, &encoder.Options{})
-		if err != nil {
-			return err
-		}
-
-		currentData.ImgAvatar = fileName
-		return userRepository.db.Save(currentData).Error
-	}
-	return nil
-}
+//func (userRepository *UserRepository) SaveAvatar(user *models.User, header *multipart.FileHeader) error {
+//	if user.ImgAvatar != "" {
+//		currentData, err := userRepository.GetUserById(user.IdU)
+//		if err != nil {
+//			return err
+//		}
+//
+//		fileName := strings.Join([]string{filePath, strconv.Itoa(int(currentData.IdU)), ".webp"}, "")
+//		output, err := os.Create(fileName)
+//		if err != nil {
+//			return err
+//		}
+//		defer output.Close()
+//
+//		openFile, err := header.Open()
+//		if err != nil {
+//			return err
+//		}
+//
+//		img, _, err := image.Decode(openFile)
+//		if err != nil {
+//			return err
+//		}
+//
+//		options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
+//		if err != nil {
+//			return err
+//		}
+//
+//		err = webp.Encode(output, img, options)
+//		if err != nil {
+//			return err
+//		}
+//
+//		currentData.ImgAvatar = fileName
+//		return userRepository.db.Save(currentData).Error
+//	}
+//	return nil
+//}
 
 func (userRepository *UserRepository) IsAbleToLogin(username string, password string) (bool, error) {
 	// проверка на существование пользователя по никнейму

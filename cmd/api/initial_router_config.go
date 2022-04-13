@@ -57,9 +57,9 @@ func initRouter() (*gin.Engine, error) {
 
 	authMiddleware := middleware.CreateMiddleware(redis)
 
-	userHandler := handlers.MakeUserHandler(impl.MakeUserUsecase(userRepository, &redis))
+	userHandler := handlers.MakeUserHandler(impl.MakeUserUsecase(userRepository, redis))
 	taskHandler := handlers.MakeTaskHandler(impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository))
-	boardHandler := handlers.MakeBoardHandler(impl.MakeBoardUsecase(boardRepository))
+	boardHandler := handlers.MakeBoardHandler(impl.MakeBoardUsecase(boardRepository, listRepository))
 	listHandler := handlers.MakeListHandler(impl.MakeListUsecase(listRepository, boardRepository))
 
 	mainRoutes := router.Group(routes.HomeRoute)
@@ -88,7 +88,7 @@ func initRouter() (*gin.Engine, error) {
 			taskRoutes.DELETE("/:id", authMiddleware.CheckAuth, taskHandler.DeleteTask)
 		}
 		mainRoutes.POST(routes.LoginRoute, userHandler.Login)
-		mainRoutes.GET("", authMiddleware.CheckAuth, boardHandler.GetBoards)
+		mainRoutes.GET("/get"+routes.BoardRoute+"s", authMiddleware.CheckAuth, boardHandler.GetBoards)
 		mainRoutes.POST(routes.RegisterRoute, userHandler.Register)
 		mainRoutes.DELETE(routes.LogoutRoute, userHandler.Logout)
 		mainRoutes.GET(routes.ProfileRoute+"/:id", authMiddleware.CheckAuth, userHandler.GetInfoById)

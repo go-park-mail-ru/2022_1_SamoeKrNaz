@@ -48,7 +48,7 @@ func (boardHandler *BoardHandler) GetSingleBoard(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	board, err := boardHandler.usecase.GetSingleBoard(uint(boardId), uint(userId.(uint64)))
+	board, err := boardHandler.usecase.GetBoard(uint(boardId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -71,12 +71,13 @@ func (boardHandler *BoardHandler) CreateBoard(c *gin.Context) {
 		return
 	}
 
-	boardId, err := boardHandler.usecase.CreateBoard(uint(userId.(uint64)), board)
+	createdBoard, err := boardHandler.usecase.CreateBoard(uint(userId.(uint64)), board)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"boardId": boardId})
+
+	c.JSON(http.StatusCreated, createdBoard)
 	return
 }
 

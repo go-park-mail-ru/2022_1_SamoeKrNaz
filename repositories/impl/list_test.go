@@ -275,64 +275,6 @@ func TestGetTasksList(t *testing.T) {
 	}
 }
 
-func TestGetLists(t *testing.T) {
-	t.Parallel()
-
-	//создание мока
-	repoList, mock, err := CreateListMock()
-	if err != nil {
-		t.Errorf("unexpected err: %s", err)
-	}
-
-	// нормальный результат
-	rows := sqlmock.
-		NewRows([]string{"id_t", "title", "position", "id_b"})
-
-	expect := []models.List{
-		{IdL: 0, Title: "title", Position: 2, IdB: 1},
-		{IdL: 0, Title: "title", Position: 1, IdB: 1},
-	}
-
-	for _, item := range expect {
-		rows = rows.AddRow(item.IdL, item.Title, item.Position, item.IdB)
-	}
-
-	mock.
-		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "lists" WHERE id_b = $1`)).
-		WithArgs(1).
-		WillReturnRows(rows)
-
-	item, err := repoList.GetLists(1)
-	if err != nil {
-		t.Errorf("unexpected err: %s", err)
-		return
-	}
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("there were unfulfilled expectations: %s", err)
-		return
-	}
-	if !reflect.DeepEqual(item, expect) {
-		t.Errorf("results not match, want %v, have %v", expect, item)
-		return
-	}
-
-	// айдишника не существует
-	mock.
-		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "lists" WHERE id_b = $1`)).
-		WithArgs(2).
-		WillReturnError(customErrors.ErrListNotFound)
-
-	_, err = repoList.GetLists(2)
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("there were unfulfilled expectations: %s", err)
-		return
-	}
-	if err == nil {
-		t.Errorf("expected error, got nil")
-		return
-	}
-}
-
 func TestGetBoard(t *testing.T) {
 	t.Parallel()
 

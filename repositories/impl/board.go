@@ -24,6 +24,12 @@ func (boardRepository *BoardRepository) AppendUser(board *models.Board) error {
 	return err
 }
 
+func (boardRepository *BoardRepository) GetLists(IdB uint) ([]models.List, error) {
+	lists := new([]models.List)
+	result := boardRepository.db.Where("id_b = ?", IdB).Order("position").Find(lists)
+	return *lists, result.Error
+}
+
 func (boardRepository *BoardRepository) Update(board models.Board) error {
 	// возьмем из бд текущую запись по айдишнику
 	currentData, err := boardRepository.GetById(board.IdB)
@@ -43,6 +49,10 @@ func (boardRepository *BoardRepository) Update(board models.Board) error {
 }
 
 func (boardRepository *BoardRepository) Delete(IdB uint) error {
+	err := boardRepository.db.Model(&models.Board{IdB: IdB}).Association("Users").Clear()
+	if err != nil {
+		return err
+	}
 	return boardRepository.db.Delete(&models.Board{}, IdB).Error
 }
 

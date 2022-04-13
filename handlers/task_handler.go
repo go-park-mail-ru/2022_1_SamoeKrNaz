@@ -52,12 +52,12 @@ func (taskHandler *TaskHandler) GetSingleTask(c *gin.Context) {
 		return
 	}
 
-	list, err := taskHandler.usecase.GetSingleTask(uint(taskId), uint(userId.(uint64)))
+	task, err := taskHandler.usecase.GetSingleTask(uint(taskId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, list)
+	c.JSON(http.StatusOK, task)
 	return
 }
 
@@ -87,12 +87,12 @@ func (taskHandler *TaskHandler) CreateTask(c *gin.Context) {
 		return
 	}
 
-	taskId, err := taskHandler.usecase.CreateTask(list, uint(boardId), uint(listId), uint(userId.(uint64)))
+	createdTask, err := taskHandler.usecase.CreateTask(list, uint(boardId), uint(listId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"taskId": taskId})
+	c.JSON(http.StatusOK, createdTask)
 	return
 }
 

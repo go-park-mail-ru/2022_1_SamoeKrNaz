@@ -167,16 +167,17 @@ func (userHandler *UserHandler) SaveAvatar(c *gin.Context) {
 	}
 
 	user := new(models.User)
-	user.IdU = userId.(uint)
+	user.IdU = uint(userId.(uint64))
 	user.ImgAvatar = header.Filename
 
-	err = userHandler.usecase.SaveAvatar(user, header)
+	path, err := userHandler.usecase.SaveAvatar(user, header)
 
 	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"avatar_path": user.ImgAvatar})
+	c.JSON(http.StatusOK, gin.H{"avatar_path": path})
 	return
 }
 
@@ -193,7 +194,7 @@ func (userHandler *UserHandler) RefactorProfile(c *gin.Context) {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
-	user.IdU = userId.(uint)
+	user.IdU = uint(userId.(uint64))
 	err = userHandler.usecase.RefactorProfile(user)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
