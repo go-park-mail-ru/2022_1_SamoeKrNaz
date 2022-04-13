@@ -4,10 +4,17 @@ import (
 	"PLANEXA_backend/errors"
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
+	"github.com/kolesa-team/go-webp/encoder"
+	"github.com/kolesa-team/go-webp/webp"
 	"gorm.io/gorm"
+	"image"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
+	"mime/multipart"
+	"os"
+	"strconv"
+	"strings"
 )
 
 const filePath = "avatars/"
@@ -57,45 +64,45 @@ func (userRepository *UserRepository) Update(user *models.User) error {
 	return userRepository.db.Save(currentData).Error
 }
 
-//func (userRepository *UserRepository) SaveAvatar(user *models.User, header *multipart.FileHeader) error {
-//	if user.ImgAvatar != "" {
-//		currentData, err := userRepository.GetUserById(user.IdU)
-//		if err != nil {
-//			return err
-//		}
-//
-//		fileName := strings.Join([]string{filePath, strconv.Itoa(int(currentData.IdU)), ".webp"}, "")
-//		output, err := os.Create(fileName)
-//		if err != nil {
-//			return err
-//		}
-//		defer output.Close()
-//
-//		openFile, err := header.Open()
-//		if err != nil {
-//			return err
-//		}
-//
-//		img, _, err := image.Decode(openFile)
-//		if err != nil {
-//			return err
-//		}
-//
-//		options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
-//		if err != nil {
-//			return err
-//		}
-//
-//		err = webp.Encode(output, img, options)
-//		if err != nil {
-//			return err
-//		}
-//
-//		currentData.ImgAvatar = fileName
-//		return userRepository.db.Save(currentData).Error
-//	}
-//	return nil
-//}
+func (userRepository *UserRepository) SaveAvatar(user *models.User, header *multipart.FileHeader) error {
+	if user.ImgAvatar != "" {
+		currentData, err := userRepository.GetUserById(user.IdU)
+		if err != nil {
+			return err
+		}
+
+		fileName := strings.Join([]string{filePath, strconv.Itoa(int(currentData.IdU)), ".webp"}, "")
+		output, err := os.Create(fileName)
+		if err != nil {
+			return err
+		}
+		defer output.Close()
+
+		openFile, err := header.Open()
+		if err != nil {
+			return err
+		}
+
+		img, _, err := image.Decode(openFile)
+		if err != nil {
+			return err
+		}
+
+		options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
+		if err != nil {
+			return err
+		}
+
+		err = webp.Encode(output, img, options)
+		if err != nil {
+			return err
+		}
+
+		currentData.ImgAvatar = fileName
+		return userRepository.db.Save(currentData).Error
+	}
+	return nil
+}
 
 func (userRepository *UserRepository) IsAbleToLogin(username string, password string) (bool, error) {
 	// проверка на существование пользователя по никнейму
