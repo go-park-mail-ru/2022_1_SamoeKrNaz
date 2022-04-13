@@ -35,10 +35,10 @@ func (m *MockBoardUseCase) EXPECT() *MockBoardUseCaseMockRecorder {
 }
 
 // CreateBoard mocks base method.
-func (m *MockBoardUseCase) CreateBoard(userId uint, board models.Board) (uint, error) {
+func (m *MockBoardUseCase) CreateBoard(userId uint, board models.Board) (*models.Board, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateBoard", userId, board)
-	ret0, _ := ret[0].(uint)
+	ret0, _ := ret[0].(*models.Board)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -61,6 +61,21 @@ func (m *MockBoardUseCase) DeleteBoard(boardId, userId uint) error {
 func (mr *MockBoardUseCaseMockRecorder) DeleteBoard(boardId, userId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBoard", reflect.TypeOf((*MockBoardUseCase)(nil).DeleteBoard), boardId, userId)
+}
+
+// GetBoard mocks base method.
+func (m *MockBoardUseCase) GetBoard(boardId, userId uint) (models.Board, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBoard", boardId, userId)
+	ret0, _ := ret[0].(models.Board)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBoard indicates an expected call of GetBoard.
+func (mr *MockBoardUseCaseMockRecorder) GetBoard(boardId, userId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBoard", reflect.TypeOf((*MockBoardUseCase)(nil).GetBoard), boardId, userId)
 }
 
 // GetBoards mocks base method.
