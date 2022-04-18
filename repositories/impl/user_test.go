@@ -245,4 +245,82 @@ func TestUpdateUser(t *testing.T) {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
 	}
+
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE "users"."id_u" = $1`)).
+		WithArgs(2).
+		WillReturnError(customErrors.ErrBoardNotFound)
+
+	err = repoUser.Update(&models.User{IdU: 2})
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+}
+
+func TestAddUserToBoard(t *testing.T) {
+	t.Parallel()
+
+	repoUser, mock, err := CreateUserMock()
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+
+	// нормальный результат
+	rows := sqlmock.
+		NewRows([]string{"id_u", "username", "password", "img_avatar"})
+
+	expect := []*models.User{
+		{IdU: 1, Username: "user", Password: "", ImgAvatar: ""},
+	}
+	for _, item := range expect {
+		rows = rows.AddRow(item.IdU, item.Username, item.Password, item.ImgAvatar)
+	}
+
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE "users"."id_u" = $1`)).
+		WithArgs(1).
+		WillReturnRows(rows)
+	mock.ExpectBegin()
+	mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users" ("username","password","img_avatar","id_u") VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING RETURNING "id_u"`)).
+		WithArgs(
+			"user",
+			expect[0].Password,
+			expect[0].ImgAvatar,
+			expect[0].IdU).
+		WillReturnRows(sqlmock.NewRows([]string{"1"}))
+	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "users_boards" ("board_id_b","user_id_u") VALUES ($1,$2) ON CONFLICT DO NOTHING`)).
+		WithArgs(1, 1).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	err = repoUser.AddUserToBoard(1, 1)
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}
+
+	// пользователя не существует
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE "users"."id_u" = $1`)).
+		WithArgs(2).
+		WillReturnError(customErrors.ErrBoardNotFound)
+
+	err = repoUser.AddUserToBoard(1, 2)
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
 }
