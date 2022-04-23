@@ -12,6 +12,7 @@ services:
     volumes:
       - ./:/server
       - ./avatars:/server/avatars
+      - ./img_boards:/server/img_boards
 
   postgres:
     image: postgres:latest
