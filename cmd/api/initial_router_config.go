@@ -54,12 +54,13 @@ func initRouter() (*gin.Engine, error) {
 	taskRepository := impl_rep.MakeTaskRepository(db)
 	listRepository := impl_rep.MakeListRepository(db)
 	boardRepository := impl_rep.MakeBoardRepository(db)
+	checkListRepository := impl_rep.MakeCheckListRepository(db)
 
 	authMiddleware := middleware.CreateMiddleware(redis)
 
 	userHandler := handlers.MakeUserHandler(impl.MakeUserUsecase(userRepository, redis))
 	taskHandler := handlers.MakeTaskHandler(impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository))
-	boardHandler := handlers.MakeBoardHandler(impl.MakeBoardUsecase(boardRepository, listRepository))
+	boardHandler := handlers.MakeBoardHandler(impl.MakeBoardUsecase(boardRepository, listRepository, taskRepository, checkListRepository))
 	listHandler := handlers.MakeListHandler(impl.MakeListUsecase(listRepository, boardRepository))
 
 	mainRoutes := router.Group(routes.HomeRoute)
