@@ -9,37 +9,15 @@ import (
 	"strconv"
 )
 
-type TaskHandler struct {
-	usecase usecases.TaskUseCase
+type CheckListHandler struct {
+	usecase usecases.CheckListUseCase
 }
 
-func MakeTaskHandler(usecase_ usecases.TaskUseCase) *TaskHandler {
-	return &TaskHandler{usecase: usecase_}
+func MakeCheckListHandler(usecase_ usecases.CheckListUseCase) *CheckListHandler {
+	return &CheckListHandler{usecase: usecase_}
 }
 
-func (taskHandler *TaskHandler) GetTasks(c *gin.Context) {
-	userId, check := c.Get("Auth")
-	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
-		return
-	}
-
-	listId, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	tasks, err := taskHandler.usecase.GetTasks(uint(listId), uint(userId.(uint64)))
-	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, tasks)
-	return
-}
-
-func (taskHandler *TaskHandler) GetSingleTask(c *gin.Context) {
+func (checkListHandler *CheckListHandler) GetCheckLists(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -52,71 +30,87 @@ func (taskHandler *TaskHandler) GetSingleTask(c *gin.Context) {
 		return
 	}
 
-	task, err := taskHandler.usecase.GetSingleTask(uint(taskId), uint(userId.(uint64)))
+	checkLists, err := checkListHandler.usecase.GetCheckLists(uint(userId.(uint64)), uint(taskId))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, task)
+	c.JSON(http.StatusOK, checkLists)
 	return
 }
 
-func (taskHandler *TaskHandler) CreateTask(c *gin.Context) {
+func (checkListHandler *CheckListHandler) GetSingleCheckList(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
 
-	var task models.Task
-	err := c.ShouldBindJSON(&task)
-	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
-		return
-	}
-
-	listId, err := strconv.ParseUint(c.Param("idL"), 10, 32)
+	checkListId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	boardId, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	createdTask, err := taskHandler.usecase.CreateTask(task, uint(boardId), uint(listId), uint(userId.(uint64)))
+	checkList, err := checkListHandler.usecase.GetSingleCheckList(uint(checkListId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, createdTask)
+	c.JSON(http.StatusOK, checkList)
 	return
 }
 
-func (taskHandler *TaskHandler) RefactorTask(c *gin.Context) {
+func (checkListHandler *CheckListHandler) CreateCheckList(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
 
-	var task models.Task
-	err := c.ShouldBindJSON(&task)
+	var checkList models.CheckList
+	err := c.ShouldBindJSON(&checkList)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
 
-	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	taskId, err := strconv.ParseUint(c.Param("idt"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	task.IdT = uint(taskId)
-	err = taskHandler.usecase.RefactorTask(task, uint(userId.(uint64)))
+
+	createdCheckList, err := checkListHandler.usecase.CreateCheckList(&checkList, uint(taskId), uint(userId.(uint64)))
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, createdCheckList)
+	return
+}
+
+func (checkListHandler *CheckListHandler) RefactorCheckList(c *gin.Context) {
+	userId, check := c.Get("Auth")
+	if !check {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+
+	var checkList models.CheckList
+	err := c.ShouldBindJSON(&checkList)
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		return
+	}
+
+	checkListId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	checkList.IdCl = uint(checkListId)
+	err = checkListHandler.usecase.RefactorCheckList(&checkList, uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -125,21 +119,20 @@ func (taskHandler *TaskHandler) RefactorTask(c *gin.Context) {
 	return
 }
 
-func (taskHandler *TaskHandler) DeleteTask(c *gin.Context) {
+func (checkListHandler *CheckListHandler) DeleteCheckList(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
-	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+
+	checkListId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	//вызываю юзкейс
-
-	err = taskHandler.usecase.DeleteTask(uint(taskId), uint(userId.(uint64)))
+	err = checkListHandler.usecase.DeleteCheckList(uint(checkListId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return

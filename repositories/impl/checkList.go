@@ -51,3 +51,9 @@ func (checkListRepository *CheckListRepositoryImpl) GetCheckListItems(IdCl uint)
 	err := checkListRepository.db.Where("id_cl = ?", IdCl).Find(checkListItems).Error
 	return checkListItems, err
 }
+
+func (checkListRepository *CheckListRepositoryImpl) GetCheckLists(IdT uint) ([]models.CheckList, error) {
+	checkLists := new([]models.CheckList)
+	result := checkListRepository.db.Where("id_t = ?", IdT).Find(checkLists)
+	return *checkLists, result.Error
+}

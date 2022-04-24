@@ -20,7 +20,7 @@ func initDB() (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = db.AutoMigrate(&models.User{}, &models.Board{}, &models.List{}, &models.Task{})
+	err = db.AutoMigrate(&models.User{}, &models.Board{}, &models.List{}, &models.Task{}, &models.CheckList{}, &models.CheckListItem{})
 	if err != nil {
 		return nil, err
 	}
@@ -55,6 +55,7 @@ func initRouter() (*gin.Engine, error) {
 	listRepository := impl_rep.MakeListRepository(db)
 	boardRepository := impl_rep.MakeBoardRepository(db)
 	checkListRepository := impl_rep.MakeCheckListRepository(db)
+	checkListItemRepository := impl_rep.MakeCheckListItemRepository(db)
 
 	authMiddleware := middleware.CreateMiddleware(redis)
 
@@ -62,6 +63,8 @@ func initRouter() (*gin.Engine, error) {
 	taskHandler := handlers.MakeTaskHandler(impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository))
 	boardHandler := handlers.MakeBoardHandler(impl.MakeBoardUsecase(boardRepository, listRepository, taskRepository, checkListRepository))
 	listHandler := handlers.MakeListHandler(impl.MakeListUsecase(listRepository, boardRepository))
+	checkListHandler := handlers.MakeCheckListHandler(impl.MakeCheckListUsecase(checkListRepository, taskRepository))
+	checkListItemHandler := handlers.MakeCheckListItemHandler(impl.MakeCheckListItemUsecase(checkListItemRepository, taskRepository))
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -87,6 +90,20 @@ func initRouter() (*gin.Engine, error) {
 			taskRoutes.GET("/:id", authMiddleware.CheckAuth, taskHandler.GetSingleTask)
 			taskRoutes.PUT("/:id", authMiddleware.CheckAuth, taskHandler.RefactorTask)
 			taskRoutes.DELETE("/:id", authMiddleware.CheckAuth, taskHandler.DeleteTask)
+			taskRoutes.GET("/:id"+routes.CheckListRoute, authMiddleware.CheckAuth, checkListHandler.GetCheckLists)
+		}
+		checkListRoutes := router.Group(routes.CheckListRoute)
+		{
+			checkListRoutes.GET("/:id", authMiddleware.CheckAuth, checkListHandler.GetSingleCheckList)
+			checkListRoutes.PUT("/:id", authMiddleware.CheckAuth, checkListHandler.RefactorCheckList)
+			checkListRoutes.DELETE("/:id", authMiddleware.CheckAuth, checkListHandler.RefactorCheckList)
+			taskRoutes.GET("/:id"+routes.CheckListItemRoute, authMiddleware.CheckAuth, checkListItemHandler.GetCheckListItems)
+		}
+		checkListItemRoutes := router.Group(routes.CheckListItemRoute)
+		{
+			checkListItemRoutes.GET("/:id", authMiddleware.CheckAuth, checkListItemHandler.GetSingleCheckListItem)
+			checkListItemRoutes.PUT("/:id", authMiddleware.CheckAuth, checkListItemHandler.RefactorCheckListItem)
+			checkListItemRoutes.DELETE("/:id", authMiddleware.CheckAuth, checkListItemHandler.RefactorCheckListItem)
 		}
 		mainRoutes.POST(routes.LoginRoute, userHandler.Login)
 		mainRoutes.GET("/get"+routes.BoardRoute+"s", authMiddleware.CheckAuth, boardHandler.GetBoards)
