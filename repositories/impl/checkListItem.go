@@ -48,9 +48,3 @@ func (checkListItemRepository *CheckListItemRepositoryImpl) Update(checkListItem
 func (checkListItemRepository *CheckListItemRepositoryImpl) Delete(IdClIt uint) error {
 	return checkListItemRepository.db.Delete(&models.CheckListItem{}, IdClIt).Error
 }
-
-func (checkListItemRepository *CheckListItemRepositoryImpl) GetCheckListItems(IdCl uint) ([]models.CheckListItem, error) {
-	checkListItems := new([]models.CheckListItem)
-	result := checkListItemRepository.db.Where("id_cl = ?", IdCl).Find(checkListItems)
-	return *checkListItems, result.Error
-}

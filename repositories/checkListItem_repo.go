@@ -7,5 +7,4 @@ type CheckListItemRepository interface {
 	GetById(IdCl uint) (*models.CheckListItem, error)
 	Update(checkListItem models.CheckListItem) error
 	Delete(IdClIt uint) error
-	GetCheckListItems(IdCl uint) ([]models.CheckListItem, error)
 }

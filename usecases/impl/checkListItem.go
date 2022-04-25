@@ -10,29 +10,31 @@ import (
 
 type CheckListItemUseCaseImpl struct {
 	repCheckListItem repositories.CheckListItemRepository
+	repCheckList     repositories.CheckListRepository
 	repTask          repositories.TaskRepository
 }
 
-func MakeCheckListItemUsecase(repCheckListItem_ repositories.CheckListItemRepository, repTask_ repositories.TaskRepository) usecases.CheckListItemUseCase {
-	return &CheckListItemUseCaseImpl{repCheckListItem: repCheckListItem_, repTask: repTask_}
+func MakeCheckListItemUsecase(repCheckListItem_ repositories.CheckListItemRepository, repCheckList_ repositories.CheckListRepository,
+	repTask_ repositories.TaskRepository) usecases.CheckListItemUseCase {
+	return &CheckListItemUseCaseImpl{repCheckListItem: repCheckListItem_, repCheckList: repCheckList_, repTask: repTask_}
 }
 
-func (checkListItemUseCase *CheckListItemUseCaseImpl) GetCheckLists(userId uint, IdCl uint) (*[]models.CheckListItem, error) {
-	checkListItems, err := checkListItemUseCase.repCheckListItem.GetCheckListItems(IdCl)
+func (checkListItemUseCase *CheckListItemUseCaseImpl) GetCheckListItems(userId uint, IdCl uint) (*[]models.CheckListItem, error) {
+	checkListItems, err := checkListItemUseCase.repCheckList.GetCheckListItems(IdCl)
 	if err != nil {
 		return nil, err
 	}
-	isAccess, err := checkListItemUseCase.repTask.IsAccessToTask(userId, checkListItems[0].IdT)
+	isAccess, err := checkListItemUseCase.repTask.IsAccessToTask(userId, (*checkListItems)[0].IdT)
 	if err != nil {
 		return nil, err
 	} else if isAccess == false {
 		return nil, customErrors.ErrNoAccess
 	}
 	sanitizer := bluemonday.UGCPolicy()
-	for _, checkList := range checkListItems {
+	for _, checkList := range *checkListItems {
 		checkList.Description = sanitizer.Sanitize(checkList.Description)
 	}
-	return &checkListItems, nil
+	return checkListItems, nil
 }
 
 func (checkListItemUseCase *CheckListItemUseCaseImpl) GetSingleCheckListItem(IdClIt uint, userId uint) (*models.CheckListItem, error) {

@@ -34,21 +34,21 @@ func (checkListUseCase *CheckListUseCaseImpl) GetSingleCheckList(userId uint, Id
 }
 
 func (checkListUseCase *CheckListUseCaseImpl) GetCheckLists(userId uint, IdT uint) (*[]models.CheckList, error) {
-	checkLists, err := checkListUseCase.repCheckList.GetCheckLists(IdT)
+	checkLists, err := checkListUseCase.repTask.GetCheckLists(IdT)
 	if err != nil {
 		return nil, err
 	}
-	isAccess, err := checkListUseCase.repTask.IsAccessToTask(userId, checkLists[0].IdT)
+	isAccess, err := checkListUseCase.repTask.IsAccessToTask(userId, (*checkLists)[0].IdT)
 	if err != nil {
 		return nil, err
 	} else if isAccess == false {
 		return nil, customErrors.ErrNoAccess
 	}
 	sanitizer := bluemonday.UGCPolicy()
-	for _, checkList := range checkLists {
+	for _, checkList := range *checkLists {
 		checkList.Title = sanitizer.Sanitize(checkList.Title)
 	}
-	return &checkLists, nil
+	return checkLists, nil
 }
 
 func (checkListUseCase *CheckListUseCaseImpl) CreateCheckList(checkList *models.CheckList, IdT uint, userId uint) (*models.CheckList, error) {
