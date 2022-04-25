@@ -24,5 +24,4 @@ func (mw *Middleware) CheckAuth(c *gin.Context) {
 		return
 	}
 	c.Set("Auth", userId)
-	return
 }

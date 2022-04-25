@@ -27,7 +27,7 @@ func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, list.IdB)
 	if err != nil {
 		return nil, err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return nil, customErrors.ErrNoAccess
 	}
 	tasks, err := taskUseCase.repTask.GetTasks(listId)
@@ -56,7 +56,7 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, task.IdB)
 	if err != nil {
 		return models.Task{}, err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return models.Task{}, customErrors.ErrNoAccess
 	}
 	return *task, err
@@ -66,7 +66,7 @@ func (taskUseCase *TaskUseCaseImpl) CreateTask(task models.Task, idB uint, idL u
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(idU, task.IdB)
 	if err != nil {
 		return nil, err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return nil, customErrors.ErrNoAccess
 	}
 	// создаю таск в бд, получаю айди таска
@@ -83,7 +83,7 @@ func (taskUseCase *TaskUseCaseImpl) RefactorTask(task models.Task, userId uint) 
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, task.IdB)
 	if err != nil {
 		return err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return customErrors.ErrNoAccess
 	}
 	// вношу изменения в бд
@@ -100,7 +100,7 @@ func (taskUseCase *TaskUseCaseImpl) DeleteTask(taskId uint, userId uint) error {
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, task.IdB)
 	if err != nil {
 		return err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return customErrors.ErrNoAccess
 	}
 	// удаляю таск

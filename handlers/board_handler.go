@@ -31,7 +31,6 @@ func (boardHandler *BoardHandler) GetBoards(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, boards)
-	return
 }
 
 func (boardHandler *BoardHandler) GetSingleBoard(c *gin.Context) {
@@ -54,7 +53,6 @@ func (boardHandler *BoardHandler) GetSingleBoard(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, board)
-	return
 }
 
 func (boardHandler *BoardHandler) CreateBoard(c *gin.Context) {
@@ -78,7 +76,6 @@ func (boardHandler *BoardHandler) CreateBoard(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, createdBoard)
-	return
 }
 
 func (boardHandler *BoardHandler) RefactorBoard(c *gin.Context) {
@@ -106,7 +103,6 @@ func (boardHandler *BoardHandler) RefactorBoard(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"updated": true})
-	return
 }
 
 func (boardHandler *BoardHandler) DeleteBoard(c *gin.Context) {
@@ -129,5 +125,4 @@ func (boardHandler *BoardHandler) DeleteBoard(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"deleted": true})
-	return
 }

@@ -108,7 +108,7 @@ func (userRepository *UserRepositoryImpl) SaveAvatar(user *models.User, header *
 func (userRepository *UserRepositoryImpl) IsAbleToLogin(username string, password string) (bool, error) {
 	// проверка на существование пользователя по никнейму
 	isExist, err := userRepository.IsExist(username)
-	if isExist != true {
+	if !isExist {
 		return false, customErrors.ErrUsernameNotExist
 	}
 	if err != nil {
