@@ -11,10 +11,11 @@ import (
 type CommentUseCaseImpl struct {
 	repComment repositories.CommentRepository
 	repTask    repositories.TaskRepository
+	repUser    repositories.UserRepository
 }
 
-func MakeCommentUsecase(repComment_ repositories.CommentRepository, repTask_ repositories.TaskRepository) usecases.CommentUseCase {
-	return &CommentUseCaseImpl{repComment: repComment_, repTask: repTask_}
+func MakeCommentUsecase(repComment_ repositories.CommentRepository, repTask_ repositories.TaskRepository, repUser_ repositories.UserRepository) usecases.CommentUseCase {
+	return &CommentUseCaseImpl{repComment: repComment_, repTask: repTask_, repUser: repUser_}
 }
 
 func (commentUseCase *CommentUseCaseImpl) GetComments(userId uint, IdT uint) (*[]models.Comment, error) {
@@ -31,6 +32,11 @@ func (commentUseCase *CommentUseCaseImpl) GetComments(userId uint, IdT uint) (*[
 	sanitizer := bluemonday.UGCPolicy()
 	for _, comment := range *comments {
 		comment.Text = sanitizer.Sanitize(comment.Text)
+		user, err := commentUseCase.repUser.GetUserById(comment.IdU)
+		if err != nil {
+			return nil, err
+		}
+		comment.User = *user
 	}
 	return comments, nil
 }
@@ -48,11 +54,17 @@ func (commentUseCase *CommentUseCaseImpl) GetSingleComment(userId uint, IdCm uin
 	}
 	sanitizer := bluemonday.UGCPolicy()
 	comment.Text = sanitizer.Sanitize(comment.Text)
+	user, err := commentUseCase.repUser.GetUserById(comment.IdU)
+	if err != nil {
+		return nil, err
+	}
+	comment.User = *user
 	return comment, nil
 }
 
 func (commentUseCase *CommentUseCaseImpl) CreateComment(comment *models.Comment, IdT uint, userId uint) (*models.Comment, error) {
 	comment.IdT = IdT
+	comment.IdU = userId
 	isAccess, err := commentUseCase.repTask.IsAccessToTask(userId, comment.IdT)
 	if err != nil {
 		return nil, err
