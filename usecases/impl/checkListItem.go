@@ -65,8 +65,8 @@ func (checkListItemUseCase *CheckListItemUseCaseImpl) CreateCheckListItem(checkL
 	if err != nil {
 		return nil, err
 	}
-	createdBoard, err := checkListItemUseCase.repCheckListItem.GetById(checkListItemId)
-	return createdBoard, nil
+	createdCheckListItem, err := checkListItemUseCase.repCheckListItem.GetById(checkListItemId)
+	return createdCheckListItem, nil
 }
 
 func (checkListItemUseCase *CheckListItemUseCaseImpl) RefactorCheckListItem(checkListItem *models.CheckListItem, userId uint) error {

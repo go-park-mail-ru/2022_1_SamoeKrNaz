@@ -9,4 +9,5 @@ type Task struct {
 	IdL         uint        `gorm:"not null;"`
 	IdB         uint        `gorm:"not null;"`
 	CheckLists  []CheckList `json:"checkList" gorm:"foreignKey:IdT;constraint:OnDelete:CASCADE;"`
+	Comments    []Comment   `json:"comment" gorm:"foreignKey:IdT;constraint:OnDelete:CASCADE;"`
 }

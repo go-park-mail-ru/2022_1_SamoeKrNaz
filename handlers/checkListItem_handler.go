@@ -30,7 +30,7 @@ func (checkListItemHandler *CheckListItemHandler) GetCheckListItems(c *gin.Conte
 		return
 	}
 
-	checkListItems, err := checkListItemHandler.usecase.GetCheckLists(uint(userId.(uint64)), uint(checkListId))
+	checkListItems, err := checkListItemHandler.usecase.GetCheckListItems(uint(userId.(uint64)), uint(checkListId))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -75,7 +75,7 @@ func (checkListItemHandler *CheckListItemHandler) CreateCheckListItem(c *gin.Con
 		return
 	}
 
-	checkListId, err := strconv.ParseUint(c.Param("idcl"), 10, 32)
+	checkListId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

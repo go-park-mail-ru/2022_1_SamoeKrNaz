@@ -10,5 +10,6 @@ var (
 	ListRoute          = "/list"
 	CheckListRoute     = "/checklist"
 	CheckListItemRoute = "/checklistitem"
+	CommentRouter      = "/comment"
 	ProfileRoute       = "/profile"
 )
