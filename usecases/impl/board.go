@@ -42,7 +42,7 @@ func (boardUseCase *BoardUseCaseImpl) GetSingleBoard(boardId uint, userId uint) 
 	isAccess, err := boardUseCase.repBoard.IsAccessToBoard(userId, boardId)
 	if err != nil {
 		return models.Board{}, err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return models.Board{}, customErrors.ErrNoAccess
 	}
 
@@ -75,7 +75,7 @@ func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Boar
 		return nil, err
 	}
 	createdBoard, err := boardUseCase.repBoard.GetById(boardId)
-	return createdBoard, nil
+	return createdBoard, err
 }
 
 func (boardUseCase *BoardUseCaseImpl) RefactorBoard(userId uint, board models.Board) error {
@@ -84,7 +84,7 @@ func (boardUseCase *BoardUseCaseImpl) RefactorBoard(userId uint, board models.Bo
 	isAccess, err := boardUseCase.repBoard.IsAccessToBoard(userId, board.IdB)
 	if err != nil {
 		return err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return customErrors.ErrNoAccess
 	}
 	err = boardUseCase.repBoard.Update(board)
@@ -97,7 +97,7 @@ func (boardUseCase *BoardUseCaseImpl) DeleteBoard(boardId uint, userId uint) err
 	isAccess, err := boardUseCase.repBoard.IsAccessToBoard(userId, boardId)
 	if err != nil {
 		return err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return customErrors.ErrNoAccess
 	}
 	err = boardUseCase.repBoard.Delete(boardId)
@@ -108,7 +108,7 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 	isAccess, err := boardUseCase.repBoard.IsAccessToBoard(userId, boardId)
 	if err != nil {
 		return models.Board{}, err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return models.Board{}, customErrors.ErrNoAccess
 	}
 	lists, err := boardUseCase.repBoard.GetLists(boardId)
@@ -116,8 +116,7 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 		return models.Board{}, err
 	}
 	for i, list := range lists {
-		tasks := new([]models.Task)
-		tasks, err = boardUseCase.repList.GetTasks(list.IdL)
+		tasks, err := boardUseCase.repList.GetTasks(list.IdL)
 		if err != nil {
 			return models.Board{}, err
 		}

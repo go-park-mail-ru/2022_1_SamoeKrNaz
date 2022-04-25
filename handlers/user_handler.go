@@ -55,7 +55,6 @@ func (userHandler *UserHandler) Login(c *gin.Context) {
 	}
 	http.SetCookie(c.Writer, &cookie)
 	c.JSON(http.StatusOK, &user)
-	return
 }
 
 func (userHandler *UserHandler) Register(c *gin.Context) {
@@ -90,7 +89,6 @@ func (userHandler *UserHandler) Register(c *gin.Context) {
 	}
 	http.SetCookie(c.Writer, &cookie)
 	c.JSON(http.StatusCreated, &user)
-	return
 }
 
 func (userHandler *UserHandler) Logout(c *gin.Context) {
@@ -111,7 +109,6 @@ func (userHandler *UserHandler) Logout(c *gin.Context) {
 
 	c.SetCookie("token", token, -1, "", "", false, true)
 	c.JSON(http.StatusOK, gin.H{"Is_okay": true})
-	return
 }
 
 func (userHandler *UserHandler) GetInfoById(c *gin.Context) {
@@ -133,7 +130,6 @@ func (userHandler *UserHandler) GetInfoById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, user)
-	return
 }
 
 func (userHandler *UserHandler) GetInfoByCookie(c *gin.Context) {
@@ -150,7 +146,6 @@ func (userHandler *UserHandler) GetInfoByCookie(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, user)
-	return
 }
 
 func (userHandler *UserHandler) SaveAvatar(c *gin.Context) {
@@ -178,7 +173,6 @@ func (userHandler *UserHandler) SaveAvatar(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"avatar_path": path})
-	return
 }
 
 func (userHandler *UserHandler) RefactorProfile(c *gin.Context) {
@@ -202,5 +196,4 @@ func (userHandler *UserHandler) RefactorProfile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"updated": true})
-	return
 }
