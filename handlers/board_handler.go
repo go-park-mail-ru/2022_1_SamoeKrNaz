@@ -126,3 +126,41 @@ func (boardHandler *BoardHandler) DeleteBoard(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"deleted": true})
 }
+
+func (boardHandler *BoardHandler) SaveImage(c *gin.Context) {
+	userId, check := c.Get("Auth")
+	if !check {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+
+	var board models.Board
+	err := c.ShouldBindJSON(&board)
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		return
+	}
+	boardId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	board.IdB = uint(boardId)
+
+	header, err := c.FormFile("img_board")
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		return
+	}
+
+	board.ImgDesk = header.Filename
+
+	path, err := boardHandler.usecase.SaveImage(uint(userId.(uint64)), &board, header)
+
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"img_board": path})
+}

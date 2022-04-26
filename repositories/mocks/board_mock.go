@@ -6,6 +6,7 @@ package mock_repositories
 
 import (
 	models "PLANEXA_backend/models"
+	multipart "mime/multipart"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -135,6 +136,20 @@ func (m *MockBoardRepository) IsAccessToBoard(IdU, IdB uint) (bool, error) {
 func (mr *MockBoardRepositoryMockRecorder) IsAccessToBoard(IdU, IdB interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsAccessToBoard", reflect.TypeOf((*MockBoardRepository)(nil).IsAccessToBoard), IdU, IdB)
+}
+
+// SaveImage mocks base method.
+func (m *MockBoardRepository) SaveImage(board *models.Board, header *multipart.FileHeader) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveImage", board, header)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SaveImage indicates an expected call of SaveImage.
+func (mr *MockBoardRepositoryMockRecorder) SaveImage(board, header interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveImage", reflect.TypeOf((*MockBoardRepository)(nil).SaveImage), board, header)
 }
 
 // Update mocks base method.

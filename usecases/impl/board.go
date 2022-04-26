@@ -7,7 +7,9 @@ import (
 	"PLANEXA_backend/usecases"
 	rtime "github.com/ivahaev/russian-time"
 	"github.com/microcosm-cc/bluemonday"
+	"mime/multipart"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -133,4 +135,15 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 	board.ImgDesk = sanitizer.Sanitize(board.ImgDesk)
 	board.Lists = lists
 	return *board, nil
+}
+
+func (boardUseCase *BoardUseCaseImpl) SaveImage(userId uint, board *models.Board, header *multipart.FileHeader) (string, error) {
+	isAccess, err := boardUseCase.repBoard.IsAccessToBoard(userId, board.IdB)
+	if err != nil {
+		return "", err
+	} else if !isAccess {
+		return "", customErrors.ErrNoAccess
+	}
+	err = boardUseCase.repBoard.SaveImage(board, header)
+	return strings.Join([]string{strconv.Itoa(int(board.IdB)), ".webp"}, ""), err
 }

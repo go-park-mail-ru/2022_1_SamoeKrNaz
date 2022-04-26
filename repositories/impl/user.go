@@ -18,7 +18,7 @@ import (
 	"strings"
 )
 
-const filePath = "avatars/"
+const filePathAvatars = "avatars/"
 
 type UserRepositoryImpl struct {
 	db *gorm.DB
@@ -30,7 +30,7 @@ func MakeUserRepository(db *gorm.DB) repositories.UserRepository {
 
 func (userRepository *UserRepositoryImpl) Create(user *models.User) (uint, error) {
 	// проверка на уже существующего пользователя
-	user.ImgAvatar = filePath + "default.webp"
+	user.ImgAvatar = filePathAvatars + "default.webp"
 	err := userRepository.db.Create(user).Error
 	return user.IdU, err
 }
@@ -72,7 +72,7 @@ func (userRepository *UserRepositoryImpl) SaveAvatar(user *models.User, header *
 			return err
 		}
 
-		fileName := strings.Join([]string{filePath, strconv.Itoa(int(currentData.IdU)), ".webp"}, "")
+		fileName := strings.Join([]string{filePathAvatars, strconv.Itoa(int(currentData.IdU)), ".webp"}, "")
 		output, err := os.Create(fileName)
 		if err != nil {
 			return err

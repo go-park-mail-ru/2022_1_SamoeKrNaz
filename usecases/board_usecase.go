@@ -1,6 +1,9 @@
 package usecases
 
-import "PLANEXA_backend/models"
+import (
+	"PLANEXA_backend/models"
+	"mime/multipart"
+)
 
 type BoardUseCase interface {
 	GetBoards(userId uint) ([]models.Board, error)
@@ -9,4 +12,5 @@ type BoardUseCase interface {
 	CreateBoard(userId uint, board models.Board) (*models.Board, error)
 	RefactorBoard(userId uint, board models.Board) error
 	DeleteBoard(boardId uint, userId uint) error
+	SaveImage(userId uint, board *models.Board, header *multipart.FileHeader) (string, error)
 }

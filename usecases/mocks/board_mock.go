@@ -6,6 +6,7 @@ package mock_usecases
 
 import (
 	models "PLANEXA_backend/models"
+	multipart "mime/multipart"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -120,4 +121,19 @@ func (m *MockBoardUseCase) RefactorBoard(userId uint, board models.Board) error 
 func (mr *MockBoardUseCaseMockRecorder) RefactorBoard(userId, board interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RefactorBoard", reflect.TypeOf((*MockBoardUseCase)(nil).RefactorBoard), userId, board)
+}
+
+// SaveImage mocks base method.
+func (m *MockBoardUseCase) SaveImage(userId uint, board *models.Board, header *multipart.FileHeader) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveImage", userId, board, header)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SaveImage indicates an expected call of SaveImage.
+func (mr *MockBoardUseCaseMockRecorder) SaveImage(userId, board, header interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveImage", reflect.TypeOf((*MockBoardUseCase)(nil).SaveImage), userId, board, header)
 }

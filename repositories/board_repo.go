@@ -1,6 +1,9 @@
 package repositories
 
-import "PLANEXA_backend/models"
+import (
+	"PLANEXA_backend/models"
+	"mime/multipart"
+)
 
 type BoardRepository interface {
 	Create(board *models.Board) (uint, error)
@@ -11,4 +14,5 @@ type BoardRepository interface {
 	GetUserBoards(IdU uint) ([]models.Board, error)
 	GetById(IdB uint) (*models.Board, error)
 	IsAccessToBoard(IdU uint, IdB uint) (bool, error)
+	SaveImage(board *models.Board, header *multipart.FileHeader) error
 }
