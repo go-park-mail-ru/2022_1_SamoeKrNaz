@@ -78,6 +78,21 @@ func (mr *MockTaskRepositoryMockRecorder) GetById(IdT interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockTaskRepository)(nil).GetById), IdT)
 }
 
+// GetCheckLists mocks base method.
+func (m *MockTaskRepository) GetCheckLists(IdT uint) (*[]models.CheckList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCheckLists", IdT)
+	ret0, _ := ret[0].(*[]models.CheckList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCheckLists indicates an expected call of GetCheckLists.
+func (mr *MockTaskRepositoryMockRecorder) GetCheckLists(IdT interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCheckLists", reflect.TypeOf((*MockTaskRepository)(nil).GetCheckLists), IdT)
+}
+
 // GetTasks mocks base method.
 func (m *MockTaskRepository) GetTasks(IdL uint) (*[]models.Task, error) {
 	m.ctrl.T.Helper()
@@ -91,6 +106,21 @@ func (m *MockTaskRepository) GetTasks(IdL uint) (*[]models.Task, error) {
 func (mr *MockTaskRepositoryMockRecorder) GetTasks(IdL interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTasks", reflect.TypeOf((*MockTaskRepository)(nil).GetTasks), IdL)
+}
+
+// IsAccessToTask mocks base method.
+func (m *MockTaskRepository) IsAccessToTask(IdU, IdT uint) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsAccessToTask", IdU, IdT)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsAccessToTask indicates an expected call of IsAccessToTask.
+func (mr *MockTaskRepositoryMockRecorder) IsAccessToTask(IdU, IdT interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsAccessToTask", reflect.TypeOf((*MockTaskRepository)(nil).IsAccessToTask), IdU, IdT)
 }
 
 // Update mocks base method.

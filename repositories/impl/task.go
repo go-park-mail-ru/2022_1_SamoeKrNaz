@@ -125,3 +125,24 @@ func (taskRepository *TaskRepositoryImpl) GetById(IdT uint) (*models.Task, error
 		return task, nil
 	}
 }
+
+func (taskRepository *TaskRepositoryImpl) GetCheckLists(IdT uint) (*[]models.CheckList, error) {
+	checkLists := new([]models.CheckList)
+	err := taskRepository.db.Where("id_t = ?", IdT).Find(checkLists).Error
+	return checkLists, err
+}
+
+func (taskRepository *TaskRepositoryImpl) IsAccessToTask(IdU uint, IdT uint) (bool, error) {
+	task, err := taskRepository.GetById(IdT)
+	if err != nil {
+		return false, err
+	}
+	board := new(models.Board)
+	err = taskRepository.db.Model(&models.User{IdU: IdU}).Where("id_b = ?", task.IdB).Association("Boards").Find(board)
+	if err != nil {
+		return false, err
+	} else if board == nil {
+		return false, nil
+	}
+	return true, nil
+}

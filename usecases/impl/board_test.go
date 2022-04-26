@@ -18,7 +18,9 @@ func TestGetBoards(t *testing.T) {
 
 	boardRepo := mock_repositories.NewMockBoardRepository(controller)
 	listRepo := mock_repositories.NewMockListRepository(controller)
-	boardUseCase := MakeBoardUsecase(boardRepo, listRepo)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo)
 
 	boards := []models.Board{{Title: "title1", Description: "desc1"}, {Title: "title2", Description: "desc2"}}
 	boardRepo.EXPECT().GetUserBoards(uint(22)).Return(boards, nil)
@@ -38,7 +40,9 @@ func TestGetSingleBoard(t *testing.T) {
 
 	boardRepo := mock_repositories.NewMockBoardRepository(controller)
 	listRepo := mock_repositories.NewMockListRepository(controller)
-	boardUseCase := MakeBoardUsecase(boardRepo, listRepo)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo)
 
 	board := models.Board{Title: "title2", Description: "desc2", IdB: 22, IdU: 11}
 	boardRepo.EXPECT().IsAccessToBoard(uint(11), uint(22)).Return(true, nil)
@@ -59,7 +63,9 @@ func TestCreateBoard(t *testing.T) {
 
 	boardRepo := mock_repositories.NewMockBoardRepository(controller)
 	listRepo := mock_repositories.NewMockListRepository(controller)
-	boardUseCase := MakeBoardUsecase(boardRepo, listRepo)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo)
 
 	board := models.Board{Title: "title2", Description: "desc2", IdB: 22, IdU: 11}
 	moscow, _ := time.LoadLocation("Europe/Moscow")
@@ -84,7 +90,9 @@ func TestRefactorBoard(t *testing.T) {
 
 	boardRepo := mock_repositories.NewMockBoardRepository(controller)
 	listRepo := mock_repositories.NewMockListRepository(controller)
-	boardUseCase := MakeBoardUsecase(boardRepo, listRepo)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo)
 
 	board := models.Board{Title: "title2", Description: "desc2", IdB: 22, IdU: 11}
 	moscow, _ := time.LoadLocation("Europe/Moscow")
@@ -106,7 +114,9 @@ func TestDeleteBoard(t *testing.T) {
 
 	boardRepo := mock_repositories.NewMockBoardRepository(controller)
 	listRepo := mock_repositories.NewMockListRepository(controller)
-	boardUseCase := MakeBoardUsecase(boardRepo, listRepo)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo)
 
 	boardRepo.EXPECT().IsAccessToBoard(uint(22), uint(11)).Return(true, nil)
 	boardRepo.EXPECT().Delete(uint(11)).Return(nil)
@@ -124,7 +134,9 @@ func TestGetBoard(t *testing.T) {
 
 	boardRepo := mock_repositories.NewMockBoardRepository(controller)
 	listRepo := mock_repositories.NewMockListRepository(controller)
-	boardUseCase := MakeBoardUsecase(boardRepo, listRepo)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo)
 
 	board := models.Board{Title: "title2", Description: "desc2", IdB: 22, IdU: 11}
 

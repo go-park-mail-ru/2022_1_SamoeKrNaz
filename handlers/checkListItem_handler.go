@@ -9,111 +9,105 @@ import (
 	"strconv"
 )
 
-type TaskHandler struct {
-	usecase usecases.TaskUseCase
+type CheckListItemHandler struct {
+	usecase usecases.CheckListItemUseCase
 }
 
-func MakeTaskHandler(usecase_ usecases.TaskUseCase) *TaskHandler {
-	return &TaskHandler{usecase: usecase_}
+func MakeCheckListItemHandler(usecase_ usecases.CheckListItemUseCase) *CheckListItemHandler {
+	return &CheckListItemHandler{usecase: usecase_}
 }
 
-func (taskHandler *TaskHandler) GetTasks(c *gin.Context) {
+func (checkListItemHandler *CheckListItemHandler) GetCheckListItems(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
 
-	listId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	checkListId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	tasks, err := taskHandler.usecase.GetTasks(uint(listId), uint(userId.(uint64)))
+	checkListItems, err := checkListItemHandler.usecase.GetCheckListItems(uint(userId.(uint64)), uint(checkListId))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, tasks)
+	c.JSON(http.StatusOK, checkListItems)
 }
 
-func (taskHandler *TaskHandler) GetSingleTask(c *gin.Context) {
+func (checkListItemHandler *CheckListItemHandler) GetSingleCheckListItem(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
 
-	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	checkListItemId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	task, err := taskHandler.usecase.GetSingleTask(uint(taskId), uint(userId.(uint64)))
+	checkListItem, err := checkListItemHandler.usecase.GetSingleCheckListItem(uint(checkListItemId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, task)
+	c.JSON(http.StatusOK, checkListItem)
 }
 
-func (taskHandler *TaskHandler) CreateTask(c *gin.Context) {
+func (checkListItemHandler *CheckListItemHandler) CreateCheckListItem(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
 
-	var task models.Task
-	err := c.ShouldBindJSON(&task)
+	var checkListItem models.CheckListItem
+	err := c.ShouldBindJSON(&checkListItem)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
 
-	listId, err := strconv.ParseUint(c.Param("idL"), 10, 32)
+	checkListId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	boardId, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	createdTask, err := taskHandler.usecase.CreateTask(task, uint(boardId), uint(listId), uint(userId.(uint64)))
+	createdCheckListItem, err := checkListItemHandler.usecase.CreateCheckListItem(&checkListItem, uint(checkListId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, createdTask)
+	c.JSON(http.StatusOK, createdCheckListItem)
 }
 
-func (taskHandler *TaskHandler) RefactorTask(c *gin.Context) {
+func (checkListItemHandler *CheckListItemHandler) RefactorCheckListItem(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
 
-	var task models.Task
-	err := c.ShouldBindJSON(&task)
+	var checkListItem models.CheckListItem
+	err := c.ShouldBindJSON(&checkListItem)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
 
-	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	checkListItemId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	task.IdT = uint(taskId)
-	err = taskHandler.usecase.RefactorTask(task, uint(userId.(uint64)))
+	checkListItem.IdCl = uint(checkListItemId)
+	err = checkListItemHandler.usecase.RefactorCheckListItem(&checkListItem, uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -121,21 +115,20 @@ func (taskHandler *TaskHandler) RefactorTask(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"updated": true})
 }
 
-func (taskHandler *TaskHandler) DeleteTask(c *gin.Context) {
+func (checkListItemHandler *CheckListItemHandler) DeleteCheckListItem(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
-	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+
+	checkListItemId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	//вызываю юзкейс
-
-	err = taskHandler.usecase.DeleteTask(uint(taskId), uint(userId.(uint64)))
+	err = checkListItemHandler.usecase.DeleteCheckListItem(uint(checkListItemId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return

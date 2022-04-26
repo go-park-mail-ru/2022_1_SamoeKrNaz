@@ -9,36 +9,15 @@ import (
 	"strconv"
 )
 
-type TaskHandler struct {
-	usecase usecases.TaskUseCase
+type CommentHandler struct {
+	usecase usecases.CommentUseCase
 }
 
-func MakeTaskHandler(usecase_ usecases.TaskUseCase) *TaskHandler {
-	return &TaskHandler{usecase: usecase_}
+func MakeCommentHandler(usecase_ usecases.CommentUseCase) *CommentHandler {
+	return &CommentHandler{usecase: usecase_}
 }
 
-func (taskHandler *TaskHandler) GetTasks(c *gin.Context) {
-	userId, check := c.Get("Auth")
-	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
-		return
-	}
-
-	listId, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	tasks, err := taskHandler.usecase.GetTasks(uint(listId), uint(userId.(uint64)))
-	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, tasks)
-}
-
-func (taskHandler *TaskHandler) GetSingleTask(c *gin.Context) {
+func (commentHandler *CommentHandler) GetComments(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
@@ -51,57 +30,44 @@ func (taskHandler *TaskHandler) GetSingleTask(c *gin.Context) {
 		return
 	}
 
-	task, err := taskHandler.usecase.GetSingleTask(uint(taskId), uint(userId.(uint64)))
+	comments, err := commentHandler.usecase.GetComments(uint(userId.(uint64)), uint(taskId))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, task)
+	c.JSON(http.StatusOK, comments)
 }
 
-func (taskHandler *TaskHandler) CreateTask(c *gin.Context) {
+func (commentHandler *CommentHandler) GetSingleComment(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
 
-	var task models.Task
-	err := c.ShouldBindJSON(&task)
-	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
-		return
-	}
-
-	listId, err := strconv.ParseUint(c.Param("idL"), 10, 32)
+	commentId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	boardId, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	createdTask, err := taskHandler.usecase.CreateTask(task, uint(boardId), uint(listId), uint(userId.(uint64)))
+	comment, err := commentHandler.usecase.GetSingleComment(uint(commentId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, createdTask)
+	c.JSON(http.StatusOK, comment)
 }
 
-func (taskHandler *TaskHandler) RefactorTask(c *gin.Context) {
+func (commentHandler *CommentHandler) CreateComment(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
 
-	var task models.Task
-	err := c.ShouldBindJSON(&task)
+	var comment models.Comment
+	err := c.ShouldBindJSON(&comment)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
@@ -112,8 +78,36 @@ func (taskHandler *TaskHandler) RefactorTask(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	task.IdT = uint(taskId)
-	err = taskHandler.usecase.RefactorTask(task, uint(userId.(uint64)))
+
+	createdComment, err := commentHandler.usecase.CreateComment(&comment, uint(taskId), uint(userId.(uint64)))
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, createdComment)
+}
+
+func (commentHandler *CommentHandler) RefactorComment(c *gin.Context) {
+	userId, check := c.Get("Auth")
+	if !check {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+
+	var comment models.Comment
+	err := c.ShouldBindJSON(&comment)
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		return
+	}
+
+	commentId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	comment.IdCm = uint(commentId)
+	err = commentHandler.usecase.RefactorComment(&comment, uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
@@ -121,21 +115,20 @@ func (taskHandler *TaskHandler) RefactorTask(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"updated": true})
 }
 
-func (taskHandler *TaskHandler) DeleteTask(c *gin.Context) {
+func (commentHandler *CommentHandler) DeleteComment(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
 	}
-	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+
+	commentId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	//вызываю юзкейс
-
-	err = taskHandler.usecase.DeleteTask(uint(taskId), uint(userId.(uint64)))
+	err = commentHandler.usecase.DeleteComment(uint(commentId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return

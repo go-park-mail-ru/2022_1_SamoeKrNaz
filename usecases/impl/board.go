@@ -14,12 +14,16 @@ import (
 )
 
 type BoardUseCaseImpl struct {
-	repBoard repositories.BoardRepository
-	repList  repositories.ListRepository
+	repBoard     repositories.BoardRepository
+	repList      repositories.ListRepository
+	repTask      repositories.TaskRepository
+	repCheckList repositories.CheckListRepository
 }
 
-func MakeBoardUsecase(repBoard_ repositories.BoardRepository, repList_ repositories.ListRepository) usecases.BoardUseCase {
-	return &BoardUseCaseImpl{repBoard: repBoard_, repList: repList_}
+func MakeBoardUsecase(repBoard_ repositories.BoardRepository, repList_ repositories.ListRepository,
+	repTask_ repositories.TaskRepository, repCheckList_ repositories.CheckListRepository) usecases.BoardUseCase {
+	return &BoardUseCaseImpl{repBoard: repBoard_, repList: repList_,
+		repTask: repTask_, repCheckList: repCheckList_}
 }
 
 func (boardUseCase *BoardUseCaseImpl) GetBoards(userId uint) ([]models.Board, error) {
@@ -121,6 +125,21 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 		tasks, err := boardUseCase.repList.GetTasks(list.IdL)
 		if err != nil {
 			return models.Board{}, err
+		}
+		for j, task := range *tasks {
+			checkLists, err := boardUseCase.repTask.GetCheckLists(task.IdT)
+			if err != nil {
+				return models.Board{}, err
+			}
+
+			for k, checkList := range *checkLists {
+				checkListItem, err := boardUseCase.repCheckList.GetCheckListItems(checkList.IdCl)
+				if err != nil {
+					return models.Board{}, err
+				}
+				(*checkLists)[k].CheckListItems = *checkListItem
+			}
+			(*tasks)[j].CheckLists = *checkLists
 		}
 		lists[i].Tasks = *tasks
 	}

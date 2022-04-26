@@ -8,4 +8,6 @@ type TaskRepository interface {
 	Update(task models.Task) error
 	Delete(IdT uint) error
 	GetById(IdT uint) (*models.Task, error)
+	GetCheckLists(IdT uint) (*[]models.CheckList, error)
+	IsAccessToTask(IdU uint, IdT uint) (bool, error)
 }
