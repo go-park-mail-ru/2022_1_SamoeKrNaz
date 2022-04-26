@@ -93,6 +93,21 @@ func (mr *MockTaskRepositoryMockRecorder) GetCheckLists(IdT interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCheckLists", reflect.TypeOf((*MockTaskRepository)(nil).GetCheckLists), IdT)
 }
 
+// GetImportantTasks mocks base method.
+func (m *MockTaskRepository) GetImportantTasks(IdU uint) (*[]models.Task, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetImportantTasks", IdU)
+	ret0, _ := ret[0].(*[]models.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetImportantTasks indicates an expected call of GetImportantTasks.
+func (mr *MockTaskRepositoryMockRecorder) GetImportantTasks(IdU interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImportantTasks", reflect.TypeOf((*MockTaskRepository)(nil).GetImportantTasks), IdU)
+}
+
 // GetTasks mocks base method.
 func (m *MockTaskRepository) GetTasks(IdL uint) (*[]models.Task, error) {
 	m.ctrl.T.Helper()

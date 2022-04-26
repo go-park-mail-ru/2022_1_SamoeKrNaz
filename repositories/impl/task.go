@@ -45,6 +45,15 @@ func (taskRepository *TaskRepositoryImpl) Update(task models.Task) error {
 	if currentData.Description != task.Description && task.Title != "" {
 		currentData.Description = task.Description
 	}
+	if currentData.IsReady != task.IsReady {
+		currentData.IsReady = task.IsReady
+	}
+	if currentData.Deadline != task.Deadline && task.Deadline != "" {
+		currentData.Deadline = task.Deadline
+	}
+	if currentData.IsImportant != task.IsImportant {
+		currentData.IsImportant = task.IsImportant
+	}
 	if currentData.Position != task.Position && currentData.IdL == task.IdL {
 		// если список переместили вниз
 		if currentData.Position > task.Position {
@@ -145,4 +154,13 @@ func (taskRepository *TaskRepositoryImpl) IsAccessToTask(IdU uint, IdT uint) (bo
 		return false, nil
 	}
 	return true, nil
+}
+
+func (taskRepository *TaskRepositoryImpl) GetImportantTasks(IdU uint) (*[]models.Task, error) {
+	tasks := new([]models.Task)
+	err := taskRepository.db.Where("id_u = ? and is_important = true", IdU).Order("date_to_order").Find(tasks).Error
+	if err != nil {
+		return nil, err
+	}
+	return tasks, nil
 }

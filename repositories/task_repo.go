@@ -10,4 +10,5 @@ type TaskRepository interface {
 	GetById(IdT uint) (*models.Task, error)
 	GetCheckLists(IdT uint) (*[]models.CheckList, error)
 	IsAccessToTask(IdU uint, IdT uint) (bool, error)
+	GetImportantTasks(IdU uint) (*[]models.Task, error)
 }

@@ -6,6 +6,7 @@ import (
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/usecases"
 	"github.com/microcosm-cc/bluemonday"
+	"time"
 )
 
 type TaskUseCaseImpl struct {
@@ -37,7 +38,6 @@ func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models
 	sanitizer := bluemonday.UGCPolicy()
 	for _, task := range *tasks {
 		task.Title = sanitizer.Sanitize(task.Title)
-		task.DateCreated = sanitizer.Sanitize(task.DateCreated)
 		task.Description = sanitizer.Sanitize(task.Description)
 	}
 	return *tasks, err
@@ -51,7 +51,6 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 	}
 	sanitizer := bluemonday.UGCPolicy()
 	task.Title = sanitizer.Sanitize(task.Title)
-	task.DateCreated = sanitizer.Sanitize(task.DateCreated)
 	task.Description = sanitizer.Sanitize(task.Description)
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, task.IdB)
 	if err != nil {
@@ -64,6 +63,10 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 
 func (taskUseCase *TaskUseCaseImpl) CreateTask(task models.Task, idB uint, idL uint, idU uint) (*models.Task, error) {
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(idU, task.IdB)
+	task.IdU = idU
+	task.DateToOrder = time.Now()
+	task.IsReady = false
+	task.IsImportant = false
 	if err != nil {
 		return nil, err
 	} else if !isAccess {
@@ -106,4 +109,12 @@ func (taskUseCase *TaskUseCaseImpl) DeleteTask(taskId uint, userId uint) error {
 	// удаляю таск
 	err = taskUseCase.repTask.Delete(taskId)
 	return err
+}
+
+func (taskUseCase *TaskUseCaseImpl) GetImportantTask(userId uint) (*[]models.Task, error) {
+	tasks, err := taskUseCase.repTask.GetImportantTasks(userId)
+	if err != nil {
+		return nil, err
+	}
+	return tasks, nil
 }
