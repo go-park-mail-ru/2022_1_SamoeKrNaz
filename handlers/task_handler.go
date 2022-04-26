@@ -140,4 +140,5 @@ func (taskHandler *TaskHandler) DeleteTask(c *gin.Context) {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{"deleted": true})
 }
