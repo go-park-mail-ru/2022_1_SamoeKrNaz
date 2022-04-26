@@ -100,7 +100,7 @@ func TestCreateTask(t *testing.T) {
 
 	// нормальный результат
 
-	task := models.Task{IdT: 1, Title: "title", Position: 1, IdL: 1, IdB: 1}
+	task := models.Task{IdT: 1, Title: "title", Position: 1, IdL: 1, IdB: 1, IdU: 1}
 
 	mock.
 		ExpectQuery(regexp.QuoteMeta(`SELECT count(*) FROM "tasks" WHERE id_l = $1`)).
@@ -108,7 +108,7 @@ func TestCreateTask(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"1"}))
 	mock.ExpectBegin()
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "tasks" ("title","description","position","date_created","id_l","id_b","id_t") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id_t"`)).
+		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "tasks" ("title","description","position","date_created","id_l","id_b","date_to_order","deadline","id_u","is_ready","is_important","id_t") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING "id_t"`)).
 		WithArgs(
 			task.Title,
 			task.Description,
@@ -116,6 +116,11 @@ func TestCreateTask(t *testing.T) {
 			task.DateCreated,
 			task.IdL,
 			task.IdB,
+			task.DateToOrder,
+			task.Deadline,
+			task.IdU,
+			task.IsReady,
+			task.IsImportant,
 			task.IdT).
 		WillReturnRows(sqlmock.NewRows([]string{"1"}))
 	mock.ExpectCommit()
@@ -141,7 +146,7 @@ func TestCreateTask(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"1"}))
 	mock.ExpectBegin()
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "tasks" ("title","description","position","date_created","id_l","id_b","id_t") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id_t"`)).
+		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "tasks" ("title","description","position","date_created","id_l","id_b","date_to_order","deadline","id_u","is_ready","is_important","id_t") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING "id_t"`)).
 		WithArgs(
 			task.Title,
 			task.Description,
@@ -149,6 +154,11 @@ func TestCreateTask(t *testing.T) {
 			task.DateCreated,
 			task.IdL,
 			task.IdB,
+			task.DateToOrder,
+			task.Deadline,
+			task.IdU,
+			task.IsReady,
+			task.IsImportant,
 			task.IdT).
 		WillReturnError(fmt.Errorf("bad_result"))
 	mock.ExpectRollback()
