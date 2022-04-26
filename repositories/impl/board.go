@@ -4,12 +4,17 @@ import (
 	"PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
+	"github.com/kolesa-team/go-webp/encoder"
 	"github.com/kolesa-team/go-webp/webp"
 	"gorm.io/gorm"
+	"image"
 	"mime/multipart"
+	"os"
+	"strconv"
+	"strings"
 )
 
-//const filePathBoards = "img_boards/"
+const filePathBoards = "img_boards/"
 
 type BoardRepositoryImpl struct {
 	db *gorm.DB
