@@ -5,12 +5,17 @@ import (
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
+	"github.com/kolesa-team/go-webp/encoder"
 	"github.com/kolesa-team/go-webp/webp"
 	"gorm.io/gorm"
+	"image"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
 	"mime/multipart"
+	"os"
+	"strconv"
+	"strings"
 )
 
 const filePath = "avatars/"
