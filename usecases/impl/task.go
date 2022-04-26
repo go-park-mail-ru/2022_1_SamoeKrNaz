@@ -38,6 +38,7 @@ func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models
 	sanitizer := bluemonday.UGCPolicy()
 	for _, task := range *tasks {
 		task.Title = sanitizer.Sanitize(task.Title)
+		task.DateCreated = sanitizer.Sanitize(task.DateCreated)
 		task.Description = sanitizer.Sanitize(task.Description)
 	}
 	return *tasks, err
@@ -51,6 +52,7 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 	}
 	sanitizer := bluemonday.UGCPolicy()
 	task.Title = sanitizer.Sanitize(task.Title)
+	task.DateCreated = sanitizer.Sanitize(task.DateCreated)
 	task.Description = sanitizer.Sanitize(task.Description)
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, task.IdB)
 	if err != nil {
