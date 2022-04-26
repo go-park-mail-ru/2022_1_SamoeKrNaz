@@ -4,8 +4,14 @@ import (
 	"PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
+	"github.com/kolesa-team/go-webp/encoder"
+	"github.com/kolesa-team/go-webp/webp"
 	"gorm.io/gorm"
+	"image"
 	"mime/multipart"
+	"os"
+	"strconv"
+	"strings"
 )
 
 const filePathBoards = "img_boards/"
@@ -97,40 +103,40 @@ func (boardRepository *BoardRepositoryImpl) IsAccessToBoard(IdU uint, IdB uint) 
 
 func (boardRepository *BoardRepositoryImpl) SaveImage(board *models.Board, header *multipart.FileHeader) error {
 	if board.ImgDesk != "" {
-		//currentData, err := boardRepository.GetById(board.IdB)
-		//if err != nil {
-		//	return err
-		//}
-		//
-		//fileName := strings.Join([]string{filePathBoards, strconv.Itoa(int(currentData.IdB)), ".webp"}, "")
-		//output, err := os.Create(fileName)
-		//if err != nil {
-		//	return err
-		//}
-		//defer output.Close()
-		//
-		//openFile, err := header.Open()
-		//if err != nil {
-		//	return err
-		//}
-		//
-		//img, _, err := image.Decode(openFile)
-		//if err != nil {
-		//	return err
-		//}
-		//
-		//options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
-		//if err != nil {
-		//	return err
-		//}
-		//
-		//err = webp.Encode(output, img, options)
-		//if err != nil {
-		//	return err
-		//}
-		//
-		//currentData.ImgDesk = fileName
-		//return boardRepository.db.Save(currentData).Error
+		currentData, err := boardRepository.GetById(board.IdB)
+		if err != nil {
+			return err
+		}
+
+		fileName := strings.Join([]string{filePathBoards, strconv.Itoa(int(currentData.IdB)), ".webp"}, "")
+		output, err := os.Create(fileName)
+		if err != nil {
+			return err
+		}
+		defer output.Close()
+
+		openFile, err := header.Open()
+		if err != nil {
+			return err
+		}
+
+		img, _, err := image.Decode(openFile)
+		if err != nil {
+			return err
+		}
+
+		options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
+		if err != nil {
+			return err
+		}
+
+		err = webp.Encode(output, img, options)
+		if err != nil {
+			return err
+		}
+
+		currentData.ImgDesk = fileName
+		return boardRepository.db.Save(currentData).Error
 	}
 	return nil
 }
