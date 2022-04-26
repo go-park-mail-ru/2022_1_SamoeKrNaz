@@ -90,6 +90,7 @@ func initRouter() (*gin.Engine, error) {
 		}
 		taskRoutes := router.Group(routes.TaskRoute)
 		{
+			taskRoutes.GET("", authMiddleware.CheckAuth, taskHandler.GetImportantTasks)
 			taskRoutes.GET("/:id", authMiddleware.CheckAuth, taskHandler.GetSingleTask)
 			taskRoutes.PUT("/:id", authMiddleware.CheckAuth, taskHandler.RefactorTask)
 			taskRoutes.DELETE("/:id", authMiddleware.CheckAuth, taskHandler.DeleteTask)

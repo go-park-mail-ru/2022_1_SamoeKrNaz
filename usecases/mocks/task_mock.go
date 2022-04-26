@@ -35,18 +35,18 @@ func (m *MockTaskUseCase) EXPECT() *MockTaskUseCaseMockRecorder {
 }
 
 // CreateTask mocks base method.
-func (m *MockTaskUseCase) CreateTask(list models.Task, idB, idL, idU uint) (*models.Task, error) {
+func (m *MockTaskUseCase) CreateTask(task models.Task, idB, idL, idU uint) (*models.Task, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateTask", list, idB, idL, idU)
+	ret := m.ctrl.Call(m, "CreateTask", task, idB, idL, idU)
 	ret0, _ := ret[0].(*models.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateTask indicates an expected call of CreateTask.
-func (mr *MockTaskUseCaseMockRecorder) CreateTask(list, idB, idL, idU interface{}) *gomock.Call {
+func (mr *MockTaskUseCaseMockRecorder) CreateTask(task, idB, idL, idU interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTask", reflect.TypeOf((*MockTaskUseCase)(nil).CreateTask), list, idB, idL, idU)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTask", reflect.TypeOf((*MockTaskUseCase)(nil).CreateTask), task, idB, idL, idU)
 }
 
 // DeleteTask mocks base method.
@@ -61,6 +61,21 @@ func (m *MockTaskUseCase) DeleteTask(taskId, userId uint) error {
 func (mr *MockTaskUseCaseMockRecorder) DeleteTask(taskId, userId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTask", reflect.TypeOf((*MockTaskUseCase)(nil).DeleteTask), taskId, userId)
+}
+
+// GetImportantTask mocks base method.
+func (m *MockTaskUseCase) GetImportantTask(userId uint) (*[]models.Task, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetImportantTask", userId)
+	ret0, _ := ret[0].(*[]models.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetImportantTask indicates an expected call of GetImportantTask.
+func (mr *MockTaskUseCaseMockRecorder) GetImportantTask(userId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImportantTask", reflect.TypeOf((*MockTaskUseCase)(nil).GetImportantTask), userId)
 }
 
 // GetSingleTask mocks base method.

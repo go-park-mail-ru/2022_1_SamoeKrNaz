@@ -38,6 +38,21 @@ func (taskHandler *TaskHandler) GetTasks(c *gin.Context) {
 	c.JSON(http.StatusOK, tasks)
 }
 
+func (taskHandler *TaskHandler) GetImportantTasks(c *gin.Context) {
+	userId, check := c.Get("Auth")
+	if !check {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+
+	tasks, err := taskHandler.usecase.GetImportantTask(uint(userId.(uint64)))
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, tasks)
+}
+
 func (taskHandler *TaskHandler) GetSingleTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
