@@ -4,7 +4,7 @@ type Task struct {
 	IdT         uint        `json:"idt" gorm:"primaryKey"`
 	Title       string      `json:"title" gorm:"not null"`
 	Description string      `json:"description"`
-	Position    uint        `json:"position" gorm:"not null""`
+	Position    uint        `json:"position" gorm:"not null"`
 	DateCreated string      `json:"dateCreated"`
 	IdL         uint        `gorm:"not null;"`
 	IdB         uint        `gorm:"not null;"`

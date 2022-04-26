@@ -39,7 +39,7 @@ func (checkListItemRepository *CheckListItemRepositoryImpl) Update(checkListItem
 	if currentData.Description != checkListItem.Description && checkListItem.Description != "" {
 		currentData.Description = checkListItem.Description
 	}
-	if currentData.IsReady != checkListItem.IsReady && checkListItem.IsReady != false {
+	if currentData.IsReady != checkListItem.IsReady && checkListItem.IsReady {
 		currentData.IsReady = checkListItem.IsReady
 	}
 	return checkListItemRepository.db.Save(currentData).Error

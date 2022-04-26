@@ -36,7 +36,6 @@ func (taskHandler *TaskHandler) GetTasks(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, tasks)
-	return
 }
 
 func (taskHandler *TaskHandler) GetSingleTask(c *gin.Context) {
@@ -58,7 +57,6 @@ func (taskHandler *TaskHandler) GetSingleTask(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, task)
-	return
 }
 
 func (taskHandler *TaskHandler) CreateTask(c *gin.Context) {
@@ -93,7 +91,6 @@ func (taskHandler *TaskHandler) CreateTask(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, createdTask)
-	return
 }
 
 func (taskHandler *TaskHandler) RefactorTask(c *gin.Context) {
@@ -122,7 +119,6 @@ func (taskHandler *TaskHandler) RefactorTask(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"updated": true})
-	return
 }
 
 func (taskHandler *TaskHandler) DeleteTask(c *gin.Context) {
@@ -144,6 +140,4 @@ func (taskHandler *TaskHandler) DeleteTask(c *gin.Context) {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"deleted": true})
-	return
 }

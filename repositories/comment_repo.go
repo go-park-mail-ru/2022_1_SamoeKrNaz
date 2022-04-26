@@ -8,4 +8,5 @@ type CommentRepository interface {
 	Update(comment models.Comment) error
 	Delete(IdCm uint) error
 	GetComments(IdT uint) (*[]models.Comment, error)
+	IsAccessToComment(IdCm uint, IdU uint) (bool, error)
 }

@@ -27,7 +27,7 @@ func (checkListItemUseCase *CheckListItemUseCaseImpl) GetCheckListItems(userId u
 	isAccess, err := checkListItemUseCase.repTask.IsAccessToTask(userId, (*checkListItems)[0].IdT)
 	if err != nil {
 		return nil, err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return nil, customErrors.ErrNoAccess
 	}
 	sanitizer := bluemonday.UGCPolicy()
@@ -39,14 +39,14 @@ func (checkListItemUseCase *CheckListItemUseCaseImpl) GetCheckListItems(userId u
 
 func (checkListItemUseCase *CheckListItemUseCaseImpl) GetSingleCheckListItem(IdClIt uint, userId uint) (*models.CheckListItem, error) {
 	checkListItem, err := checkListItemUseCase.repCheckListItem.GetById(IdClIt)
+	if err != nil {
+		return nil, err
+	}
 	isAccess, err := checkListItemUseCase.repTask.IsAccessToTask(userId, checkListItem.IdT)
 	if err != nil {
 		return nil, err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return nil, customErrors.ErrNoAccess
-	}
-	if err != nil {
-		return nil, err
 	}
 	sanitizer := bluemonday.UGCPolicy()
 	checkListItem.Description = sanitizer.Sanitize(checkListItem.Description)
@@ -58,7 +58,7 @@ func (checkListItemUseCase *CheckListItemUseCaseImpl) CreateCheckListItem(checkL
 	isAccess, err := checkListItemUseCase.repTask.IsAccessToTask(userId, checkListItem.IdT)
 	if err != nil {
 		return nil, err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return nil, customErrors.ErrNoAccess
 	}
 	checkListItemId, err := checkListItemUseCase.repCheckListItem.Create(checkListItem)
@@ -66,14 +66,14 @@ func (checkListItemUseCase *CheckListItemUseCaseImpl) CreateCheckListItem(checkL
 		return nil, err
 	}
 	createdCheckListItem, err := checkListItemUseCase.repCheckListItem.GetById(checkListItemId)
-	return createdCheckListItem, nil
+	return createdCheckListItem, err
 }
 
 func (checkListItemUseCase *CheckListItemUseCaseImpl) RefactorCheckListItem(checkListItem *models.CheckListItem, userId uint) error {
 	isAccess, err := checkListItemUseCase.repTask.IsAccessToTask(userId, checkListItem.IdT)
 	if err != nil {
 		return err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return customErrors.ErrNoAccess
 	}
 	return checkListItemUseCase.repCheckListItem.Update(*checkListItem)
@@ -87,7 +87,7 @@ func (checkListItemUseCase *CheckListItemUseCaseImpl) DeleteCheckListItem(IdClIt
 	isAccess, err := checkListItemUseCase.repTask.IsAccessToTask(userId, checkListItem.IdT)
 	if err != nil {
 		return err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return customErrors.ErrNoAccess
 	}
 	return checkListItemUseCase.repCheckListItem.Delete(IdClIt)

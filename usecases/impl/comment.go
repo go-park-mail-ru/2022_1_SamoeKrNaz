@@ -26,7 +26,7 @@ func (commentUseCase *CommentUseCaseImpl) GetComments(userId uint, IdT uint) (*[
 	isAccess, err := commentUseCase.repTask.IsAccessToTask(userId, (*comments)[0].IdT)
 	if err != nil {
 		return nil, err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return nil, customErrors.ErrNoAccess
 	}
 	sanitizer := bluemonday.UGCPolicy()
@@ -49,7 +49,7 @@ func (commentUseCase *CommentUseCaseImpl) GetSingleComment(userId uint, IdCm uin
 	isAccess, err := commentUseCase.repTask.IsAccessToTask(userId, comment.IdT)
 	if err != nil {
 		return nil, err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return nil, customErrors.ErrNoAccess
 	}
 	sanitizer := bluemonday.UGCPolicy()
@@ -68,7 +68,7 @@ func (commentUseCase *CommentUseCaseImpl) CreateComment(comment *models.Comment,
 	isAccess, err := commentUseCase.repTask.IsAccessToTask(userId, comment.IdT)
 	if err != nil {
 		return nil, err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return nil, customErrors.ErrNoAccess
 	}
 	checkListId, err := commentUseCase.repComment.Create(comment)
@@ -76,32 +76,24 @@ func (commentUseCase *CommentUseCaseImpl) CreateComment(comment *models.Comment,
 		return nil, err
 	}
 	createdComment, err := commentUseCase.repComment.GetById(checkListId)
-	return createdComment, nil
+	return createdComment, err
 }
 
 func (commentUseCase *CommentUseCaseImpl) RefactorComment(comment *models.Comment, userId uint) error {
-	currentData, err := commentUseCase.repComment.GetById(comment.IdCm)
+	isAccess, err := commentUseCase.repComment.IsAccessToComment(userId, comment.IdCm)
 	if err != nil {
 		return err
-	}
-	isAccess, err := commentUseCase.repTask.IsAccessToTask(userId, currentData.IdT)
-	if err != nil {
-		return err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return customErrors.ErrNoAccess
 	}
 	return commentUseCase.repComment.Update(*comment)
 }
 
 func (commentUseCase *CommentUseCaseImpl) DeleteComment(IdCm uint, userId uint) error {
-	checkList, err := commentUseCase.repComment.GetById(IdCm)
+	isAccess, err := commentUseCase.repComment.IsAccessToComment(userId, IdCm)
 	if err != nil {
 		return err
-	}
-	isAccess, err := commentUseCase.repTask.IsAccessToTask(userId, checkList.IdT)
-	if err != nil {
-		return err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return customErrors.ErrNoAccess
 	}
 	err = commentUseCase.repComment.Delete(IdCm)

@@ -51,3 +51,13 @@ func (commentRepository *CommentRepositoryImpl) GetComments(IdT uint) (*[]models
 	err := commentRepository.db.Where("id_t = ?", IdT).Find(comments).Error
 	return comments, err
 }
+
+func (commentRepository *CommentRepositoryImpl) IsAccessToComment(IdCm uint, IdU uint) (bool, error) {
+	comment := commentRepository.db.Where("id_cm = ? and id_u = ?", IdCm, IdU).Find(&models.Comment{})
+	if comment.Error != nil {
+		return false, comment.Error
+	} else if comment == nil {
+		return false, nil
+	}
+	return true, nil
+}

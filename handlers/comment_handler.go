@@ -36,7 +36,6 @@ func (commentHandler *CommentHandler) GetComments(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, comments)
-	return
 }
 
 func (commentHandler *CommentHandler) GetSingleComment(c *gin.Context) {
@@ -58,7 +57,6 @@ func (commentHandler *CommentHandler) GetSingleComment(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, comment)
-	return
 }
 
 func (commentHandler *CommentHandler) CreateComment(c *gin.Context) {
@@ -87,7 +85,6 @@ func (commentHandler *CommentHandler) CreateComment(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, createdComment)
-	return
 }
 
 func (commentHandler *CommentHandler) RefactorComment(c *gin.Context) {
@@ -116,7 +113,6 @@ func (commentHandler *CommentHandler) RefactorComment(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"updated": true})
-	return
 }
 
 func (commentHandler *CommentHandler) DeleteComment(c *gin.Context) {
@@ -138,5 +134,4 @@ func (commentHandler *CommentHandler) DeleteComment(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"deleted": true})
-	return
 }

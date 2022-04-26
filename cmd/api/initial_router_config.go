@@ -67,7 +67,7 @@ func initRouter() (*gin.Engine, error) {
 	listHandler := handlers.MakeListHandler(impl.MakeListUsecase(listRepository, boardRepository))
 	checkListHandler := handlers.MakeCheckListHandler(impl.MakeCheckListUsecase(checkListRepository, taskRepository))
 	checkListItemHandler := handlers.MakeCheckListItemHandler(impl.MakeCheckListItemUsecase(checkListItemRepository, checkListRepository, taskRepository))
-	commentHandler := handlers.MakeCommentHandler(impl.MakeCommentUsecase(commentRepository, taskRepository))
+	commentHandler := handlers.MakeCommentHandler(impl.MakeCommentUsecase(commentRepository, taskRepository, userRepository))
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
 		boardRoutes := router.Group(routes.BoardRoute)

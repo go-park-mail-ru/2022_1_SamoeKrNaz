@@ -36,7 +36,6 @@ func (checkListHandler *CheckListHandler) GetCheckLists(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, checkLists)
-	return
 }
 
 func (checkListHandler *CheckListHandler) GetSingleCheckList(c *gin.Context) {
@@ -58,7 +57,6 @@ func (checkListHandler *CheckListHandler) GetSingleCheckList(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, checkList)
-	return
 }
 
 func (checkListHandler *CheckListHandler) CreateCheckList(c *gin.Context) {
@@ -87,7 +85,6 @@ func (checkListHandler *CheckListHandler) CreateCheckList(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, createdCheckList)
-	return
 }
 
 func (checkListHandler *CheckListHandler) RefactorCheckList(c *gin.Context) {
@@ -116,7 +113,6 @@ func (checkListHandler *CheckListHandler) RefactorCheckList(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"updated": true})
-	return
 }
 
 func (checkListHandler *CheckListHandler) DeleteCheckList(c *gin.Context) {
@@ -138,5 +134,4 @@ func (checkListHandler *CheckListHandler) DeleteCheckList(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"deleted": true})
-	return
 }

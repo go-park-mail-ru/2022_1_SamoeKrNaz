@@ -25,7 +25,7 @@ func (checkListUseCase *CheckListUseCaseImpl) GetSingleCheckList(userId uint, Id
 	isAccess, err := checkListUseCase.repTask.IsAccessToTask(userId, checkList.IdT)
 	if err != nil {
 		return nil, err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return nil, customErrors.ErrNoAccess
 	}
 	sanitizer := bluemonday.UGCPolicy()
@@ -37,7 +37,7 @@ func (checkListUseCase *CheckListUseCaseImpl) GetCheckLists(userId uint, IdT uin
 	isAccess, err := checkListUseCase.repTask.IsAccessToTask(userId, IdT)
 	if err != nil {
 		return nil, err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return nil, customErrors.ErrNoAccess
 	}
 	checkLists, err := checkListUseCase.repTask.GetCheckLists(IdT)
@@ -56,7 +56,7 @@ func (checkListUseCase *CheckListUseCaseImpl) CreateCheckList(checkList *models.
 	isAccess, err := checkListUseCase.repTask.IsAccessToTask(userId, checkList.IdT)
 	if err != nil {
 		return nil, err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return nil, customErrors.ErrNoAccess
 	}
 	checkListId, err := checkListUseCase.repCheckList.Create(checkList)
@@ -64,7 +64,7 @@ func (checkListUseCase *CheckListUseCaseImpl) CreateCheckList(checkList *models.
 		return nil, err
 	}
 	createdCheckList, err := checkListUseCase.repCheckList.GetById(checkListId)
-	return createdCheckList, nil
+	return createdCheckList, err
 }
 
 func (checkListUseCase *CheckListUseCaseImpl) RefactorCheckList(checkList *models.CheckList, userId uint) error {
@@ -75,7 +75,7 @@ func (checkListUseCase *CheckListUseCaseImpl) RefactorCheckList(checkList *model
 	isAccess, err := checkListUseCase.repTask.IsAccessToTask(userId, currentData.IdT)
 	if err != nil {
 		return err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return customErrors.ErrNoAccess
 	}
 	return checkListUseCase.repCheckList.Update(*checkList)
@@ -89,7 +89,7 @@ func (checkListUseCase *CheckListUseCaseImpl) DeleteCheckList(IdCl uint, userId 
 	isAccess, err := checkListUseCase.repTask.IsAccessToTask(userId, checkList.IdT)
 	if err != nil {
 		return err
-	} else if isAccess == false {
+	} else if !isAccess {
 		return customErrors.ErrNoAccess
 	}
 	err = checkListUseCase.repCheckList.Delete(IdCl)
