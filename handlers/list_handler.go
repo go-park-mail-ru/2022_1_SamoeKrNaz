@@ -36,7 +36,6 @@ func (listHandler *ListHandler) GetLists(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, lists)
-	return
 }
 
 func (listHandler *ListHandler) GetSingleList(c *gin.Context) {
@@ -58,7 +57,6 @@ func (listHandler *ListHandler) GetSingleList(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, list)
-	return
 }
 
 func (listHandler *ListHandler) CreateList(c *gin.Context) {
@@ -87,7 +85,6 @@ func (listHandler *ListHandler) CreateList(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, createdList)
-	return
 }
 
 func (listHandler *ListHandler) RefactorList(c *gin.Context) {
@@ -116,7 +113,6 @@ func (listHandler *ListHandler) RefactorList(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"updated": true})
-	return
 }
 
 func (listHandler *ListHandler) DeleteList(c *gin.Context) {
@@ -139,5 +135,4 @@ func (listHandler *ListHandler) DeleteList(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"deleted": true})
-	return
 }
