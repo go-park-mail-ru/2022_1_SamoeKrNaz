@@ -138,21 +138,6 @@ func (mr *MockBoardRepositoryMockRecorder) GetUserBoards(IdU interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserBoards", reflect.TypeOf((*MockBoardRepository)(nil).GetUserBoards), IdU)
 }
 
-// GetUsersByLogin mocks base method.
-func (m *MockBoardRepository) GetUsersByLogin(username string) (*[]models.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUsersByLogin", username)
-	ret0, _ := ret[0].(*[]models.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetUsersByLogin indicates an expected call of GetUsersByLogin.
-func (mr *MockBoardRepositoryMockRecorder) GetUsersByLogin(username interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersByLogin", reflect.TypeOf((*MockBoardRepository)(nil).GetUsersByLogin), username)
-}
-
 // IsAccessToBoard mocks base method.
 func (m *MockBoardRepository) IsAccessToBoard(IdU, IdB uint) (bool, error) {
 	m.ctrl.T.Helper()

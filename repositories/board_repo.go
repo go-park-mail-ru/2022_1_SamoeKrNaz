@@ -16,5 +16,4 @@ type BoardRepository interface {
 	IsAccessToBoard(IdU uint, IdB uint) (bool, error)
 	SaveImage(board *models.Board, header *multipart.FileHeader) error
 	GetBoardsUser(IdB uint) (*[]models.User, error)
-	GetUsersByLogin(username string) (*[]models.User, error)
 }
