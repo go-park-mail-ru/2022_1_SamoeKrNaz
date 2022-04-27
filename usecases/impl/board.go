@@ -150,6 +150,9 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 		lists[i].Tasks = *tasks
 	}
 	board, err := boardUseCase.repBoard.GetById(boardId)
+	if err != nil {
+		return models.Board{}, err
+	}
 	appendedUsers, err := boardUseCase.repBoard.GetBoardsUser(boardId)
 	if err != nil {
 		return models.Board{}, err
