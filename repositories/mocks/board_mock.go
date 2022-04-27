@@ -78,19 +78,33 @@ func (mr *MockBoardRepositoryMockRecorder) Delete(IdB interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockBoardRepository)(nil).Delete), IdB)
 }
 
-// GetBoardsUser mocks base method.
-func (m *MockBoardRepository) GetBoardsUser(IdB uint) ([]models.User, error) {
+// DeleteUser mocks base method.
+func (m *MockBoardRepository) DeleteUser(boardId, userId uint) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetBoardsUser", IdB)
+	ret := m.ctrl.Call(m, "DeleteUser", boardId, userId)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteUser indicates an expected call of DeleteUser.
+func (mr *MockBoardRepositoryMockRecorder) DeleteUser(boardId, userId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockBoardRepository)(nil).DeleteUser), boardId, userId)
+}
+
+// GetBoardUser mocks base method.
+func (m *MockBoardRepository) GetBoardUser(IdB uint) ([]models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBoardUser", IdB)
 	ret0, _ := ret[0].([]models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetBoardsUser indicates an expected call of GetBoardsUser.
-func (mr *MockBoardRepositoryMockRecorder) GetBoardsUser(IdB interface{}) *gomock.Call {
+// GetBoardUser indicates an expected call of GetBoardUser.
+func (mr *MockBoardRepositoryMockRecorder) GetBoardUser(IdB interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBoardsUser", reflect.TypeOf((*MockBoardRepository)(nil).GetBoardsUser), IdB)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBoardUser", reflect.TypeOf((*MockBoardRepository)(nil).GetBoardUser), IdB)
 }
 
 // GetById mocks base method.

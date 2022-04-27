@@ -12,5 +12,6 @@ type TaskRepository interface {
 	GetCheckLists(IdT uint) (*[]models.CheckList, error)
 	IsAccessToTask(IdU uint, IdT uint) (bool, error)
 	GetImportantTasks(IdU uint) (*[]models.Task, error)
-	GetTasksUser(IdT uint) (*[]models.User, error)
+	GetTaskUser(IdT uint) (*[]models.User, error)
+	DeleteUser(IdT uint, IdU uint) error
 }

@@ -166,7 +166,7 @@ func (boardHandler *BoardHandler) SaveImage(c *gin.Context) {
 }
 
 func (boardHandler *BoardHandler) AppendUserToBoard(c *gin.Context) {
-	_, check := c.Get("Auth")
+	userId, check := c.Get("Auth")
 	if !check {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
 		return
@@ -177,7 +177,7 @@ func (boardHandler *BoardHandler) AppendUserToBoard(c *gin.Context) {
 		return
 	}
 
-	userId, err := strconv.ParseUint(c.Param("idU"), 10, 32)
+	appendedUserId, err := strconv.ParseUint(c.Param("idU"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -185,10 +185,38 @@ func (boardHandler *BoardHandler) AppendUserToBoard(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	appendedUser, err := boardHandler.usecase.AppendUserToBoard(uint(boardId), uint(userId))
+	appendedUser, err := boardHandler.usecase.AppendUserToBoard(uint(userId.(uint64)), uint(appendedUserId), uint(boardId))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, appendedUser)
+}
+
+func (boardHandler *BoardHandler) DeleteUserToBoard(c *gin.Context) {
+	userId, check := c.Get("Auth")
+	if !check {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+	boardId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	deletedUserId, err := strconv.ParseUint(c.Param("idU"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	//вызываю юзкейс
+
+	err = boardHandler.usecase.DeleteUserFromBoard(uint(userId.(uint64)), uint(deletedUserId), uint(boardId))
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"deleted": true})
 }

@@ -121,20 +121,34 @@ func (taskUseCase *TaskUseCaseImpl) GetImportantTask(userId uint) (*[]models.Tas
 	return tasks, nil
 }
 
-func (taskUseCase *TaskUseCaseImpl) AppendUserToTask(userId uint, taskId uint) (models.User, error) {
+func (taskUseCase *TaskUseCaseImpl) AppendUserToTask(userId uint, appendedUserId uint, taskId uint) (models.User, error) {
 	isAccess, err := taskUseCase.repTask.IsAccessToTask(userId, taskId)
 	if err != nil {
 		return models.User{}, err
 	} else if !isAccess {
 		return models.User{}, customErrors.ErrNoAccess
 	}
-	err = taskUseCase.repTask.AppendUser(taskId, userId)
+	err = taskUseCase.repTask.AppendUser(taskId, appendedUserId)
 	if err != nil {
 		return models.User{}, err
 	}
-	user, err := taskUseCase.repUser.GetUserById(userId)
+	user, err := taskUseCase.repUser.GetUserById(appendedUserId)
 	if err != nil {
 		return models.User{}, err
 	}
 	return *user, nil
+}
+
+func (taskUseCase *TaskUseCaseImpl) DeleteUserFromTask(userId uint, deletedUserId uint, taskId uint) error {
+	isAccess, err := taskUseCase.repTask.IsAccessToTask(userId, taskId)
+	if err != nil {
+		return err
+	} else if !isAccess {
+		return customErrors.ErrNoAccess
+	}
+	err = taskUseCase.repTask.DeleteUser(taskId, deletedUserId)
+	if err != nil {
+		return err
+	}
+	return nil
 }

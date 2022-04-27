@@ -73,7 +73,8 @@ func initRouter() (*gin.Engine, error) {
 		boardRoutes := router.Group(routes.BoardRoute)
 		{
 			boardRoutes.POST("", authMiddleware.CheckAuth, boardHandler.CreateBoard)
-			boardRoutes.POST("/:id/append/:idU", authMiddleware.CheckAuth, boardHandler.AppendUserToBoard)
+			boardRoutes.POST("/:id/user/:idU", authMiddleware.CheckAuth, boardHandler.AppendUserToBoard)
+			boardRoutes.DELETE("/:id/user/:idU", authMiddleware.CheckAuth, boardHandler.DeleteUserToBoard)
 			boardRoutes.PUT("/:id", authMiddleware.CheckAuth, boardHandler.RefactorBoard)
 			boardRoutes.GET("/:id", authMiddleware.CheckAuth, boardHandler.GetSingleBoard)
 			boardRoutes.DELETE("/:id", authMiddleware.CheckAuth, boardHandler.DeleteBoard)
@@ -92,7 +93,8 @@ func initRouter() (*gin.Engine, error) {
 		taskRoutes := router.Group(routes.TaskRoute)
 		{
 			taskRoutes.GET("", authMiddleware.CheckAuth, taskHandler.GetImportantTasks)
-			taskRoutes.POST("/:id/append/:idU", authMiddleware.CheckAuth, taskHandler.AppendUserToTask)
+			taskRoutes.POST("/:id/user/:idU", authMiddleware.CheckAuth, taskHandler.AppendUserToTask)
+			taskRoutes.DELETE("/:id/user/:idU", authMiddleware.CheckAuth, taskHandler.DeleteUserFromTask)
 			taskRoutes.GET("/:id", authMiddleware.CheckAuth, taskHandler.GetSingleTask)
 			taskRoutes.PUT("/:id", authMiddleware.CheckAuth, taskHandler.RefactorTask)
 			taskRoutes.DELETE("/:id", authMiddleware.CheckAuth, taskHandler.DeleteTask)

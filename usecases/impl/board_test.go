@@ -149,7 +149,7 @@ func TestGetBoard(t *testing.T) {
 	boardRepo.EXPECT().IsAccessToBoard(uint(22), uint(11)).Return(true, nil)
 	boardRepo.EXPECT().GetLists(uint(11)).Return([]models.List{}, nil)
 	boardRepo.EXPECT().GetById(uint(11)).Return(&board, nil)
-	boardRepo.EXPECT().GetBoardsUser(uint(11)).Return([]models.User{}, nil)
+	boardRepo.EXPECT().GetBoardUser(uint(11)).Return([]models.User{}, nil)
 	newBoard, err := boardUseCase.GetBoard(uint(11), uint(22))
 	assert.Equal(t, nil, err)
 	assert.Equal(t, board, newBoard)

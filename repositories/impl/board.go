@@ -31,7 +31,6 @@ func (boardRepository *BoardRepositoryImpl) Create(board *models.Board) (uint, e
 
 func (boardRepository *BoardRepositoryImpl) AppendUser(boardId uint, userId uint) error {
 	user := new(models.User)
-
 	result := boardRepository.db.Find(user, userId)
 	if result.RowsAffected == 0 {
 		return customErrors.ErrUserNotFound
@@ -149,11 +148,23 @@ func (boardRepository *BoardRepositoryImpl) SaveImage(board *models.Board, heade
 	return nil
 }
 
-func (boardRepository *BoardRepositoryImpl) GetBoardsUser(IdB uint) ([]models.User, error) {
+func (boardRepository *BoardRepositoryImpl) GetBoardUser(IdB uint) ([]models.User, error) {
 	users := new([]models.User)
 	err := boardRepository.db.Model(&models.Board{IdB: IdB}).Association("Users").Find(users)
 	if err != nil {
 		return nil, err
 	}
 	return *users, nil
+}
+
+func (boardRepository *BoardRepositoryImpl) DeleteUser(boardId uint, userId uint) error {
+	user := new(models.User)
+	result := boardRepository.db.Find(user, userId)
+	if result.RowsAffected == 0 {
+		return customErrors.ErrUserNotFound
+	} else if result.Error != nil {
+		return result.Error
+	}
+	err := boardRepository.db.Model(&models.Board{IdB: boardId}).Association("Users").Delete(user)
+	return err
 }

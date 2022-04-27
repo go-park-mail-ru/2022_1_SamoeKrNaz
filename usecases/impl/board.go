@@ -128,7 +128,7 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 			return models.Board{}, err
 		}
 		for j, task := range *tasks {
-			appendedUsers, err := boardUseCase.repTask.GetTasksUser(task.IdT)
+			appendedUsers, err := boardUseCase.repTask.GetTaskUser(task.IdT)
 			if err != nil {
 				return models.Board{}, err
 			}
@@ -153,7 +153,7 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 	if err != nil {
 		return models.Board{}, err
 	}
-	appendedUsers, err := boardUseCase.repBoard.GetBoardsUser(boardId)
+	appendedUsers, err := boardUseCase.repBoard.GetBoardUser(boardId)
 	if err != nil {
 		return models.Board{}, err
 	}
@@ -181,14 +181,14 @@ func (boardUseCase *BoardUseCaseImpl) SaveImage(userId uint, board *models.Board
 	return strings.Join([]string{strconv.Itoa(int(board.IdB)), ".webp"}, ""), err
 }
 
-func (boardUseCase *BoardUseCaseImpl) AppendUserToBoard(userId uint, boardId uint) (models.User, error) {
+func (boardUseCase *BoardUseCaseImpl) AppendUserToBoard(userId uint, appendedUserId uint, boardId uint) (models.User, error) {
 	isAccess, err := boardUseCase.repBoard.IsAccessToBoard(userId, boardId)
 	if err != nil {
 		return models.User{}, err
 	} else if !isAccess {
 		return models.User{}, customErrors.ErrNoAccess
 	}
-	err = boardUseCase.repBoard.AppendUser(boardId, userId)
+	err = boardUseCase.repBoard.AppendUser(boardId, appendedUserId)
 	if err != nil {
 		return models.User{}, err
 	}
@@ -197,4 +197,18 @@ func (boardUseCase *BoardUseCaseImpl) AppendUserToBoard(userId uint, boardId uin
 		return models.User{}, err
 	}
 	return *user, err
+}
+
+func (boardUseCase *BoardUseCaseImpl) DeleteUserFromBoard(userId uint, deletedUserId uint, boardId uint) error {
+	isAccess, err := boardUseCase.repBoard.IsAccessToBoard(userId, boardId)
+	if err != nil {
+		return err
+	} else if !isAccess {
+		return customErrors.ErrNoAccess
+	}
+	err = boardUseCase.repBoard.DeleteUser(boardId, deletedUserId)
+	if err != nil {
+		return err
+	}
+	return err
 }
