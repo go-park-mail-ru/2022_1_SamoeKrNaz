@@ -197,3 +197,26 @@ func (userHandler *UserHandler) RefactorProfile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"updated": true})
 }
+
+func (userHandler *UserHandler) GetUsersLike(c *gin.Context) {
+	_, check := c.Get("Auth")
+	if !check {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+
+	var user models.User
+	err := c.ShouldBindJSON(&user)
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		return
+	}
+
+	usersLike, err := userHandler.usecase.GetUsersLike(user.Username)
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, usersLike)
+}

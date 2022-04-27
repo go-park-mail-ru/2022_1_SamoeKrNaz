@@ -34,6 +34,20 @@ func (m *MockTaskRepository) EXPECT() *MockTaskRepositoryMockRecorder {
 	return m.recorder
 }
 
+// AppendUser mocks base method.
+func (m *MockTaskRepository) AppendUser(IdT, IdU uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AppendUser", IdT, IdU)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AppendUser indicates an expected call of AppendUser.
+func (mr *MockTaskRepositoryMockRecorder) AppendUser(IdT, IdU interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AppendUser", reflect.TypeOf((*MockTaskRepository)(nil).AppendUser), IdT, IdU)
+}
+
 // Create mocks base method.
 func (m *MockTaskRepository) Create(task *models.Task, IdL, IdB uint) (uint, error) {
 	m.ctrl.T.Helper()
@@ -61,6 +75,20 @@ func (m *MockTaskRepository) Delete(IdT uint) error {
 func (mr *MockTaskRepositoryMockRecorder) Delete(IdT interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockTaskRepository)(nil).Delete), IdT)
+}
+
+// DeleteUser mocks base method.
+func (m *MockTaskRepository) DeleteUser(IdT, IdU uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteUser", IdT, IdU)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteUser indicates an expected call of DeleteUser.
+func (mr *MockTaskRepositoryMockRecorder) DeleteUser(IdT, IdU interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockTaskRepository)(nil).DeleteUser), IdT, IdU)
 }
 
 // GetById mocks base method.
@@ -106,6 +134,21 @@ func (m *MockTaskRepository) GetImportantTasks(IdU uint) (*[]models.Task, error)
 func (mr *MockTaskRepositoryMockRecorder) GetImportantTasks(IdU interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImportantTasks", reflect.TypeOf((*MockTaskRepository)(nil).GetImportantTasks), IdU)
+}
+
+// GetTaskUser mocks base method.
+func (m *MockTaskRepository) GetTaskUser(IdT uint) (*[]models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTaskUser", IdT)
+	ret0, _ := ret[0].(*[]models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTaskUser indicates an expected call of GetTaskUser.
+func (mr *MockTaskRepositoryMockRecorder) GetTaskUser(IdT interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTaskUser", reflect.TypeOf((*MockTaskRepository)(nil).GetTaskUser), IdT)
 }
 
 // GetTasks mocks base method.

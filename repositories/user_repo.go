@@ -14,4 +14,5 @@ type UserRepository interface {
 	GetUserByLogin(username string) (*models.User, error)
 	GetUserById(IdU uint) (*models.User, error)
 	IsExist(username string) (bool, error)
+	GetUsersLike(username string) (*[]models.User, error)
 }
