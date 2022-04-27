@@ -149,11 +149,11 @@ func (boardRepository *BoardRepositoryImpl) SaveImage(board *models.Board, heade
 	return nil
 }
 
-func (boardRepository *BoardRepositoryImpl) GetBoardsUser(IdB uint) (*[]models.User, error) {
+func (boardRepository *BoardRepositoryImpl) GetBoardsUser(IdB uint) ([]models.User, error) {
 	users := new([]models.User)
 	err := boardRepository.db.Model(&models.Board{IdB: IdB}).Association("Users").Find(users)
 	if err != nil {
 		return nil, err
 	}
-	return users, nil
+	return *users, nil
 }

@@ -154,7 +154,7 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 	if err != nil {
 		return models.Board{}, err
 	}
-	board.Users = *appendedUsers
+	board.Users = appendedUsers
 	if err != nil {
 		return models.Board{}, err
 	}

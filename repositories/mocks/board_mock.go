@@ -79,10 +79,10 @@ func (mr *MockBoardRepositoryMockRecorder) Delete(IdB interface{}) *gomock.Call 
 }
 
 // GetBoardsUser mocks base method.
-func (m *MockBoardRepository) GetBoardsUser(IdB uint) (*[]models.User, error) {
+func (m *MockBoardRepository) GetBoardsUser(IdB uint) ([]models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBoardsUser", IdB)
-	ret0, _ := ret[0].(*[]models.User)
+	ret0, _ := ret[0].([]models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
