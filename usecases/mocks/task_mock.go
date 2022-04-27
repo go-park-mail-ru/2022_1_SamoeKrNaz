@@ -34,6 +34,21 @@ func (m *MockTaskUseCase) EXPECT() *MockTaskUseCaseMockRecorder {
 	return m.recorder
 }
 
+// AppendUserToTask mocks base method.
+func (m *MockTaskUseCase) AppendUserToTask(userId, taskId uint) (models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AppendUserToTask", userId, taskId)
+	ret0, _ := ret[0].(models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AppendUserToTask indicates an expected call of AppendUserToTask.
+func (mr *MockTaskUseCaseMockRecorder) AppendUserToTask(userId, taskId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AppendUserToTask", reflect.TypeOf((*MockTaskUseCase)(nil).AppendUserToTask), userId, taskId)
+}
+
 // CreateTask mocks base method.
 func (m *MockTaskUseCase) CreateTask(task models.Task, idB, idL, idU uint) (*models.Task, error) {
 	m.ctrl.T.Helper()

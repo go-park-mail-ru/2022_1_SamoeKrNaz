@@ -176,3 +176,12 @@ func (userRepository *UserRepositoryImpl) IsExist(username string) (bool, error)
 	}
 	return true, nil
 }
+
+func (userRepository *UserRepositoryImpl) GetUsersLike(username string) (*[]models.User, error) {
+	users := new([]models.User)
+	err := userRepository.db.Where("username LIKE lower(?)", strings.Join([]string{username, "*"}, "")).Find(users).Error
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}

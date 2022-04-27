@@ -15,6 +15,19 @@ func MakeTaskRepository(db *gorm.DB) repositories.TaskRepository {
 	return &TaskRepositoryImpl{db: db}
 }
 
+func (taskRepository *TaskRepositoryImpl) AppendUser(IdT uint, IdU uint) error {
+	user := new(models.User)
+
+	result := taskRepository.db.Find(user, IdU)
+	if result.RowsAffected == 0 {
+		return customErrors.ErrUserNotFound
+	} else if result.Error != nil {
+		return result.Error
+	}
+	err := taskRepository.db.Model(&models.Task{IdT: IdT}).Association("Users").Append(user)
+	return err
+}
+
 func (taskRepository *TaskRepositoryImpl) Create(task *models.Task, IdL uint, IdB uint) (uint, error) {
 	task.IdL = IdL
 	task.IdB = IdB
@@ -163,4 +176,13 @@ func (taskRepository *TaskRepositoryImpl) GetImportantTasks(IdU uint) (*[]models
 		return nil, err
 	}
 	return tasks, nil
+}
+
+func (taskRepository *TaskRepositoryImpl) GetTasksUser(IdT uint) (*[]models.User, error) {
+	users := new([]models.User)
+	err := taskRepository.db.Model(&models.Task{IdT: IdT}).Association("Users").Find(users)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }

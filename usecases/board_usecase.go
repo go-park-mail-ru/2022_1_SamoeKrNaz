@@ -6,6 +6,7 @@ import (
 )
 
 type BoardUseCase interface {
+	AppendUserToBoard(userId uint, boardId uint) (models.User, error)
 	GetBoards(userId uint) ([]models.Board, error)
 	GetSingleBoard(boardId uint, userId uint) (models.Board, error)
 	GetBoard(boardId uint, userId uint) (models.Board, error)

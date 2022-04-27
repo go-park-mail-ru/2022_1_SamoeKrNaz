@@ -94,6 +94,21 @@ func (mr *MockUserRepositoryMockRecorder) GetUserByLogin(username interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByLogin", reflect.TypeOf((*MockUserRepository)(nil).GetUserByLogin), username)
 }
 
+// GetUsersLike mocks base method.
+func (m *MockUserRepository) GetUsersLike(username string) (*[]models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUsersLike", username)
+	ret0, _ := ret[0].(*[]models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUsersLike indicates an expected call of GetUsersLike.
+func (mr *MockUserRepositoryMockRecorder) GetUsersLike(username interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersLike", reflect.TypeOf((*MockUserRepository)(nil).GetUsersLike), username)
+}
+
 // IsAbleToLogin mocks base method.
 func (m *MockUserRepository) IsAbleToLogin(username, password string) (bool, error) {
 	m.ctrl.T.Helper()

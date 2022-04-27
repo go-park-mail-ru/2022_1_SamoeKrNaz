@@ -164,3 +164,31 @@ func (boardHandler *BoardHandler) SaveImage(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"img_board": path})
 }
+
+func (boardHandler *BoardHandler) AppendUserToBoard(c *gin.Context) {
+	_, check := c.Get("Auth")
+	if !check {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+	boardId, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userId, err := strconv.ParseUint(c.Param("idU"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	//вызываю юзкейс
+
+	appendedUser, err := boardHandler.usecase.AppendUserToBoard(uint(boardId), uint(userId))
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, appendedUser)
+}

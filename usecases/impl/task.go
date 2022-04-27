@@ -13,10 +13,12 @@ type TaskUseCaseImpl struct {
 	repTask  repositories.TaskRepository
 	repBoard repositories.BoardRepository
 	repList  repositories.ListRepository
+	repUser  repositories.UserRepository
 }
 
-func MakeTaskUsecase(repTask_ repositories.TaskRepository, repBoard_ repositories.BoardRepository, repList_ repositories.ListRepository) usecases.TaskUseCase {
-	return &TaskUseCaseImpl{repTask: repTask_, repBoard: repBoard_, repList: repList_}
+func MakeTaskUsecase(repTask_ repositories.TaskRepository, repBoard_ repositories.BoardRepository,
+	repList_ repositories.ListRepository, repUser_ repositories.UserRepository) usecases.TaskUseCase {
+	return &TaskUseCaseImpl{repTask: repTask_, repBoard: repBoard_, repList: repList_, repUser: repUser_}
 }
 
 func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models.Task, error) {
@@ -117,4 +119,22 @@ func (taskUseCase *TaskUseCaseImpl) GetImportantTask(userId uint) (*[]models.Tas
 		return nil, err
 	}
 	return tasks, nil
+}
+
+func (taskUseCase *TaskUseCaseImpl) AppendUserToTask(userId uint, taskId uint) (models.User, error) {
+	isAccess, err := taskUseCase.repTask.IsAccessToTask(userId, taskId)
+	if err != nil {
+		return models.User{}, err
+	} else if !isAccess {
+		return models.User{}, customErrors.ErrNoAccess
+	}
+	err = taskUseCase.repTask.AppendUser(taskId, userId)
+	if err != nil {
+		return models.User{}, err
+	}
+	user, err := taskUseCase.repUser.GetUserById(userId)
+	if err != nil {
+		return models.User{}, err
+	}
+	return *user, nil
 }

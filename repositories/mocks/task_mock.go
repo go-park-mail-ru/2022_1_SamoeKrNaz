@@ -34,6 +34,20 @@ func (m *MockTaskRepository) EXPECT() *MockTaskRepositoryMockRecorder {
 	return m.recorder
 }
 
+// AppendUser mocks base method.
+func (m *MockTaskRepository) AppendUser(IdT, IdU uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AppendUser", IdT, IdU)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AppendUser indicates an expected call of AppendUser.
+func (mr *MockTaskRepositoryMockRecorder) AppendUser(IdT, IdU interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AppendUser", reflect.TypeOf((*MockTaskRepository)(nil).AppendUser), IdT, IdU)
+}
+
 // Create mocks base method.
 func (m *MockTaskRepository) Create(task *models.Task, IdL, IdB uint) (uint, error) {
 	m.ctrl.T.Helper()
@@ -121,6 +135,21 @@ func (m *MockTaskRepository) GetTasks(IdL uint) (*[]models.Task, error) {
 func (mr *MockTaskRepositoryMockRecorder) GetTasks(IdL interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTasks", reflect.TypeOf((*MockTaskRepository)(nil).GetTasks), IdL)
+}
+
+// GetTasksUser mocks base method.
+func (m *MockTaskRepository) GetTasksUser(IdT uint) (*[]models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTasksUser", IdT)
+	ret0, _ := ret[0].(*[]models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTasksUser indicates an expected call of GetTasksUser.
+func (mr *MockTaskRepositoryMockRecorder) GetTasksUser(IdT interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTasksUser", reflect.TypeOf((*MockTaskRepository)(nil).GetTasksUser), IdT)
 }
 
 // IsAccessToTask mocks base method.
