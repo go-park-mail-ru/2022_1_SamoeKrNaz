@@ -1,12 +1,14 @@
 package impl
 
 import (
+	"PLANEXA_backend/auth_microservice/server/handler"
 	"PLANEXA_backend/errors"
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/usecases"
 	"PLANEXA_backend/utils"
+	"context"
 	"github.com/microcosm-cc/bluemonday"
 	"mime/multipart"
 	"strconv"
@@ -15,11 +17,12 @@ import (
 
 type UserUseCaseImpl struct {
 	rep repositories.UserRepository
-	red repositories.RedisRepository
+	red handler.AuthCheckerClient
+	ctx context.Context
 }
 
-func MakeUserUsecase(rep_ repositories.UserRepository, red_ repositories.RedisRepository) usecases.UserUseCase {
-	return &UserUseCaseImpl{rep: rep_, red: red_}
+func MakeUserUsecase(rep_ repositories.UserRepository, red_ handler.AuthCheckerClient) usecases.UserUseCase {
+	return &UserUseCaseImpl{rep: rep_, red: red_, ctx: context.Background()}
 }
 
 func (userUseCase *UserUseCaseImpl) Login(user models.User) (uint, string, error) {
@@ -39,7 +42,7 @@ func (userUseCase *UserUseCaseImpl) Login(user models.User) (uint, string, error
 	}
 
 	token := utils.GenerateSessionToken()
-	err = userUseCase.red.SetSession(models.Session{UserId: newUser.IdU, CookieValue: token})
+	_, err = userUseCase.red.Create(userUseCase.ctx, &handler.SessionModel{SESSIONVALUE: token, USERID: uint64(newUser.IdU)})
 	// сохраняю сессию в бд и возвращаю token
 	if err != nil {
 		return 0, "", err
@@ -77,13 +80,14 @@ func (userUseCase *UserUseCaseImpl) Register(user models.User) (uint, string, er
 	}
 
 	token := utils.GenerateSessionToken()
-	err = userUseCase.red.SetSession(models.Session{UserId: user.IdU, CookieValue: token})
+	_, err = userUseCase.red.Create(userUseCase.ctx, &handler.SessionModel{SESSIONVALUE: token, USERID: uint64(user.IdU)})
 	// возвращаю токен и ошибку
 	return userId, token, err
 }
 
 func (userUseCase *UserUseCaseImpl) Logout(token string) error {
-	return userUseCase.red.DeleteSession(token)
+	_, err := userUseCase.red.Delete(userUseCase.ctx, &handler.SessionValue{Value: token})
+	return err
 }
 
 func (userUseCase *UserUseCaseImpl) GetInfoById(userId uint) (models.User, error) {

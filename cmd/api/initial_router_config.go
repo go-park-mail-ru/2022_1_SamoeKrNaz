@@ -1,6 +1,8 @@
 package main
 
 import (
+	"PLANEXA_backend/auth_microservice/server/handler"
+	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/handlers"
 	"PLANEXA_backend/middleware"
 	"PLANEXA_backend/models"
@@ -9,6 +11,7 @@ import (
 	"PLANEXA_backend/usecases/impl"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"io"
@@ -48,8 +51,15 @@ func initRouter() (*gin.Engine, error) {
 	if err != nil {
 		return nil, err
 	}
-	redis := impl_rep.ConnectToRedis()
+	grpcConn, err := grpc.Dial(
+		"0.0.0.0:8080",
+		grpc.WithInsecure(),
+	)
+	if err != nil {
+		return nil, customErrors.ErrNoAccess
+	}
 
+	sessService := handler.NewAuthCheckerClient(grpcConn)
 	// создание репозиториев
 	userRepository := impl_rep.MakeUserRepository(db)
 	taskRepository := impl_rep.MakeTaskRepository(db)
@@ -59,9 +69,9 @@ func initRouter() (*gin.Engine, error) {
 	checkListItemRepository := impl_rep.MakeCheckListItemRepository(db)
 	commentRepository := impl_rep.MakeCommentRepository(db)
 
-	authMiddleware := middleware.CreateMiddleware(redis)
+	authMiddleware := middleware.CreateMiddleware(sessService)
 
-	userHandler := handlers.MakeUserHandler(impl.MakeUserUsecase(userRepository, redis))
+	userHandler := handlers.MakeUserHandler(impl.MakeUserUsecase(userRepository, sessService))
 	taskHandler := handlers.MakeTaskHandler(impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository))
 	boardHandler := handlers.MakeBoardHandler(impl.MakeBoardUsecase(boardRepository, listRepository, taskRepository, checkListRepository))
 	listHandler := handlers.MakeListHandler(impl.MakeListUsecase(listRepository, boardRepository))
