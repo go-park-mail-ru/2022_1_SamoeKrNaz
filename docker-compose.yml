@@ -31,3 +31,15 @@ services:
       - "6379:6379"
     volumes:
       - ./sessions:/var/lib/redis
+
+  session:
+    build:
+      context: .
+      dockerfile: ./Dockerfile-session
+    container_name: "2022_1_samoekrnaz_session_1"
+    depends_on:
+      - redis
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./:/session

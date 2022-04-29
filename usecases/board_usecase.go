@@ -6,6 +6,7 @@ import (
 )
 
 type BoardUseCase interface {
+	AppendUserToBoard(userId uint, appendedUserId, boardId uint) (models.User, error)
 	GetBoards(userId uint) ([]models.Board, error)
 	GetSingleBoard(boardId uint, userId uint) (models.Board, error)
 	GetBoard(boardId uint, userId uint) (models.Board, error)
@@ -13,4 +14,5 @@ type BoardUseCase interface {
 	RefactorBoard(userId uint, board models.Board) error
 	DeleteBoard(boardId uint, userId uint) error
 	SaveImage(userId uint, board *models.Board, header *multipart.FileHeader) (string, error)
+	DeleteUserFromBoard(userId uint, deletedUserId uint, boardId uint) error
 }

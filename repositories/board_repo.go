@@ -7,7 +7,7 @@ import (
 
 type BoardRepository interface {
 	Create(board *models.Board) (uint, error)
-	AppendUser(board *models.Board) error
+	AppendUser(boardId uint, userId uint) error
 	GetLists(IdB uint) ([]models.List, error)
 	Update(board models.Board) error
 	Delete(IdB uint) error
@@ -15,4 +15,6 @@ type BoardRepository interface {
 	GetById(IdB uint) (*models.Board, error)
 	IsAccessToBoard(IdU uint, IdB uint) (bool, error)
 	SaveImage(board *models.Board, header *multipart.FileHeader) error
+	GetBoardUser(IdB uint) ([]models.User, error)
+	DeleteUser(boardId uint, userId uint) error
 }

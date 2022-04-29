@@ -17,4 +17,5 @@ type Task struct {
 	IsImportant bool        `json:"is_important" gorm:"not null;"`
 	CheckLists  []CheckList `json:"checkList" gorm:"foreignKey:IdT;constraint:OnDelete:CASCADE;"`
 	Comments    []Comment   `json:"comment" gorm:"foreignKey:IdT;constraint:OnDelete:CASCADE;"`
+	Users       []User      `json:"append_users" gorm:"many2many:users_tasks;constraint:OnDelete:CASCADE;"`
 }

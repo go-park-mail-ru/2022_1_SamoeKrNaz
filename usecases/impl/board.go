@@ -18,12 +18,13 @@ type BoardUseCaseImpl struct {
 	repList      repositories.ListRepository
 	repTask      repositories.TaskRepository
 	repCheckList repositories.CheckListRepository
+	repUser      repositories.UserRepository
 }
 
 func MakeBoardUsecase(repBoard_ repositories.BoardRepository, repList_ repositories.ListRepository,
-	repTask_ repositories.TaskRepository, repCheckList_ repositories.CheckListRepository) usecases.BoardUseCase {
+	repTask_ repositories.TaskRepository, repCheckList_ repositories.CheckListRepository, repUser_ repositories.UserRepository) usecases.BoardUseCase {
 	return &BoardUseCaseImpl{repBoard: repBoard_, repList: repList_,
-		repTask: repTask_, repCheckList: repCheckList_}
+		repTask: repTask_, repCheckList: repCheckList_, repUser: repUser_}
 }
 
 func (boardUseCase *BoardUseCaseImpl) GetBoards(userId uint) ([]models.Board, error) {
@@ -76,7 +77,7 @@ func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Boar
 	if err != nil {
 		return nil, err
 	}
-	err = boardUseCase.repBoard.AppendUser(&board)
+	err = boardUseCase.repBoard.AppendUser(board.IdB, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -127,6 +128,11 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 			return models.Board{}, err
 		}
 		for j, task := range *tasks {
+			appendedUsers, err := boardUseCase.repTask.GetTaskUser(task.IdT)
+			if err != nil {
+				return models.Board{}, err
+			}
+			(*tasks)[j].Users = *appendedUsers
 			checkLists, err := boardUseCase.repTask.GetCheckLists(task.IdT)
 			if err != nil {
 				return models.Board{}, err
@@ -144,6 +150,14 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 		lists[i].Tasks = *tasks
 	}
 	board, err := boardUseCase.repBoard.GetById(boardId)
+	if err != nil {
+		return models.Board{}, err
+	}
+	appendedUsers, err := boardUseCase.repBoard.GetBoardUser(boardId)
+	if err != nil {
+		return models.Board{}, err
+	}
+	board.Users = appendedUsers
 	if err != nil {
 		return models.Board{}, err
 	}
@@ -165,4 +179,36 @@ func (boardUseCase *BoardUseCaseImpl) SaveImage(userId uint, board *models.Board
 	}
 	err = boardUseCase.repBoard.SaveImage(board, header)
 	return strings.Join([]string{strconv.Itoa(int(board.IdB)), ".webp"}, ""), err
+}
+
+func (boardUseCase *BoardUseCaseImpl) AppendUserToBoard(userId uint, appendedUserId uint, boardId uint) (models.User, error) {
+	isAccess, err := boardUseCase.repBoard.IsAccessToBoard(userId, boardId)
+	if err != nil {
+		return models.User{}, err
+	} else if !isAccess {
+		return models.User{}, customErrors.ErrNoAccess
+	}
+	err = boardUseCase.repBoard.AppendUser(boardId, appendedUserId)
+	if err != nil {
+		return models.User{}, err
+	}
+	user, err := boardUseCase.repUser.GetUserById(userId)
+	if err != nil {
+		return models.User{}, err
+	}
+	return *user, err
+}
+
+func (boardUseCase *BoardUseCaseImpl) DeleteUserFromBoard(userId uint, deletedUserId uint, boardId uint) error {
+	isAccess, err := boardUseCase.repBoard.IsAccessToBoard(userId, boardId)
+	if err != nil {
+		return err
+	} else if !isAccess {
+		return customErrors.ErrNoAccess
+	}
+	err = boardUseCase.repBoard.DeleteUser(boardId, deletedUserId)
+	if err != nil {
+		return err
+	}
+	return err
 }

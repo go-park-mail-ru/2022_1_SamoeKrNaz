@@ -60,6 +60,7 @@ func initRouter() (*gin.Engine, error) {
 	}
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)
+
 	// создание репозиториев
 	userRepository := impl_rep.MakeUserRepository(db)
 	taskRepository := impl_rep.MakeTaskRepository(db)
@@ -72,8 +73,8 @@ func initRouter() (*gin.Engine, error) {
 	authMiddleware := middleware.CreateMiddleware(sessService)
 
 	userHandler := handlers.MakeUserHandler(impl.MakeUserUsecase(userRepository, sessService))
-	taskHandler := handlers.MakeTaskHandler(impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository))
-	boardHandler := handlers.MakeBoardHandler(impl.MakeBoardUsecase(boardRepository, listRepository, taskRepository, checkListRepository))
+	taskHandler := handlers.MakeTaskHandler(impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userRepository))
+	boardHandler := handlers.MakeBoardHandler(impl.MakeBoardUsecase(boardRepository, listRepository, taskRepository, checkListRepository, userRepository))
 	listHandler := handlers.MakeListHandler(impl.MakeListUsecase(listRepository, boardRepository))
 	checkListHandler := handlers.MakeCheckListHandler(impl.MakeCheckListUsecase(checkListRepository, taskRepository))
 	checkListItemHandler := handlers.MakeCheckListItemHandler(impl.MakeCheckListItemUsecase(checkListItemRepository, checkListRepository, taskRepository))

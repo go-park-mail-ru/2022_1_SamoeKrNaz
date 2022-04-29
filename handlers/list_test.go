@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"PLANEXA_backend/auth_microservice/server/handler"
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/middleware"
 	"PLANEXA_backend/models"
@@ -12,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -33,7 +35,14 @@ func TestGetLists(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(redis)
+	grpcConn, _ := grpc.Dial(
+		"session:8081",
+		grpc.WithInsecure(),
+	)
+
+	sessService := handler.NewAuthCheckerClient(grpcConn)
+
+	authMiddleware := middleware.CreateMiddleware(sessService)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -80,7 +89,14 @@ func TestGetList(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(redis)
+	grpcConn, _ := grpc.Dial(
+		"session:8081",
+		grpc.WithInsecure(),
+	)
+
+	sessService := handler.NewAuthCheckerClient(grpcConn)
+
+	authMiddleware := middleware.CreateMiddleware(sessService)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -127,7 +143,14 @@ func TestCreateList(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(redis)
+	grpcConn, _ := grpc.Dial(
+		"session:8081",
+		grpc.WithInsecure(),
+	)
+
+	sessService := handler.NewAuthCheckerClient(grpcConn)
+
+	authMiddleware := middleware.CreateMiddleware(sessService)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -180,7 +203,14 @@ func TestRefactorList(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(redis)
+	grpcConn, _ := grpc.Dial(
+		"session:8081",
+		grpc.WithInsecure(),
+	)
+
+	sessService := handler.NewAuthCheckerClient(grpcConn)
+
+	authMiddleware := middleware.CreateMiddleware(sessService)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -230,7 +260,14 @@ func TestDeleteList(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(redis)
+	grpcConn, _ := grpc.Dial(
+		"session:8081",
+		grpc.WithInsecure(),
+	)
+
+	sessService := handler.NewAuthCheckerClient(grpcConn)
+
+	authMiddleware := middleware.CreateMiddleware(sessService)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{

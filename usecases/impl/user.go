@@ -113,3 +113,7 @@ func (userUseCase *UserUseCaseImpl) SaveAvatar(user *models.User, header *multip
 func (userUseCase *UserUseCaseImpl) RefactorProfile(user models.User) error {
 	return userUseCase.rep.Update(&user)
 }
+
+func (userUseCase *UserUseCaseImpl) GetUsersLike(username string) (*[]models.User, error) {
+	return userUseCase.rep.GetUsersLike(username)
+}

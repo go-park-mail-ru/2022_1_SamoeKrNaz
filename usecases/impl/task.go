@@ -13,10 +13,12 @@ type TaskUseCaseImpl struct {
 	repTask  repositories.TaskRepository
 	repBoard repositories.BoardRepository
 	repList  repositories.ListRepository
+	repUser  repositories.UserRepository
 }
 
-func MakeTaskUsecase(repTask_ repositories.TaskRepository, repBoard_ repositories.BoardRepository, repList_ repositories.ListRepository) usecases.TaskUseCase {
-	return &TaskUseCaseImpl{repTask: repTask_, repBoard: repBoard_, repList: repList_}
+func MakeTaskUsecase(repTask_ repositories.TaskRepository, repBoard_ repositories.BoardRepository,
+	repList_ repositories.ListRepository, repUser_ repositories.UserRepository) usecases.TaskUseCase {
+	return &TaskUseCaseImpl{repTask: repTask_, repBoard: repBoard_, repList: repList_, repUser: repUser_}
 }
 
 func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models.Task, error) {
@@ -38,7 +40,6 @@ func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models
 	sanitizer := bluemonday.UGCPolicy()
 	for _, task := range *tasks {
 		task.Title = sanitizer.Sanitize(task.Title)
-		task.DateCreated = sanitizer.Sanitize(task.DateCreated)
 		task.Description = sanitizer.Sanitize(task.Description)
 	}
 	return *tasks, err
@@ -52,7 +53,6 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 	}
 	sanitizer := bluemonday.UGCPolicy()
 	task.Title = sanitizer.Sanitize(task.Title)
-	task.DateCreated = sanitizer.Sanitize(task.DateCreated)
 	task.Description = sanitizer.Sanitize(task.Description)
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, task.IdB)
 	if err != nil {
@@ -119,4 +119,36 @@ func (taskUseCase *TaskUseCaseImpl) GetImportantTask(userId uint) (*[]models.Tas
 		return nil, err
 	}
 	return tasks, nil
+}
+
+func (taskUseCase *TaskUseCaseImpl) AppendUserToTask(userId uint, appendedUserId uint, taskId uint) (models.User, error) {
+	isAccess, err := taskUseCase.repTask.IsAccessToTask(userId, taskId)
+	if err != nil {
+		return models.User{}, err
+	} else if !isAccess {
+		return models.User{}, customErrors.ErrNoAccess
+	}
+	err = taskUseCase.repTask.AppendUser(taskId, appendedUserId)
+	if err != nil {
+		return models.User{}, err
+	}
+	user, err := taskUseCase.repUser.GetUserById(appendedUserId)
+	if err != nil {
+		return models.User{}, err
+	}
+	return *user, nil
+}
+
+func (taskUseCase *TaskUseCaseImpl) DeleteUserFromTask(userId uint, deletedUserId uint, taskId uint) error {
+	isAccess, err := taskUseCase.repTask.IsAccessToTask(userId, taskId)
+	if err != nil {
+		return err
+	} else if !isAccess {
+		return customErrors.ErrNoAccess
+	}
+	err = taskUseCase.repTask.DeleteUser(taskId, deletedUserId)
+	if err != nil {
+		return err
+	}
+	return nil
 }

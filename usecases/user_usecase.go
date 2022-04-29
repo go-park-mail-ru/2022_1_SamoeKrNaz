@@ -12,4 +12,5 @@ type UserUseCase interface {
 	GetInfoById(userId uint) (models.User, error)
 	SaveAvatar(*models.User, *multipart.FileHeader) (string, error)
 	RefactorProfile(user models.User) error
+	GetUsersLike(username string) (*[]models.User, error)
 }
