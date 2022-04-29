@@ -53,7 +53,7 @@ func initRouter() (*gin.Engine, error) {
 		return nil, err
 	}
 	grpcConn, err := grpc.Dial(
-		"0.0.0.0:8080",
+		"2022_1_samoekrnaz_session_1:8081",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {

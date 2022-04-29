@@ -14,7 +14,7 @@ import (
 func Run() {
 	redis := repository_impl.CreateSessRep()
 	sessUseCase := usecase_impl.CreateSessionUseCase(redis)
-	listener, err := net.Listen("tcp", "session:8081")
+	listener, err := net.Listen("tcp", "2022_1_samoekrnaz_session_1:8081")
 	if err != nil {
 		return
 	}
