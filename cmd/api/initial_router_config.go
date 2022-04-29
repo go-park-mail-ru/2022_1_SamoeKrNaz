@@ -12,6 +12,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"io"
@@ -53,7 +54,7 @@ func initRouter() (*gin.Engine, error) {
 	}
 	grpcConn, err := grpc.Dial(
 		"0.0.0.0:8080",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
 		return nil, customErrors.ErrNoAccess

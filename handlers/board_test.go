@@ -14,6 +14,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -37,7 +38,7 @@ func TestGetBoards(t *testing.T) {
 
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)
@@ -89,7 +90,7 @@ func TestGetBoard(t *testing.T) {
 
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)
@@ -142,7 +143,7 @@ func TestCreateBoard(t *testing.T) {
 
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)
@@ -199,7 +200,7 @@ func TestRefactorBoard(t *testing.T) {
 
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)
@@ -254,7 +255,7 @@ func TestDeleteBoard(t *testing.T) {
 
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)

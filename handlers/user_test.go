@@ -14,6 +14,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -146,7 +147,7 @@ func TestGetInfoById(t *testing.T) {
 	}
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)
@@ -197,7 +198,7 @@ func TestGetInfoByCookie(t *testing.T) {
 	}
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)
@@ -291,7 +292,7 @@ func TestRefactorProfile(t *testing.T) {
 	}
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)

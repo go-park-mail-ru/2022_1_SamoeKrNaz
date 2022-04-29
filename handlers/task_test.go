@@ -14,6 +14,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -37,7 +38,7 @@ func TestGetTasks(t *testing.T) {
 
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)
@@ -89,7 +90,7 @@ func TestGetTask(t *testing.T) {
 
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)
@@ -142,7 +143,7 @@ func TestCreateTask(t *testing.T) {
 
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)
@@ -201,7 +202,7 @@ func TestRefactorTask(t *testing.T) {
 
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)
@@ -256,7 +257,7 @@ func TestDeleteTask(t *testing.T) {
 
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)

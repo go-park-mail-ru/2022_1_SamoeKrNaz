@@ -14,6 +14,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -37,7 +38,7 @@ func TestGetLists(t *testing.T) {
 
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)
@@ -91,7 +92,7 @@ func TestGetList(t *testing.T) {
 
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)
@@ -145,7 +146,7 @@ func TestCreateList(t *testing.T) {
 
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)
@@ -205,7 +206,7 @@ func TestRefactorList(t *testing.T) {
 
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)
@@ -262,7 +263,7 @@ func TestDeleteList(t *testing.T) {
 
 	grpcConn, _ := grpc.Dial(
 		"session:8081",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
 	sessService := handler.NewAuthCheckerClient(grpcConn)
