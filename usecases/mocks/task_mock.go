@@ -34,6 +34,21 @@ func (m *MockTaskUseCase) EXPECT() *MockTaskUseCaseMockRecorder {
 	return m.recorder
 }
 
+// AppendUserToTask mocks base method.
+func (m *MockTaskUseCase) AppendUserToTask(userId, appendedUserId, taskId uint) (models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AppendUserToTask", userId, appendedUserId, taskId)
+	ret0, _ := ret[0].(models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AppendUserToTask indicates an expected call of AppendUserToTask.
+func (mr *MockTaskUseCaseMockRecorder) AppendUserToTask(userId, appendedUserId, taskId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AppendUserToTask", reflect.TypeOf((*MockTaskUseCase)(nil).AppendUserToTask), userId, appendedUserId, taskId)
+}
+
 // CreateTask mocks base method.
 func (m *MockTaskUseCase) CreateTask(task models.Task, idB, idL, idU uint) (*models.Task, error) {
 	m.ctrl.T.Helper()
@@ -61,6 +76,20 @@ func (m *MockTaskUseCase) DeleteTask(taskId, userId uint) error {
 func (mr *MockTaskUseCaseMockRecorder) DeleteTask(taskId, userId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTask", reflect.TypeOf((*MockTaskUseCase)(nil).DeleteTask), taskId, userId)
+}
+
+// DeleteUserFromTask mocks base method.
+func (m *MockTaskUseCase) DeleteUserFromTask(userId, deletedUserId, taskId uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteUserFromTask", userId, deletedUserId, taskId)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteUserFromTask indicates an expected call of DeleteUserFromTask.
+func (mr *MockTaskUseCaseMockRecorder) DeleteUserFromTask(userId, deletedUserId, taskId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUserFromTask", reflect.TypeOf((*MockTaskUseCase)(nil).DeleteUserFromTask), userId, deletedUserId, taskId)
 }
 
 // GetImportantTask mocks base method.

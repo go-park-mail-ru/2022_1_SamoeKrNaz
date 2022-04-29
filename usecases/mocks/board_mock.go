@@ -35,6 +35,21 @@ func (m *MockBoardUseCase) EXPECT() *MockBoardUseCaseMockRecorder {
 	return m.recorder
 }
 
+// AppendUserToBoard mocks base method.
+func (m *MockBoardUseCase) AppendUserToBoard(userId, appendedUserId, boardId uint) (models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AppendUserToBoard", userId, appendedUserId, boardId)
+	ret0, _ := ret[0].(models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AppendUserToBoard indicates an expected call of AppendUserToBoard.
+func (mr *MockBoardUseCaseMockRecorder) AppendUserToBoard(userId, appendedUserId, boardId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AppendUserToBoard", reflect.TypeOf((*MockBoardUseCase)(nil).AppendUserToBoard), userId, appendedUserId, boardId)
+}
+
 // CreateBoard mocks base method.
 func (m *MockBoardUseCase) CreateBoard(userId uint, board models.Board) (*models.Board, error) {
 	m.ctrl.T.Helper()
@@ -62,6 +77,20 @@ func (m *MockBoardUseCase) DeleteBoard(boardId, userId uint) error {
 func (mr *MockBoardUseCaseMockRecorder) DeleteBoard(boardId, userId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBoard", reflect.TypeOf((*MockBoardUseCase)(nil).DeleteBoard), boardId, userId)
+}
+
+// DeleteUserFromBoard mocks base method.
+func (m *MockBoardUseCase) DeleteUserFromBoard(userId, deletedUserId, boardId uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteUserFromBoard", userId, deletedUserId, boardId)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteUserFromBoard indicates an expected call of DeleteUserFromBoard.
+func (mr *MockBoardUseCaseMockRecorder) DeleteUserFromBoard(userId, deletedUserId, boardId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUserFromBoard", reflect.TypeOf((*MockBoardUseCase)(nil).DeleteUserFromBoard), userId, deletedUserId, boardId)
 }
 
 // GetBoard mocks base method.
