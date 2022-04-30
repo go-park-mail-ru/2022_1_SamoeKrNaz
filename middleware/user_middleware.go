@@ -2,13 +2,11 @@ package middleware
 
 import (
 	"PLANEXA_backend/repositories"
-	"context"
 	"github.com/gin-gonic/gin"
 )
 
 type Middleware struct {
 	redisRep repositories.SessionRepository
-	ctx      context.Context
 }
 
 func CreateMiddleware(rep repositories.SessionRepository) *Middleware {
