@@ -1,14 +1,12 @@
 package impl
 
 import (
-	"PLANEXA_backend/auth_microservice/server/handler"
 	"PLANEXA_backend/errors"
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/usecases"
 	"PLANEXA_backend/utils"
-	"context"
 	"github.com/microcosm-cc/bluemonday"
 	"mime/multipart"
 	"strconv"
@@ -17,12 +15,11 @@ import (
 
 type UserUseCaseImpl struct {
 	rep repositories.UserRepository
-	red handler.AuthCheckerClient
-	ctx context.Context
+	red repositories.SessionRepository
 }
 
-func MakeUserUsecase(rep_ repositories.UserRepository, red_ handler.AuthCheckerClient) usecases.UserUseCase {
-	return &UserUseCaseImpl{rep: rep_, red: red_, ctx: context.Background()}
+func MakeUserUsecase(rep_ repositories.UserRepository, red_ repositories.SessionRepository) usecases.UserUseCase {
+	return &UserUseCaseImpl{rep: rep_, red: red_}
 }
 
 func (userUseCase *UserUseCaseImpl) Login(user models.User) (uint, string, error) {
@@ -42,7 +39,7 @@ func (userUseCase *UserUseCaseImpl) Login(user models.User) (uint, string, error
 	}
 
 	token := utils.GenerateSessionToken()
-	_, err = userUseCase.red.Create(userUseCase.ctx, &handler.SessionModel{SESSIONVALUE: token, USERID: uint64(newUser.IdU)})
+	err = userUseCase.red.SetSession(models.Session{UserId: newUser.IdU, CookieValue: token})
 	// сохраняю сессию в бд и возвращаю token
 	if err != nil {
 		return 0, "", err
@@ -80,13 +77,13 @@ func (userUseCase *UserUseCaseImpl) Register(user models.User) (uint, string, er
 	}
 
 	token := utils.GenerateSessionToken()
-	_, err = userUseCase.red.Create(userUseCase.ctx, &handler.SessionModel{SESSIONVALUE: token, USERID: uint64(user.IdU)})
+	err = userUseCase.red.SetSession(models.Session{UserId: userId, CookieValue: token})
 	// возвращаю токен и ошибку
 	return userId, token, err
 }
 
 func (userUseCase *UserUseCaseImpl) Logout(token string) error {
-	_, err := userUseCase.red.Delete(userUseCase.ctx, &handler.SessionValue{Value: token})
+	err := userUseCase.red.DeleteSession(token)
 	return err
 }
 

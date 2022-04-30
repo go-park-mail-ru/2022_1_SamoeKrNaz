@@ -60,7 +60,7 @@ func initRouter() (*gin.Engine, error) {
 		return nil, customErrors.ErrNoAccess
 	}
 
-	sessService := handler.NewAuthCheckerClient(grpcConn)
+	sessService := impl_rep.CreateRepo(handler.NewAuthCheckerClient(grpcConn))
 
 	// создание репозиториев
 	userRepository := impl_rep.MakeUserRepository(db)
