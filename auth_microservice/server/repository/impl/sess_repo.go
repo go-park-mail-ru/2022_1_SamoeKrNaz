@@ -1,8 +1,8 @@
-package impl
+package repository_impl
 
 import (
+	"PLANEXA_backend/auth_microservice/server/repository"
 	"PLANEXA_backend/models"
-	"PLANEXA_backend/repositories"
 	"github.com/go-redis/redis"
 )
 
@@ -10,23 +10,23 @@ const (
 	CookieTime = 259200 // 3 суток
 )
 
-type RedisRepositoryImpl struct {
+type SessionRepositoryImpl struct {
 	client *redis.Client
 }
 
-func ConnectToRedis() repositories.RedisRepository {
-	return &RedisRepositoryImpl{client: redis.NewClient(&redis.Options{
+func CreateSessRep() repository.SessionRedis {
+	return &SessionRepositoryImpl{client: redis.NewClient(&redis.Options{
 		Addr:     "redis:6379",
 		Password: "",
 		DB:       0,
 	})}
 }
 
-func (redisConnect RedisRepositoryImpl) SetSession(session models.Session) error {
+func (redisConnect SessionRepositoryImpl) SetSession(session models.Session) error {
 	return redisConnect.client.Do("SETEX", session.CookieValue, CookieTime, session.UserId).Err()
 }
 
-func (redisConnect RedisRepositoryImpl) GetSession(cookieValue string) (uint64, error) {
+func (redisConnect SessionRepositoryImpl) GetSession(cookieValue string) (uint64, error) {
 	value, err := redisConnect.client.Get(cookieValue).Uint64()
 	if err != nil {
 		return 0, err
@@ -34,7 +34,7 @@ func (redisConnect RedisRepositoryImpl) GetSession(cookieValue string) (uint64, 
 	return value, nil
 }
 
-func (redisConnect RedisRepositoryImpl) DeleteSession(cookieValue string) error {
+func (redisConnect SessionRepositoryImpl) DeleteSession(cookieValue string) error {
 	err := redisConnect.client.Del(cookieValue).Err()
 	if err != nil {
 		return err

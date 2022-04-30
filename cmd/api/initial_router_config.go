@@ -1,6 +1,8 @@
 package main
 
 import (
+	"PLANEXA_backend/auth_microservice/server/handler"
+	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/handlers"
 	"PLANEXA_backend/middleware"
 	"PLANEXA_backend/models"
@@ -9,6 +11,8 @@ import (
 	"PLANEXA_backend/usecases/impl"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"io"
@@ -48,7 +52,15 @@ func initRouter() (*gin.Engine, error) {
 	if err != nil {
 		return nil, err
 	}
-	redis := impl_rep.ConnectToRedis()
+	grpcConn, err := grpc.Dial(
+		"2022_1_samoekrnaz_session_1:8081",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		return nil, customErrors.ErrNoAccess
+	}
+
+	sessService := impl_rep.CreateRepo(handler.NewAuthCheckerClient(grpcConn))
 
 	// создание репозиториев
 	userRepository := impl_rep.MakeUserRepository(db)
@@ -59,9 +71,9 @@ func initRouter() (*gin.Engine, error) {
 	checkListItemRepository := impl_rep.MakeCheckListItemRepository(db)
 	commentRepository := impl_rep.MakeCommentRepository(db)
 
-	authMiddleware := middleware.CreateMiddleware(redis)
+	authMiddleware := middleware.CreateMiddleware(sessService)
 
-	userHandler := handlers.MakeUserHandler(impl.MakeUserUsecase(userRepository, redis))
+	userHandler := handlers.MakeUserHandler(impl.MakeUserUsecase(userRepository, sessService))
 	taskHandler := handlers.MakeTaskHandler(impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userRepository))
 	boardHandler := handlers.MakeBoardHandler(impl.MakeBoardUsecase(boardRepository, listRepository, taskRepository, checkListRepository, userRepository))
 	listHandler := handlers.MakeListHandler(impl.MakeListUsecase(listRepository, boardRepository))
@@ -73,8 +85,6 @@ func initRouter() (*gin.Engine, error) {
 		boardRoutes := router.Group(routes.BoardRoute)
 		{
 			boardRoutes.POST("", authMiddleware.CheckAuth, boardHandler.CreateBoard)
-			boardRoutes.POST("/:id/user/:idU", authMiddleware.CheckAuth, boardHandler.AppendUserToBoard)
-			boardRoutes.DELETE("/:id/user/:idU", authMiddleware.CheckAuth, boardHandler.DeleteUserToBoard)
 			boardRoutes.PUT("/:id", authMiddleware.CheckAuth, boardHandler.RefactorBoard)
 			boardRoutes.GET("/:id", authMiddleware.CheckAuth, boardHandler.GetSingleBoard)
 			boardRoutes.DELETE("/:id", authMiddleware.CheckAuth, boardHandler.DeleteBoard)
@@ -93,8 +103,6 @@ func initRouter() (*gin.Engine, error) {
 		taskRoutes := router.Group(routes.TaskRoute)
 		{
 			taskRoutes.GET("", authMiddleware.CheckAuth, taskHandler.GetImportantTasks)
-			taskRoutes.POST("/:id/user/:idU", authMiddleware.CheckAuth, taskHandler.AppendUserToTask)
-			taskRoutes.DELETE("/:id/user/:idU", authMiddleware.CheckAuth, taskHandler.DeleteUserFromTask)
 			taskRoutes.GET("/:id", authMiddleware.CheckAuth, taskHandler.GetSingleTask)
 			taskRoutes.PUT("/:id", authMiddleware.CheckAuth, taskHandler.RefactorTask)
 			taskRoutes.DELETE("/:id", authMiddleware.CheckAuth, taskHandler.DeleteTask)
@@ -131,7 +139,6 @@ func initRouter() (*gin.Engine, error) {
 		mainRoutes.GET(routes.ProfileRoute, authMiddleware.CheckAuth, userHandler.GetInfoByCookie)
 		mainRoutes.PUT(routes.ProfileRoute+"/upload", authMiddleware.CheckAuth, userHandler.SaveAvatar)
 		mainRoutes.PUT(routes.ProfileRoute, authMiddleware.CheckAuth, userHandler.RefactorProfile)
-		mainRoutes.POST(routes.ProfileRoute+"/like", authMiddleware.CheckAuth, userHandler.GetUsersLike)
 	}
 	return router, nil
 }
