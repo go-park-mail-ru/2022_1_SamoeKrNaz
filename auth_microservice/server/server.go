@@ -5,6 +5,8 @@ import (
 	"PLANEXA_backend/auth_microservice/server/handler/impl"
 	repository_impl "PLANEXA_backend/auth_microservice/server/repository/impl"
 	usecase_impl "PLANEXA_backend/auth_microservice/server/usecase/impl"
+	"PLANEXA_backend/metrics"
+	"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"net"
@@ -23,7 +25,13 @@ func Run() {
 		grpc.KeepaliveParams(keepalive.ServerParameters{MaxConnectionIdle: 5 * time.Minute}),
 	)
 	handler.RegisterAuthCheckerServer(grpcSrv, impl.CreateSessionServer(sessUseCase))
+
 	if err = grpcSrv.Serve(listener); err != nil {
 		return
 	}
+
+	prometheus.MustRegister(metrics.Session)
+
+	//http.Handle("/metrics", promhttp.Handler())
+	//log.Fatal(http.ListenAndServe("localhost:9090", nil))
 }

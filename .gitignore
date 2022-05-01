@@ -6,3 +6,4 @@ database.go
 api
 server
 gin.log
+grafana_data
