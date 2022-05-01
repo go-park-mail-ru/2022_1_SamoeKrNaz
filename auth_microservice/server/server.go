@@ -7,9 +7,12 @@ import (
 	usecase_impl "PLANEXA_backend/auth_microservice/server/usecase/impl"
 	"PLANEXA_backend/metrics"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
+	"log"
 	"net"
+	"net/http"
 	"time"
 )
 
@@ -32,6 +35,6 @@ func Run() {
 
 	prometheus.MustRegister(metrics.Session)
 
-	//http.Handle("/metrics", promhttp.Handler())
-	//log.Fatal(http.ListenAndServe("localhost:9090", nil))
+	http.Handle("/metrics", promhttp.Handler())
+	log.Fatal(http.ListenAndServe("localhost:9090", nil))
 }
