@@ -6,10 +6,10 @@ import (
 )
 
 type Middleware struct {
-	redisRep repositories.RedisRepository
+	redisRep repositories.SessionRepository
 }
 
-func CreateMiddleware(rep repositories.RedisRepository) *Middleware {
+func CreateMiddleware(rep repositories.SessionRepository) *Middleware {
 	return &Middleware{redisRep: rep}
 }
 

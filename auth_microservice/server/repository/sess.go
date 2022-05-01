@@ -1,8 +1,8 @@
-package repositories
+package repository
 
 import "PLANEXA_backend/models"
 
-type RedisRepository interface {
+type SessionRedis interface {
 	SetSession(session models.Session) error
 	GetSession(cookieValue string) (uint64, error)
 	DeleteSession(cookieValue string) error
