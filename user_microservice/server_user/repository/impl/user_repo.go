@@ -1,45 +1,33 @@
-package impl
+package repository_impl
 
 import (
-	"PLANEXA_backend/errors"
+	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
-	"PLANEXA_backend/repositories"
-	"PLANEXA_backend/user_microservice/server/handler"
-	"context"
-	"github.com/kolesa-team/go-webp/encoder"
-	"github.com/kolesa-team/go-webp/webp"
+	"PLANEXA_backend/user_microservice/server/repository"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"image"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
-	"mime/multipart"
-	"os"
-	"strconv"
-	"strings"
 )
 
 const filePathAvatars = "avatars/"
 
-type UserRepositoryImpl struct {
-	db     *gorm.DB
-	client handler.UserServiceClient
-	ctx    context.Context
+type UserRepImpl struct {
+	db *gorm.DB
 }
 
-func MakeUserRepository(db *gorm.DB, cl handler.UserServiceClient) repositories.UserRepository {
-	return &UserRepositoryImpl{db: db, client: cl, ctx: context.Background()}
+func CreateUserRep() repository.UserRepo {
+	newDb, _ := gorm.Open(postgres.Open("host=postgres user=Planexa password=WEB21Planexa dbname=DB_Planexa port=5432"))
+	return &UserRepImpl{db: newDb}
 }
 
-func (userRepository *UserRepositoryImpl) Create(user *models.User) (uint, error) {
+func (userRepository *UserRepImpl) Create(user *models.User) (uint, error) {
 	// проверка на уже существующего пользователя
 	user.ImgAvatar = filePathAvatars + "default.webp"
 	err := userRepository.db.Create(user).Error
 	return user.IdU, err
 }
 
-func (userRepository *UserRepositoryImpl) Update(user *models.User) error {
+func (userRepository *UserRepImpl) Update(user *models.User) error {
 	// будем предполагать, что пришла структура с новыми полями, и мог измениться никнейм
 	// поэтому поиск по никнейму ничего не даст, будем искать по Id
 	currentData, err := userRepository.GetUserById(user.IdU)
@@ -69,47 +57,7 @@ func (userRepository *UserRepositoryImpl) Update(user *models.User) error {
 	return userRepository.db.Save(currentData).Error
 }
 
-func (userRepository *UserRepositoryImpl) SaveAvatar(user *models.User, header *multipart.FileHeader) error {
-	if user.ImgAvatar != "" {
-		currentData, err := userRepository.GetUserById(user.IdU)
-		if err != nil {
-			return err
-		}
-
-		fileName := strings.Join([]string{filePathAvatars, strconv.Itoa(int(currentData.IdU)), ".webp"}, "")
-		output, err := os.Create(fileName)
-		if err != nil {
-			return err
-		}
-		defer output.Close()
-
-		openFile, err := header.Open()
-		if err != nil {
-			return err
-		}
-
-		img, _, err := image.Decode(openFile)
-		if err != nil {
-			return err
-		}
-
-		options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
-		if err != nil {
-			return err
-		}
-
-		err = webp.Encode(output, img, options)
-		if err != nil {
-			return err
-		}
-
-		currentData.ImgAvatar = fileName
-		return userRepository.db.Save(currentData).Error
-	}
-	return nil
-}
-
-func (userRepository *UserRepositoryImpl) IsAbleToLogin(username string, password string) (bool, error) {
+func (userRepository *UserRepImpl) IsAbleToLogin(username string, password string) (bool, error) {
 	// проверка на существование пользователя по никнейму
 	isExist, err := userRepository.IsExist(username)
 	if !isExist {
@@ -134,7 +82,7 @@ func (userRepository *UserRepositoryImpl) IsAbleToLogin(username string, passwor
 	}
 }
 
-func (userRepository *UserRepositoryImpl) AddUserToBoard(IdB uint, IdU uint) error {
+func (userRepository *UserRepImpl) AddUserToBoard(IdB uint, IdU uint) error {
 	user, err := userRepository.GetUserById(IdU)
 	if err != nil {
 		return err
@@ -142,7 +90,7 @@ func (userRepository *UserRepositoryImpl) AddUserToBoard(IdB uint, IdU uint) err
 	return userRepository.db.Model(&models.Board{IdB: IdB}).Association("Users").Append(user)
 }
 
-func (userRepository *UserRepositoryImpl) GetUserByLogin(username string) (*models.User, error) {
+func (userRepository *UserRepImpl) GetUserByLogin(username string) (*models.User, error) {
 	// указатель на структуру, которую вернем
 	user := new(models.User)
 	result := userRepository.db.Where("username = ?", username).Find(user)
@@ -155,7 +103,7 @@ func (userRepository *UserRepositoryImpl) GetUserByLogin(username string) (*mode
 	}
 }
 
-func (userRepository *UserRepositoryImpl) GetUserById(IdU uint) (*models.User, error) {
+func (userRepository *UserRepImpl) GetUserById(IdU uint) (*models.User, error) {
 	// указатель на структуру, которую вернем
 	user := new(models.User)
 	result := userRepository.db.Find(user, IdU)
@@ -171,7 +119,7 @@ func (userRepository *UserRepositoryImpl) GetUserById(IdU uint) (*models.User, e
 	}
 }
 
-func (userRepository *UserRepositoryImpl) IsExist(username string) (bool, error) {
+func (userRepository *UserRepImpl) IsExist(username string) (bool, error) {
 	result, err := userRepository.GetUserByLogin(username)
 	if err != nil && err != customErrors.ErrUserNotFound {
 		return false, err
@@ -181,7 +129,7 @@ func (userRepository *UserRepositoryImpl) IsExist(username string) (bool, error)
 	return true, nil
 }
 
-func (userRepository *UserRepositoryImpl) GetUsersLike(username string) (*[]models.User, error) {
+func (userRepository *UserRepImpl) GetUsersLike(username string) (*[]models.User, error) {
 	users := new([]models.User)
 	err := userRepository.db.Where("lower(username) LIKE lower(?)", username).Limit(15).Find(users).Error
 	if err != nil {
