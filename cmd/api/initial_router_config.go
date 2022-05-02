@@ -11,6 +11,7 @@ import (
 	"PLANEXA_backend/usecases/impl"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/penglongli/gin-metrics/ginmetrics"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"gorm.io/driver/postgres"
@@ -61,6 +62,14 @@ func initRouter() (*gin.Engine, error) {
 	}
 
 	sessService := impl_rep.CreateRepo(handler.NewAuthCheckerClient(grpcConn))
+
+	monitor := ginmetrics.GetMonitor()
+	if err != nil {
+		return nil, err
+	}
+	monitor.SetMetricPath("/metrics")
+	monitor.SetSlowTime(10)
+	monitor.Use(router)
 
 	// создание репозиториев
 	userRepository := impl_rep.MakeUserRepository(db)
