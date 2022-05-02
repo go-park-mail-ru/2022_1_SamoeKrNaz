@@ -5,6 +5,8 @@ import (
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
+	"PLANEXA_backend/user_microservice/server/handler"
+	"context"
 	"github.com/kolesa-team/go-webp/encoder"
 	"github.com/kolesa-team/go-webp/webp"
 	"gorm.io/gorm"
@@ -21,11 +23,13 @@ import (
 const filePathAvatars = "avatars/"
 
 type UserRepositoryImpl struct {
-	db *gorm.DB
+	db     *gorm.DB
+	client handler.UserServiceClient
+	ctx    context.Context
 }
 
-func MakeUserRepository(db *gorm.DB) repositories.UserRepository {
-	return &UserRepositoryImpl{db: db}
+func MakeUserRepository(db *gorm.DB, cl handler.UserServiceClient) repositories.UserRepository {
+	return &UserRepositoryImpl{db: db, client: cl, ctx: context.Background()}
 }
 
 func (userRepository *UserRepositoryImpl) Create(user *models.User) (uint, error) {
