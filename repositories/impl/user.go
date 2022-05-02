@@ -5,7 +5,7 @@ import (
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
-	"PLANEXA_backend/user_microservice/server/handler"
+	"PLANEXA_backend/user_microservice/server_user/handler"
 	"context"
 	"github.com/kolesa-team/go-webp/encoder"
 	"github.com/kolesa-team/go-webp/webp"

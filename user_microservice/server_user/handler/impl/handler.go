@@ -3,8 +3,8 @@ package impl
 import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
-	"PLANEXA_backend/user_microservice/server/handler"
-	"PLANEXA_backend/user_microservice/server/usecase"
+	"PLANEXA_backend/user_microservice/server_user/handler"
+	"PLANEXA_backend/user_microservice/server_user/usecase"
 	"context"
 	"encoding/json"
 )

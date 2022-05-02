@@ -2,9 +2,9 @@ package usecase_impl
 
 import (
 	"PLANEXA_backend/models"
-	"PLANEXA_backend/user_microservice/server/repository"
-	repository_impl "PLANEXA_backend/user_microservice/server/repository/impl"
-	"PLANEXA_backend/user_microservice/server/usecase"
+	"PLANEXA_backend/user_microservice/server_user/repository"
+	repository_impl "PLANEXA_backend/user_microservice/server_user/repository/impl"
+	"PLANEXA_backend/user_microservice/server_user/usecase"
 )
 
 type UserUseCaseImpl struct {
