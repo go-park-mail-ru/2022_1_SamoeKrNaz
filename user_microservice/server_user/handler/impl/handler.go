@@ -32,36 +32,36 @@ func (userServ *UserServerImpl) Create(ctx context.Context, in *handler.User) (*
 	return &handler.IdUser{IDU: uint64(userId)}, err
 }
 
-func (userServ *UserServerImpl) Update(ctx context.Context, in *handler.User) (*handler.Nothing, error) {
+func (userServ *UserServerImpl) Update(ctx context.Context, in *handler.User) (*handler.NothingSec, error) {
 	if in == nil {
-		return &handler.Nothing{}, customErrors.ErrBadInputData
+		return &handler.NothingSec{}, customErrors.ErrBadInputData
 	}
 	var boards []models.Board
 	err := json.Unmarshal(in.BOARDS, &boards)
 	if err != nil {
-		return &handler.Nothing{}, err
+		return &handler.NothingSec{}, err
 	}
 	err = userServ.userUseCase.Update(&models.User{Username: in.UserData.Uname.USERNAME,
 		Password: in.UserData.Pass, IdU: uint(in.IDU.IDU), ImgAvatar: in.IMG, Boards: boards})
-	return &handler.Nothing{Dummy: true}, err
+	return &handler.NothingSec{Dummy: true}, err
 }
 
-func (userServ *UserServerImpl) IsAbleToLogin(ctx context.Context, in *handler.CheckLog) (*handler.Nothing, error) {
+func (userServ *UserServerImpl) IsAbleToLogin(ctx context.Context, in *handler.CheckLog) (*handler.NothingSec, error) {
 	if in == nil {
-		return &handler.Nothing{}, customErrors.ErrBadInputData
+		return &handler.NothingSec{}, customErrors.ErrBadInputData
 	}
 
 	is, err := userServ.userUseCase.IsAbleToLogin(in.Pass, in.Uname.USERNAME)
-	return &handler.Nothing{Dummy: is}, err
+	return &handler.NothingSec{Dummy: is}, err
 }
 
-func (userServ *UserServerImpl) AddUserToBoard(ctx context.Context, in *handler.Ids) (*handler.Nothing, error) {
+func (userServ *UserServerImpl) AddUserToBoard(ctx context.Context, in *handler.Ids) (*handler.NothingSec, error) {
 	if in == nil {
-		return &handler.Nothing{}, customErrors.ErrBadInputData
+		return &handler.NothingSec{}, customErrors.ErrBadInputData
 	}
 
 	err := userServ.userUseCase.AddUserToBoard(uint(in.IDU.IDU), uint(in.IDB.IDB))
-	return &handler.Nothing{}, err
+	return &handler.NothingSec{}, err
 }
 
 func (userServ *UserServerImpl) GetUserByLogin(ctx context.Context, in *handler.Username) (*handler.User, error) {
@@ -94,13 +94,13 @@ func (userServ *UserServerImpl) GetUserById(ctx context.Context, in *handler.IdU
 		IMG:      user.ImgAvatar, BOARDS: boardsBytes}, err
 }
 
-func (userServ *UserServerImpl) IsExist(ctx context.Context, in *handler.Username) (*handler.Nothing, error) {
+func (userServ *UserServerImpl) IsExist(ctx context.Context, in *handler.Username) (*handler.NothingSec, error) {
 	if in == nil {
-		return &handler.Nothing{}, customErrors.ErrBadInputData
+		return &handler.NothingSec{}, customErrors.ErrBadInputData
 	}
 
 	is, err := userServ.userUseCase.IsExist(in.USERNAME)
-	return &handler.Nothing{Dummy: is}, err
+	return &handler.NothingSec{Dummy: is}, err
 }
 
 func (userServ *UserServerImpl) GetUsersLike(ctx context.Context, in *handler.Username) (*handler.Users, error) {

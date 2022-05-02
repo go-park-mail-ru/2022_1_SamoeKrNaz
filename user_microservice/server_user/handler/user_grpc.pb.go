@@ -19,12 +19,12 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
 	Create(ctx context.Context, in *User, opts ...grpc.CallOption) (*IdUser, error)
-	Update(ctx context.Context, in *User, opts ...grpc.CallOption) (*Nothing, error)
-	IsAbleToLogin(ctx context.Context, in *CheckLog, opts ...grpc.CallOption) (*Nothing, error)
-	AddUserToBoard(ctx context.Context, in *Ids, opts ...grpc.CallOption) (*Nothing, error)
+	Update(ctx context.Context, in *User, opts ...grpc.CallOption) (*NothingSec, error)
+	IsAbleToLogin(ctx context.Context, in *CheckLog, opts ...grpc.CallOption) (*NothingSec, error)
+	AddUserToBoard(ctx context.Context, in *Ids, opts ...grpc.CallOption) (*NothingSec, error)
 	GetUserByLogin(ctx context.Context, in *Username, opts ...grpc.CallOption) (*User, error)
 	GetUserById(ctx context.Context, in *IdUser, opts ...grpc.CallOption) (*User, error)
-	IsExist(ctx context.Context, in *Username, opts ...grpc.CallOption) (*Nothing, error)
+	IsExist(ctx context.Context, in *Username, opts ...grpc.CallOption) (*NothingSec, error)
 	GetUsersLike(ctx context.Context, in *Username, opts ...grpc.CallOption) (*Users, error)
 }
 
@@ -45,8 +45,8 @@ func (c *userServiceClient) Create(ctx context.Context, in *User, opts ...grpc.C
 	return out, nil
 }
 
-func (c *userServiceClient) Update(ctx context.Context, in *User, opts ...grpc.CallOption) (*Nothing, error) {
-	out := new(Nothing)
+func (c *userServiceClient) Update(ctx context.Context, in *User, opts ...grpc.CallOption) (*NothingSec, error) {
+	out := new(NothingSec)
 	err := c.cc.Invoke(ctx, "/handler.UserService/Update", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -54,8 +54,8 @@ func (c *userServiceClient) Update(ctx context.Context, in *User, opts ...grpc.C
 	return out, nil
 }
 
-func (c *userServiceClient) IsAbleToLogin(ctx context.Context, in *CheckLog, opts ...grpc.CallOption) (*Nothing, error) {
-	out := new(Nothing)
+func (c *userServiceClient) IsAbleToLogin(ctx context.Context, in *CheckLog, opts ...grpc.CallOption) (*NothingSec, error) {
+	out := new(NothingSec)
 	err := c.cc.Invoke(ctx, "/handler.UserService/IsAbleToLogin", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -63,8 +63,8 @@ func (c *userServiceClient) IsAbleToLogin(ctx context.Context, in *CheckLog, opt
 	return out, nil
 }
 
-func (c *userServiceClient) AddUserToBoard(ctx context.Context, in *Ids, opts ...grpc.CallOption) (*Nothing, error) {
-	out := new(Nothing)
+func (c *userServiceClient) AddUserToBoard(ctx context.Context, in *Ids, opts ...grpc.CallOption) (*NothingSec, error) {
+	out := new(NothingSec)
 	err := c.cc.Invoke(ctx, "/handler.UserService/AddUserToBoard", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -90,8 +90,8 @@ func (c *userServiceClient) GetUserById(ctx context.Context, in *IdUser, opts ..
 	return out, nil
 }
 
-func (c *userServiceClient) IsExist(ctx context.Context, in *Username, opts ...grpc.CallOption) (*Nothing, error) {
-	out := new(Nothing)
+func (c *userServiceClient) IsExist(ctx context.Context, in *Username, opts ...grpc.CallOption) (*NothingSec, error) {
+	out := new(NothingSec)
 	err := c.cc.Invoke(ctx, "/handler.UserService/IsExist", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -113,12 +113,12 @@ func (c *userServiceClient) GetUsersLike(ctx context.Context, in *Username, opts
 // for forward compatibility
 type UserServiceServer interface {
 	Create(context.Context, *User) (*IdUser, error)
-	Update(context.Context, *User) (*Nothing, error)
-	IsAbleToLogin(context.Context, *CheckLog) (*Nothing, error)
-	AddUserToBoard(context.Context, *Ids) (*Nothing, error)
+	Update(context.Context, *User) (*NothingSec, error)
+	IsAbleToLogin(context.Context, *CheckLog) (*NothingSec, error)
+	AddUserToBoard(context.Context, *Ids) (*NothingSec, error)
 	GetUserByLogin(context.Context, *Username) (*User, error)
 	GetUserById(context.Context, *IdUser) (*User, error)
-	IsExist(context.Context, *Username) (*Nothing, error)
+	IsExist(context.Context, *Username) (*NothingSec, error)
 	GetUsersLike(context.Context, *Username) (*Users, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
@@ -130,13 +130,13 @@ type UnimplementedUserServiceServer struct {
 func (UnimplementedUserServiceServer) Create(context.Context, *User) (*IdUser, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedUserServiceServer) Update(context.Context, *User) (*Nothing, error) {
+func (UnimplementedUserServiceServer) Update(context.Context, *User) (*NothingSec, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
-func (UnimplementedUserServiceServer) IsAbleToLogin(context.Context, *CheckLog) (*Nothing, error) {
+func (UnimplementedUserServiceServer) IsAbleToLogin(context.Context, *CheckLog) (*NothingSec, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IsAbleToLogin not implemented")
 }
-func (UnimplementedUserServiceServer) AddUserToBoard(context.Context, *Ids) (*Nothing, error) {
+func (UnimplementedUserServiceServer) AddUserToBoard(context.Context, *Ids) (*NothingSec, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddUserToBoard not implemented")
 }
 func (UnimplementedUserServiceServer) GetUserByLogin(context.Context, *Username) (*User, error) {
@@ -145,7 +145,7 @@ func (UnimplementedUserServiceServer) GetUserByLogin(context.Context, *Username)
 func (UnimplementedUserServiceServer) GetUserById(context.Context, *IdUser) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserById not implemented")
 }
-func (UnimplementedUserServiceServer) IsExist(context.Context, *Username) (*Nothing, error) {
+func (UnimplementedUserServiceServer) IsExist(context.Context, *Username) (*NothingSec, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IsExist not implemented")
 }
 func (UnimplementedUserServiceServer) GetUsersLike(context.Context, *Username) (*Users, error) {
