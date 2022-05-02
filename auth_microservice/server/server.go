@@ -29,12 +29,15 @@ func Run() {
 	)
 	handler.RegisterAuthCheckerServer(grpcSrv, impl.CreateSessionServer(sessUseCase))
 
+	prometheus.MustRegister(metrics.Session)
+	prometheus.MustRegister(metrics.Duration)
+
+	http.Handle("/metrics", promhttp.Handler())
+	go func() {
+		log.Fatal(http.ListenAndServe(":8082", nil))
+	}()
+
 	if err = grpcSrv.Serve(listener); err != nil {
 		return
 	}
-
-	prometheus.MustRegister(metrics.Session)
-
-	http.Handle("/metrics", promhttp.Handler())
-	log.Fatal(http.ListenAndServe("localhost:9090", nil))
 }
