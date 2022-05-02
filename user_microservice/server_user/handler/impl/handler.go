@@ -14,7 +14,7 @@ type UserServerImpl struct {
 	handler.UnimplementedUserServiceServer
 }
 
-func CreateSessionServer(userUseCase usecase.UserUseCase) handler.UserServiceServer {
+func CreateUserServer(userUseCase usecase.UserUseCase) handler.UserServiceServer {
 	return &UserServerImpl{userUseCase: userUseCase}
 }
 

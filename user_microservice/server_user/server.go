@@ -1,10 +1,10 @@
 package main
 
 import (
-	"PLANEXA_backend/auth_microservice/server/handler"
-	"PLANEXA_backend/auth_microservice/server/handler/impl"
-	repository_impl "PLANEXA_backend/auth_microservice/server/repository/impl"
-	usecase_impl "PLANEXA_backend/auth_microservice/server/usecase/impl"
+	"PLANEXA_backend/user_microservice/server_user/handler"
+	service_impl "PLANEXA_backend/user_microservice/server_user/handler/impl"
+	repository_impl "PLANEXA_backend/user_microservice/server_user/repository/impl"
+	usecase_impl "PLANEXA_backend/user_microservice/server_user/usecase/impl"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"net"
@@ -12,9 +12,9 @@ import (
 )
 
 func Run() {
-	redis := repository_impl.CreateSessRep()
-	sessUseCase := usecase_impl.CreateSessionUseCase(redis)
-	listener, err := net.Listen("tcp", "2022_1_samoekrnaz_session_1:8081")
+	userRepo := repository_impl.CreateUserRep()
+	userUseCase := usecase_impl.CreateUserUseCase(userRepo)
+	listener, err := net.Listen("tcp", "2022_1_samoekrnaz_user_1:8082")
 	if err != nil {
 		return
 	}
@@ -22,7 +22,7 @@ func Run() {
 	grpcSrv := grpc.NewServer(
 		grpc.KeepaliveParams(keepalive.ServerParameters{MaxConnectionIdle: 5 * time.Minute}),
 	)
-	handler.RegisterAuthCheckerServer(grpcSrv, impl.CreateSessionServer(sessUseCase))
+	handler.RegisterUserServiceServer(grpcSrv, service_impl.CreateUserServer(userUseCase))
 	if err = grpcSrv.Serve(listener); err != nil {
 		return
 	}
