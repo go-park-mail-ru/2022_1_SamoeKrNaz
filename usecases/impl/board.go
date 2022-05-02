@@ -157,6 +157,9 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 	if err != nil {
 		return models.Board{}, err
 	}
+	for _, user := range appendedUsers {
+		user.Password = ""
+	}
 	board.Users = appendedUsers
 	if err != nil {
 		return models.Board{}, err
