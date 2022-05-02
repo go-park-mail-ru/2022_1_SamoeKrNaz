@@ -43,3 +43,15 @@ services:
       - "8081:8081"
     volumes:
       - ./:/session
+
+  userms:
+    build:
+      context: .
+      dockerfile: ./Dockerfile-userms
+    container_name: "2022_1_samoekrnaz_userms_1"
+    depends_on:
+      - session
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./:/userms

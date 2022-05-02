@@ -4,7 +4,10 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
+	handler_user "PLANEXA_backend/user_microservice/server_user/handler"
 	"fmt"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -25,8 +28,17 @@ func CreateUserMock() (repositories.UserRepository, sqlmock.Sqlmock, error) {
 		db.Close()
 		return nil, nil, err
 	}
-
-	repoUser := MakeUserRepository(openGorm)
+	if err != nil {
+		return nil, nil, err
+	}
+	grpcConnUser, err := grpc.Dial(
+		"2022_1_samoekrnaz_userms_1:8083",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		return nil, nil, customErrors.ErrNoAccess
+	}
+	repoUser := MakeUserRepository(openGorm, handler_user.NewUserServiceClient(grpcConnUser))
 	return repoUser, mock, err
 }
 
