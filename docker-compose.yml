@@ -44,14 +44,14 @@ services:
     volumes:
       - ./:/session
 
-  userms:
+  user:
     build:
       context: .
-      dockerfile: ./Dockerfile-userms
-    container_name: "2022_1_samoekrnaz_userms_1"
+      dockerfile: Dockerfile-user
+    container_name: "2022_1_samoekrnaz_user_1"
     depends_on:
       - session
     ports:
       - "8083:8083"
     volumes:
-      - ./:/userms
+      - ./:/user

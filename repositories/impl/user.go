@@ -1,12 +1,11 @@
 package impl
 
 import (
-	"PLANEXA_backend/errors"
-	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/user_microservice/server_user/handler"
 	"context"
+	"encoding/json"
 	"github.com/kolesa-team/go-webp/encoder"
 	"github.com/kolesa-team/go-webp/webp"
 	"gorm.io/gorm"
@@ -33,40 +32,25 @@ func MakeUserRepository(db *gorm.DB, cl handler.UserServiceClient) repositories.
 }
 
 func (userRepository *UserRepositoryImpl) Create(user *models.User) (uint, error) {
-	// проверка на уже существующего пользователя
-	user.ImgAvatar = filePathAvatars + "default.webp"
-	err := userRepository.db.Create(user).Error
-	return user.IdU, err
+	boardBytes, err := json.Marshal(user)
+	if err != nil {
+		return 0, err
+	}
+	idU, err := userRepository.client.Create(userRepository.ctx, &handler.User{IDU: &handler.IdUser{IDU: uint64(user.IdU)},
+		UserData: &handler.CheckLog{Pass: user.Password, Uname: &handler.Username{USERNAME: user.Username}}, IMG: user.ImgAvatar,
+		BOARDS: boardBytes})
+	return uint(idU.IDU), err
 }
 
 func (userRepository *UserRepositoryImpl) Update(user *models.User) error {
-	// будем предполагать, что пришла структура с новыми полями, и мог измениться никнейм
-	// поэтому поиск по никнейму ничего не даст, будем искать по Id
-	currentData, err := userRepository.GetUserById(user.IdU)
+	boardBytes, err := json.Marshal(user)
 	if err != nil {
 		return err
 	}
-	// теперь будем искать, какое поле поменялось
-	if currentData.Username != user.Username && user.Username != "" {
-		//проверяем, не занят ли новый никнейм
-		isExist, err := userRepository.IsExist(user.Username)
-		//если такой никнейм уже занят, то отправляем ошибку
-		if isExist {
-			return customErrors.ErrUsernameExist
-		} else if err != nil && err != customErrors.ErrUserNotFound {
-			return err
-		} else {
-			currentData.Username = user.Username
-		}
-	}
-	// если мы поменяли пароль, то надо его захешировать
-	if !hash.CheckPasswordHash(user.Password, currentData.Password) && user.Password != "" {
-		currentData.Password, err = hash.HashPassword(user.Password)
-		if err != nil {
-			return err
-		}
-	}
-	return userRepository.db.Save(currentData).Error
+	_, err = userRepository.client.Create(userRepository.ctx, &handler.User{IDU: &handler.IdUser{IDU: uint64(user.IdU)},
+		UserData: &handler.CheckLog{Pass: user.Password, Uname: &handler.Username{USERNAME: user.Username}}, IMG: user.ImgAvatar,
+		BOARDS: boardBytes})
+	return err
 }
 
 func (userRepository *UserRepositoryImpl) SaveAvatar(user *models.User, header *multipart.FileHeader) error {
@@ -110,82 +94,54 @@ func (userRepository *UserRepositoryImpl) SaveAvatar(user *models.User, header *
 }
 
 func (userRepository *UserRepositoryImpl) IsAbleToLogin(username string, password string) (bool, error) {
-	// проверка на существование пользователя по никнейму
-	isExist, err := userRepository.IsExist(username)
-	if !isExist {
-		return false, customErrors.ErrUsernameNotExist
-	}
-	if err != nil {
-		return false, err
-	}
-	// чекаем в базе правильность данных
-	user, err := userRepository.GetUserByLogin(username)
-	if err != nil {
-		return false, err
-	}
-	// если выборка в 0 строк, то не сошлись данные
-	if user == nil {
-		return false, customErrors.ErrBadInputData
-	} else if hash.CheckPasswordHash(password, user.Password) {
-		// проверим правильность пароля
-		return true, nil
-	} else {
-		return false, customErrors.ErrBadInputData
-	}
+	isAble, err := userRepository.client.IsAbleToLogin(userRepository.ctx, &handler.CheckLog{Pass: password, Uname: &handler.Username{USERNAME: username}})
+	return isAble.Dummy, err
 }
 
 func (userRepository *UserRepositoryImpl) AddUserToBoard(IdB uint, IdU uint) error {
-	user, err := userRepository.GetUserById(IdU)
-	if err != nil {
-		return err
-	}
-	return userRepository.db.Model(&models.Board{IdB: IdB}).Association("Users").Append(user)
+	_, err := userRepository.client.AddUserToBoard(userRepository.ctx, &handler.Ids{IDU: &handler.IdUser{IDU: uint64(IdU)},
+		IDB: &handler.IdBoard{IDB: uint64(IdB)}})
+	return err
 }
 
 func (userRepository *UserRepositoryImpl) GetUserByLogin(username string) (*models.User, error) {
 	// указатель на структуру, которую вернем
-	user := new(models.User)
-	result := userRepository.db.Where("username = ?", username).Find(user)
-	// если выборка в 0 строк, то такого пользователя нет
-	if result.RowsAffected == 0 {
-		return nil, customErrors.ErrUserNotFound
-	} else {
-		// иначе вернем пользователя
-		return user, nil
-	}
-}
 
-func (userRepository *UserRepositoryImpl) GetUserById(IdU uint) (*models.User, error) {
-	// указатель на структуру, которую вернем
-	user := new(models.User)
-	result := userRepository.db.Find(user, IdU)
-	// если выборка в 0 строк, то такого пользователя нет
-	if result.RowsAffected == 0 {
-		return nil, customErrors.ErrUserNotFound
-	} else if result.Error != nil {
-		// если произошла ошибка при выборке
-		return nil, result.Error
-	} else {
-		// иначе вернем пользователя
-		return user, nil
-	}
-}
-
-func (userRepository *UserRepositoryImpl) IsExist(username string) (bool, error) {
-	result, err := userRepository.GetUserByLogin(username)
-	if err != nil && err != customErrors.ErrUserNotFound {
-		return false, err
-	} else if result == nil {
-		return false, nil
-	}
-	return true, nil
-}
-
-func (userRepository *UserRepositoryImpl) GetUsersLike(username string) (*[]models.User, error) {
-	users := new([]models.User)
-	err := userRepository.db.Where("lower(username) LIKE lower(?)", username).Limit(15).Find(users).Error
+	user, err := userRepository.client.GetUserByLogin(userRepository.ctx, &handler.Username{USERNAME: username})
 	if err != nil {
 		return nil, err
 	}
-	return users, nil
+	var boards []models.Board
+	err = json.Unmarshal(user.BOARDS, &boards)
+	return &models.User{Username: user.UserData.Uname.USERNAME, Password: user.UserData.Pass, IdU: uint(user.IDU.IDU),
+		ImgAvatar: user.IMG, Boards: boards}, err
+}
+
+func (userRepository *UserRepositoryImpl) GetUserById(IdU uint) (*models.User, error) {
+	user, err := userRepository.client.GetUserById(userRepository.ctx, &handler.IdUser{IDU: uint64(IdU)})
+	if err != nil {
+		return nil, err
+	}
+	var boards []models.Board
+	err = json.Unmarshal(user.BOARDS, &boards)
+	return &models.User{Username: user.UserData.Uname.USERNAME, Password: user.UserData.Pass, IdU: uint(user.IDU.IDU),
+		ImgAvatar: user.IMG, Boards: boards}, err
+}
+
+func (userRepository *UserRepositoryImpl) IsExist(username string) (bool, error) {
+	isEx, err := userRepository.client.IsExist(userRepository.ctx, &handler.Username{USERNAME: username})
+	return isEx.Dummy, err
+}
+
+func (userRepository *UserRepositoryImpl) GetUsersLike(username string) (*[]models.User, error) {
+	users, err := userRepository.client.GetUsersLike(userRepository.ctx, &handler.Username{USERNAME: username})
+	if err != nil {
+		return nil, err
+	}
+	type Users struct {
+		usersRepo *[]models.User
+	}
+	var usersStruct Users
+	err = json.Unmarshal(users.USERS, &usersStruct)
+	return usersStruct.usersRepo, err
 }

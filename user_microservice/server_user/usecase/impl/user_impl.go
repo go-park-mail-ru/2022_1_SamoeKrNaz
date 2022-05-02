@@ -3,7 +3,6 @@ package usecase_impl
 import (
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/user_microservice/server_user/repository"
-	repository_impl "PLANEXA_backend/user_microservice/server_user/repository/impl"
 	"PLANEXA_backend/user_microservice/server_user/usecase"
 )
 
@@ -11,8 +10,8 @@ type UserUseCaseImpl struct {
 	userRepo repository.UserRepo
 }
 
-func CreateSessionUseCase() usecase.UserUseCase {
-	return &UserUseCaseImpl{userRepo: repository_impl.CreateUserRep()}
+func CreateUserUseCase(userRep repository.UserRepo) usecase.UserUseCase {
+	return &UserUseCaseImpl{userRepo: userRep}
 }
 
 func (userUseCase *UserUseCaseImpl) Create(user *models.User) (uint, error) {
