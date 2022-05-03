@@ -4,10 +4,9 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
-	handler_user "PLANEXA_backend/user_microservice/server_user/handler"
+	mock_handler "PLANEXA_backend/user_microservice/server_user/handler/mock"
 	"fmt"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"github.com/golang/mock/gomock"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -16,7 +15,7 @@ import (
 	"testing"
 )
 
-func CreateUserMock() (repositories.UserRepository, sqlmock.Sqlmock, error) {
+func CreateUserMock(ctrl *gomock.Controller) (repositories.UserRepository, sqlmock.Sqlmock, error) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		return nil, nil, err
@@ -31,14 +30,7 @@ func CreateUserMock() (repositories.UserRepository, sqlmock.Sqlmock, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	grpcConnUser, err := grpc.Dial(
-		"2022_1_samoekrnaz_userms_1:8083",
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-	if err != nil {
-		return nil, nil, customErrors.ErrNoAccess
-	}
-	repoUser := MakeUserRepository(openGorm, handler_user.NewUserServiceClient(grpcConnUser))
+	repoUser := MakeUserRepository(openGorm, mock_handler.NewMockUserServiceClient(ctrl))
 	return repoUser, mock, err
 }
 
@@ -48,7 +40,8 @@ func TestSelectByIdUser(t *testing.T) {
 	var elemID uint = 1
 
 	//создание мока
-	repoUser, mock, err := CreateUserMock()
+	ctrl := gomock.NewController(t)
+	repoUser, mock, err := CreateUserMock(ctrl)
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
 	}
@@ -103,7 +96,8 @@ func TestSelectByIdUser(t *testing.T) {
 func TestCreateUser(t *testing.T) {
 	t.Parallel()
 
-	repoUser, mock, err := CreateUserMock()
+	ctrl := gomock.NewController(t)
+	repoUser, mock, err := CreateUserMock(ctrl)
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
 	}
@@ -159,7 +153,8 @@ func TestGetUserByLogin(t *testing.T) {
 	t.Parallel()
 
 	//создание мока
-	repoUser, mock, err := CreateUserMock()
+	ctrl := gomock.NewController(t)
+	repoUser, mock, err := CreateUserMock(ctrl)
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
 	}
@@ -214,7 +209,8 @@ func TestGetUserByLogin(t *testing.T) {
 func TestUpdateUser(t *testing.T) {
 	t.Parallel()
 
-	repoUser, mock, err := CreateUserMock()
+	ctrl := gomock.NewController(t)
+	repoUser, mock, err := CreateUserMock(ctrl)
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
 	}

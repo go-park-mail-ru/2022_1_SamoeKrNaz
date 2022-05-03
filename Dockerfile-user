@@ -11,6 +11,6 @@ RUN go install github.com/githubnemo/CompileDaemon@latest && go mod tidy
 
 COPY . .
 
-EXPOSE 8081
+EXPOSE 8083
 
-ENTRYPOINT CompileDaemon -build="go build ./user_microservice/server/" -command=./server
+ENTRYPOINT CompileDaemon -build="go build ./user_microservice/server_user/" -command=./server
