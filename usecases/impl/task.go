@@ -84,6 +84,13 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 		(*checkLists)[i].CheckListItems = *checkListItems
 	}
 	comments, err := taskUseCase.repComment.GetComments(taskId)
+	for i, comment := range *comments {
+		userComment, err := taskUseCase.repUser.GetUserById(comment.User.IdU)
+		if err != nil {
+			return models.Task{}, err
+		}
+		(*comments)[i].User = *userComment
+	}
 	if err != nil {
 		return models.Task{}, err
 	}
