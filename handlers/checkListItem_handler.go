@@ -106,7 +106,7 @@ func (checkListItemHandler *CheckListItemHandler) RefactorCheckListItem(c *gin.C
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	checkListItem.IdCl = uint(checkListItemId)
+	checkListItem.IdClIt = uint(checkListItemId)
 	err = checkListItemHandler.usecase.RefactorCheckListItem(&checkListItem, uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})

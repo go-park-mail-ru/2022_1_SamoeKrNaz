@@ -24,7 +24,7 @@ func (checkListRepository *CheckListRepositoryImpl) GetById(IdCl uint) (*models.
 	checkList := new(models.CheckList)
 	result := checkListRepository.db.Find(checkList, IdCl)
 	if result.RowsAffected == 0 {
-		return nil, customErrors.ErrBoardNotFound
+		return nil, customErrors.ErrCheckListNotFound
 	} else if result.Error != nil {
 		return nil, result.Error
 	}

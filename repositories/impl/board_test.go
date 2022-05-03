@@ -551,11 +551,11 @@ func TestGetBoardUser(t *testing.T) {
 
 	// айдишника не существует
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "boards" WHERE "boards"."id_b" = $1`)).
+		ExpectQuery(regexp.QuoteMeta(`SELECT "users"."id_u","users"."username","users"."password","users"."img_avatar" FROM "users" JOIN "users_boards" ON "users_boards"."user_id_u" = "users"."id_u" AND "users_boards"."board_id_b" = $1`)).
 		WithArgs(2).
 		WillReturnError(customErrors.ErrBoardNotFound)
 
-	_, err = repoBoard.GetById(2)
+	_, err = repoBoard.GetBoardUser(2)
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
@@ -611,11 +611,11 @@ func TestDeleteUser(t *testing.T) {
 
 	//айдишника не существует
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "boards" WHERE "boards"."id_b" = $1`)).
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE "users"."id_u" = $1`)).
 		WithArgs(2).
-		WillReturnError(customErrors.ErrBoardNotFound)
+		WillReturnError(customErrors.ErrUserNotFound)
 
-	_, err = repoBoard.GetById(2)
+	err = repoBoard.DeleteUser(1, 2)
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
