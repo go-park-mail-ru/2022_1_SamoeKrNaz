@@ -11,31 +11,31 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockRedisRepository is a mock of RedisRepository interface.
-type MockRedisRepository struct {
+// MockSessionRepository is a mock of SessionRepository interface.
+type MockSessionRepository struct {
 	ctrl     *gomock.Controller
-	recorder *MockRedisRepositoryMockRecorder
+	recorder *MockSessionRepositoryMockRecorder
 }
 
-// MockRedisRepositoryMockRecorder is the mock recorder for MockRedisRepository.
-type MockRedisRepositoryMockRecorder struct {
-	mock *MockRedisRepository
+// MockSessionRepositoryMockRecorder is the mock recorder for MockSessionRepository.
+type MockSessionRepositoryMockRecorder struct {
+	mock *MockSessionRepository
 }
 
-// NewMockRedisRepository creates a new mock instance.
-func NewMockRedisRepository(ctrl *gomock.Controller) *MockRedisRepository {
-	mock := &MockRedisRepository{ctrl: ctrl}
-	mock.recorder = &MockRedisRepositoryMockRecorder{mock}
+// NewMockSessionRepository creates a new mock instance.
+func NewMockSessionRepository(ctrl *gomock.Controller) *MockSessionRepository {
+	mock := &MockSessionRepository{ctrl: ctrl}
+	mock.recorder = &MockSessionRepositoryMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockRedisRepository) EXPECT() *MockRedisRepositoryMockRecorder {
+func (m *MockSessionRepository) EXPECT() *MockSessionRepositoryMockRecorder {
 	return m.recorder
 }
 
 // DeleteSession mocks base method.
-func (m *MockRedisRepository) DeleteSession(cookieValue string) error {
+func (m *MockSessionRepository) DeleteSession(cookieValue string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteSession", cookieValue)
 	ret0, _ := ret[0].(error)
@@ -43,13 +43,13 @@ func (m *MockRedisRepository) DeleteSession(cookieValue string) error {
 }
 
 // DeleteSession indicates an expected call of DeleteSession.
-func (mr *MockRedisRepositoryMockRecorder) DeleteSession(cookieValue interface{}) *gomock.Call {
+func (mr *MockSessionRepositoryMockRecorder) DeleteSession(cookieValue interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSession", reflect.TypeOf((*MockRedisRepository)(nil).DeleteSession), cookieValue)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSession", reflect.TypeOf((*MockSessionRepository)(nil).DeleteSession), cookieValue)
 }
 
 // GetSession mocks base method.
-func (m *MockRedisRepository) GetSession(cookieValue string) (uint64, error) {
+func (m *MockSessionRepository) GetSession(cookieValue string) (uint64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetSession", cookieValue)
 	ret0, _ := ret[0].(uint64)
@@ -58,13 +58,13 @@ func (m *MockRedisRepository) GetSession(cookieValue string) (uint64, error) {
 }
 
 // GetSession indicates an expected call of GetSession.
-func (mr *MockRedisRepositoryMockRecorder) GetSession(cookieValue interface{}) *gomock.Call {
+func (mr *MockSessionRepositoryMockRecorder) GetSession(cookieValue interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSession", reflect.TypeOf((*MockRedisRepository)(nil).GetSession), cookieValue)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSession", reflect.TypeOf((*MockSessionRepository)(nil).GetSession), cookieValue)
 }
 
 // SetSession mocks base method.
-func (m *MockRedisRepository) SetSession(session models.Session) error {
+func (m *MockSessionRepository) SetSession(session models.Session) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetSession", session)
 	ret0, _ := ret[0].(error)
@@ -72,7 +72,7 @@ func (m *MockRedisRepository) SetSession(session models.Session) error {
 }
 
 // SetSession indicates an expected call of SetSession.
-func (mr *MockRedisRepositoryMockRecorder) SetSession(session interface{}) *gomock.Call {
+func (mr *MockSessionRepositoryMockRecorder) SetSession(session interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetSession", reflect.TypeOf((*MockRedisRepository)(nil).SetSession), session)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetSession", reflect.TypeOf((*MockSessionRepository)(nil).SetSession), session)
 }
