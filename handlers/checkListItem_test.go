@@ -6,7 +6,7 @@ import (
 	"PLANEXA_backend/models"
 	mock_repositories "PLANEXA_backend/repositories/mocks"
 	"PLANEXA_backend/routes"
-	"PLANEXA_backend/usecases/mocks"
+	mock_usecases "PLANEXA_backend/usecases/mocks"
 	"bytes"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
@@ -17,12 +17,12 @@ import (
 	"testing"
 )
 
-func TestGetLists(t *testing.T) {
+func TestGetCheckListItems(t *testing.T) {
 	t.Parallel()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
-	listUseCase := mock_usecases.NewMockListUseCase(controller)
-	listHandler := MakeListHandler(listUseCase)
+	checkListItemUseCase := mock_usecases.NewMockCheckListItemUseCase(controller)
+	checkListItemHandler := MakeCheckListItemHandler(checkListItemUseCase)
 
 	router := gin.Default()
 
@@ -37,39 +37,38 @@ func TestGetLists(t *testing.T) {
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
-		mainRoutes.GET(routes.BoardRoute+"/:id", authMiddleware.CheckAuth, listHandler.GetLists)
+		mainRoutes.GET(routes.CheckListRoute+"/:id"+routes.CheckListItemRoute, authMiddleware.CheckAuth, checkListItemHandler.GetCheckListItems)
 	}
-	tasks1 := []models.Task{{Title: "title1", Description: "desc1", DateCreated: "22.02.02"}, {Title: "title2", Description: "desc2", DateCreated: "23.02.02"}}
-	tasks2 := []models.Task{{Title: "title3", Description: "desc3", DateCreated: "24.02.02"}, {Title: "title4", Description: "desc4", DateCreated: "25.02.02"}}
-	lists := []models.List{{Title: "title1", Position: 1, Tasks: tasks1}, {Title: "title2", Position: 2, Tasks: tasks2}}
+	checkListItems := []models.CheckListItem{{IdT: 11, IdCl: 11, IdClIt: 11, IsReady: true, Description: "desc1"},
+		{IdT: 11, IdCl: 11, IdClIt: 11, IsReady: true, Description: "desc2"}}
 
 	//good
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
-	listUseCase.EXPECT().GetLists(uint(10), uint(22)).Return(lists, nil)
-	request, _ := http.NewRequest("GET", routes.HomeRoute+routes.BoardRoute+"/10", nil)
+	checkListItemUseCase.EXPECT().GetCheckListItems(uint(22), uint(11)).Return(&checkListItems, nil)
+	request, _ := http.NewRequest("GET", routes.HomeRoute+routes.CheckListRoute+"/11"+routes.CheckListItemRoute, nil)
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusOK, writer.Code)
-	var newLists []models.List
-	_ = json.Unmarshal(writer.Body.Bytes(), &newLists)
-	assert.Equal(t, lists, newLists)
+	var newCheckListItems []models.CheckListItem
+	_ = json.Unmarshal(writer.Body.Bytes(), &newCheckListItems)
+	assert.Equal(t, checkListItems, newCheckListItems)
 
 	//bad
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
-	request, _ = http.NewRequest("GET", routes.HomeRoute+routes.BoardRoute+"/10", nil)
+	request, _ = http.NewRequest("GET", routes.HomeRoute+routes.CheckListRoute+"/11"+routes.CheckListItemRoute, nil)
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
 
-func TestGetList(t *testing.T) {
+func TestGetCheckListItem(t *testing.T) {
 	t.Parallel()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
-	listUseCase := mock_usecases.NewMockListUseCase(controller)
-	listHandler := MakeListHandler(listUseCase)
+	checkListItemUseCase := mock_usecases.NewMockCheckListItemUseCase(controller)
+	checkListItemHandler := MakeCheckListItemHandler(checkListItemUseCase)
 
 	router := gin.Default()
 
@@ -84,39 +83,37 @@ func TestGetList(t *testing.T) {
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
-		mainRoutes.GET(routes.ListRoute+"/:id", authMiddleware.CheckAuth, listHandler.GetSingleList)
+		mainRoutes.GET(routes.CheckListItemRoute+"/:id", authMiddleware.CheckAuth, checkListItemHandler.GetSingleCheckListItem)
 	}
 
-	tasks1 := []models.Task{{Title: "title1", Description: "desc1", DateCreated: "22.02.02"}, {Title: "title2", Description: "desc2", DateCreated: "23.02.02"}}
-	list := models.List{Title: "title1", Position: 1, Tasks: tasks1}
-
+	checkListItem := models.CheckListItem{IdT: 11, IdCl: 11, IdClIt: 11, IsReady: true, Description: "desc1"}
 	//good
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
-	listUseCase.EXPECT().GetSingleList(uint(11), uint(22)).Return(list, nil)
-	request, _ := http.NewRequest("GET", routes.HomeRoute+routes.ListRoute+"/11", nil)
+	checkListItemUseCase.EXPECT().GetSingleCheckListItem(uint(11), uint(22)).Return(&checkListItem, nil)
+	request, _ := http.NewRequest("GET", routes.HomeRoute+routes.CheckListItemRoute+"/11", nil)
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusOK, writer.Code)
-	var newList models.List
-	_ = json.Unmarshal(writer.Body.Bytes(), &newList)
-	assert.Equal(t, list, newList)
+	var newCheckListItem models.CheckListItem
+	_ = json.Unmarshal(writer.Body.Bytes(), &newCheckListItem)
+	assert.Equal(t, checkListItem, newCheckListItem)
 
 	//bad
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
-	request, _ = http.NewRequest("GET", routes.HomeRoute+routes.ListRoute+"/11", nil)
+	request, _ = http.NewRequest("GET", routes.HomeRoute+routes.CheckListItemRoute+"/11", nil)
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
 
-func TestCreateList(t *testing.T) {
+func TestCreateCheckListItem(t *testing.T) {
 	t.Parallel()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
-	listUseCase := mock_usecases.NewMockListUseCase(controller)
-	listHandler := MakeListHandler(listUseCase)
+	checkListItemUseCase := mock_usecases.NewMockCheckListItemUseCase(controller)
+	checkListItemHandler := MakeCheckListItemHandler(checkListItemUseCase)
 
 	router := gin.Default()
 
@@ -131,45 +128,39 @@ func TestCreateList(t *testing.T) {
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
-		mainRoutes.POST(routes.BoardRoute+"/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.CreateList)
+		mainRoutes.POST(routes.CheckListRoute+"/:id"+routes.CheckListItemRoute, authMiddleware.CheckAuth, checkListItemHandler.CreateCheckListItem)
 	}
-
-	tasks1 := []models.Task{{Title: "title1", Description: "desc1", DateCreated: "22.02.02"}, {Title: "title2", Description: "desc2", DateCreated: "23.02.02"}}
-	list := models.List{
-		Title:    "title",
-		Position: 1,
-		Tasks:    tasks1,
-	}
-	jsonNewList, _ := json.Marshal(list)
-	body := bytes.NewReader(jsonNewList)
+	checkListItem := models.CheckListItem{IdT: 11, IdCl: 11, IdClIt: 11, IsReady: true, Description: "desc1"}
+	jsonNewCheckListItem, _ := json.Marshal(checkListItem)
+	body := bytes.NewReader(jsonNewCheckListItem)
 
 	//good
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
-	listUseCase.EXPECT().CreateList(list, uint(11), uint(22)).Return(&list, nil)
-	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.BoardRoute+"/11"+routes.ListRoute, body)
+	checkListItemUseCase.EXPECT().CreateCheckListItem(&checkListItem, uint(11), uint(22)).Return(&checkListItem, nil)
+	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.CheckListRoute+"/11"+routes.CheckListItemRoute, body)
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusOK, writer.Code)
-	var newList models.List
-	_ = json.Unmarshal(writer.Body.Bytes(), &newList)
-	assert.Equal(t, list, newList)
+	var newCheckListItem models.CheckListItem
+	_ = json.Unmarshal(writer.Body.Bytes(), &newCheckListItem)
+	assert.Equal(t, checkListItem, newCheckListItem)
 
 	//bad
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
-	request, _ = http.NewRequest("POST", routes.HomeRoute+routes.BoardRoute+"/11"+routes.ListRoute, body)
+	request, _ = http.NewRequest("POST", routes.HomeRoute+routes.CheckListRoute+"/11"+routes.CheckListItemRoute, body)
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
 
-func TestRefactorList(t *testing.T) {
+func TestRefactorCheckListItem(t *testing.T) {
 	t.Parallel()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
-	listUseCase := mock_usecases.NewMockListUseCase(controller)
-	listHandler := MakeListHandler(listUseCase)
+	checkListItemUseCase := mock_usecases.NewMockCheckListItemUseCase(controller)
+	checkListItemHandler := MakeCheckListItemHandler(checkListItemUseCase)
 
 	router := gin.Default()
 
@@ -184,22 +175,16 @@ func TestRefactorList(t *testing.T) {
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
-		mainRoutes.PUT(routes.ListRoute+"/:id", authMiddleware.CheckAuth, listHandler.RefactorList)
+		mainRoutes.PUT(routes.CheckListItemRoute+"/:id", authMiddleware.CheckAuth, checkListItemHandler.RefactorCheckListItem)
 	}
-	tasks1 := []models.Task{{Title: "title1", Description: "desc1", DateCreated: "22.02.02"}, {Title: "title2", Description: "desc2", DateCreated: "23.02.02"}}
-	list := models.List{
-		IdL:      11,
-		Title:    "title",
-		Position: 1,
-		Tasks:    tasks1,
-	}
-	jsonNewList, _ := json.Marshal(list)
-	body := bytes.NewReader(jsonNewList)
+	checkListItem := models.CheckListItem{IdT: 11, IdCl: 11, IdClIt: 11, IsReady: true, Description: "desc1"}
+	jsonNewCheckListItem, _ := json.Marshal(checkListItem)
+	body := bytes.NewReader(jsonNewCheckListItem)
 
 	//good
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
-	listUseCase.EXPECT().RefactorList(list, uint(22), uint(11)).Return(nil)
-	request, _ := http.NewRequest("PUT", routes.HomeRoute+routes.ListRoute+"/11", body)
+	checkListItemUseCase.EXPECT().RefactorCheckListItem(&checkListItem, uint(22)).Return(nil)
+	request, _ := http.NewRequest("PUT", routes.HomeRoute+routes.CheckListItemRoute+"/11", body)
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
@@ -207,19 +192,19 @@ func TestRefactorList(t *testing.T) {
 
 	//bad
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
-	request, _ = http.NewRequest("PUT", routes.HomeRoute+routes.ListRoute+"/11", body)
+	request, _ = http.NewRequest("PUT", routes.HomeRoute+routes.CheckListItemRoute+"/11", body)
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
 
-func TestDeleteList(t *testing.T) {
+func TestDeleteCheckListItem(t *testing.T) {
 	t.Parallel()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
-	listUseCase := mock_usecases.NewMockListUseCase(controller)
-	listHandler := MakeListHandler(listUseCase)
+	checkListItemUseCase := mock_usecases.NewMockCheckListItemUseCase(controller)
+	checkListItemHandler := MakeCheckListItemHandler(checkListItemUseCase)
 
 	router := gin.Default()
 
@@ -234,13 +219,13 @@ func TestDeleteList(t *testing.T) {
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
-		mainRoutes.DELETE(routes.ListRoute+"/:id", authMiddleware.CheckAuth, listHandler.DeleteList)
+		mainRoutes.DELETE(routes.CheckListItemRoute+"/:id", authMiddleware.CheckAuth, checkListItemHandler.DeleteCheckListItem)
 	}
 
 	//good
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
-	listUseCase.EXPECT().DeleteList(uint(11), uint(22)).Return(nil)
-	request, _ := http.NewRequest("DELETE", routes.HomeRoute+routes.ListRoute+"/11", nil)
+	checkListItemUseCase.EXPECT().DeleteCheckListItem(uint(11), uint(22)).Return(nil)
+	request, _ := http.NewRequest("DELETE", routes.HomeRoute+routes.CheckListItemRoute+"/11", nil)
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
@@ -248,7 +233,7 @@ func TestDeleteList(t *testing.T) {
 
 	//bad
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
-	request, _ = http.NewRequest("DELETE", routes.HomeRoute+routes.ListRoute+"/11", nil)
+	request, _ = http.NewRequest("DELETE", routes.HomeRoute+routes.CheckListItemRoute+"/11", nil)
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)

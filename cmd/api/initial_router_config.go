@@ -132,8 +132,8 @@ func initRouter() (*gin.Engine, error) {
 			taskRoutes.DELETE("/:id/:idU", authMiddleware.CheckAuth, taskHandler.DeleteUserFromTask)
 			taskRoutes.GET("/:id"+routes.CheckListRoute, authMiddleware.CheckAuth, checkListHandler.GetCheckLists)
 			taskRoutes.POST("/:id"+routes.CheckListRoute, authMiddleware.CheckAuth, checkListHandler.CreateCheckList)
-			taskRoutes.GET("/:id"+routes.CommentRouter, authMiddleware.CheckAuth, commentHandler.GetComments)
-			taskRoutes.POST("/:id"+routes.CommentRouter, authMiddleware.CheckAuth, commentHandler.CreateComment)
+			taskRoutes.GET("/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.GetComments)
+			taskRoutes.POST("/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.CreateComment)
 		}
 		checkListRoutes := router.Group(routes.CheckListRoute)
 		{
@@ -149,7 +149,7 @@ func initRouter() (*gin.Engine, error) {
 			checkListItemRoutes.PUT("/:id", authMiddleware.CheckAuth, checkListItemHandler.RefactorCheckListItem)
 			checkListItemRoutes.DELETE("/:id", authMiddleware.CheckAuth, checkListItemHandler.DeleteCheckListItem)
 		}
-		commentRoutes := router.Group(routes.CommentRouter)
+		commentRoutes := router.Group(routes.CommentRoute)
 		{
 			commentRoutes.GET("/:id", authMiddleware.CheckAuth, commentHandler.GetSingleComment)
 			commentRoutes.PUT("/:id", authMiddleware.CheckAuth, commentHandler.RefactorComment)
