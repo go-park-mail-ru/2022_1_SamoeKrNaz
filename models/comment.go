@@ -6,5 +6,5 @@ type Comment struct {
 	DateCreated string `json:"date"`
 	IdT         uint   `json:"idt" gorm:"not null"`
 	IdU         uint   `json:"idu" gorm:"not null"`
-	User        User   `json:"user" gorm:"foreignKey:IdCm"`
+	User        User   `json:"user" gorm:"-"`
 }
