@@ -306,7 +306,7 @@ func TestUpdateCheckList(t *testing.T) {
 	mock.
 		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "check_lists" WHERE "check_lists"."id_cl" = $1`)).
 		WithArgs(2).
-		WillReturnError(customErrors.ErrBoardNotFound)
+		WillReturnError(customErrors.ErrCheckListNotFound)
 
 	err = repoCheckList.Update(models.CheckList{IdCl: 2})
 	if err := mock.ExpectationsWereMet(); err != nil {

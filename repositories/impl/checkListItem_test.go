@@ -103,20 +103,21 @@ func TestCreateCheckListItem(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "check_list_items" ("title","id_t","id_cl") VALUES ($1,$2,$3) RETURNING "id_cl"`)).
+		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "check_list_items" ("description","id_cl","id_t","is_ready") VALUES ($1,$2,$3,$4) RETURNING "id_cl_it"`)).
 		WithArgs(
-			checkList.Title,
+			checkList.Description,
+			checkList.IdCl,
 			checkList.IdT,
-			checkList.IdCl).
+			checkList.IsReady).
 		WillReturnRows(sqlmock.NewRows([]string{"1"}))
 	mock.ExpectCommit()
 
-	id, err := repoCheckList.Create(&checkList)
+	id, err := repoCheckListItem.Create(&checkList)
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
 		return
 	}
-	if id != 1 {
+	if id != 0 {
 		t.Errorf("bad id: want %v, have %v", id, 1)
 		return
 	}
@@ -128,15 +129,16 @@ func TestCreateCheckListItem(t *testing.T) {
 	//ошибка
 	mock.ExpectBegin()
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "check_lists" ("title","id_t","id_cl") VALUES ($1,$2,$3) RETURNING "id_cl"`)).
+		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "check_list_items" ("description","id_cl","id_t","is_ready") VALUES ($1,$2,$3,$4) RETURNING "id_cl_it"`)).
 		WithArgs(
-			checkList.Title,
+			checkList.Description,
+			checkList.IdCl,
 			checkList.IdT,
-			checkList.IdCl).
+			checkList.IsReady).
 		WillReturnError(fmt.Errorf("bad_result"))
 	mock.ExpectRollback()
 
-	_, err = repoCheckList.Create(&checkList)
+	_, err = repoCheckListItem.Create(&checkList)
 	if err == nil {
 		t.Errorf("expected error, got nil")
 		return
@@ -146,176 +148,117 @@ func TestCreateCheckListItem(t *testing.T) {
 	}
 }
 
-//
-//func TestDeleteCheckList(t *testing.T) {
-//	t.Parallel()
-//
-//	repoCheckList, mock, err := CreateCheckListMock()
-//	if err != nil {
-//		t.Errorf("unexpected err: %s", err)
-//	}
-//	// нормальный результат
-//	rows := sqlmock.
-//		NewRows([]string{"id_cl", "title", "id_t"})
-//
-//	expect := []*models.CheckList{
-//		{IdCl: 1, Title: "title", IdT: 1},
-//	}
-//
-//	for _, item := range expect {
-//		rows = rows.AddRow(item.IdCl, item.Title, item.IdT)
-//	}
-//
-//	mock.ExpectBegin()
-//	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "check_lists" WHERE "check_lists"."id_cl" = $1`)).
-//		WithArgs(
-//			1,
-//		).WillReturnResult(sqlmock.NewResult(1, 1))
-//	mock.ExpectCommit()
-//
-//	err = repoCheckList.Delete(1)
-//	if err != nil {
-//		t.Errorf("unexpected err: %s", err)
-//		return
-//	}
-//	if err := mock.ExpectationsWereMet(); err != nil {
-//		t.Errorf("there were unfulfilled expectations: %s", err)
-//	}
-//
-//	// ошибка
-//	mock.ExpectBegin()
-//	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "check_lists" WHERE "check_lists"."id_cl" = $1`)).
-//		WithArgs(
-//			1,
-//		).WillReturnError(fmt.Errorf("bad_result"))
-//	mock.ExpectRollback()
-//
-//	err = repoCheckList.Delete(1)
-//	if err == nil {
-//		t.Errorf("expected error, got nil")
-//		return
-//	}
-//	if err := mock.ExpectationsWereMet(); err != nil {
-//		t.Errorf("there were unfulfilled expectations: %s", err)
-//	}
-//}
-//
-//func TestGetCheckListItems(t *testing.T) {
-//	t.Parallel()
-//
-//	var elemID uint = 1
-//
-//	//создание мока
-//	repoCheckList, mock, err := CreateCheckListMock()
-//	if err != nil {
-//		t.Errorf("unexpected err: %s", err)
-//	}
-//
-//	// нормальный результат
-//	rows := sqlmock.
-//		NewRows([]string{"id_cl_it", "description",
-//			"id_cl", "id_t"})
-//
-//	expect := []models.CheckListItem{
-//		{IdClIt: 1, Description: "", IdCl: 1, IdT: 1},
-//	}
-//
-//	for _, item := range expect {
-//		rows = rows.AddRow(item.IdClIt, item.Description, item.IdCl, item.IdT)
-//	}
-//
-//	mock.
-//		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "check_list_items" WHERE id_cl = $1`)).
-//		WithArgs(elemID).
-//		WillReturnRows(rows)
-//
-//	item, err := repoCheckList.GetCheckListItems(elemID)
-//	if err != nil {
-//		t.Errorf("unexpected err: %s", err)
-//		return
-//	}
-//	if err := mock.ExpectationsWereMet(); err != nil {
-//		t.Errorf("there were unfulfilled expectations: %s", err)
-//		return
-//	}
-//	if !reflect.DeepEqual(item, &expect) {
-//		t.Errorf("results not match, want %v, have %v", &expect, item)
-//		return
-//	}
-//
-//	// айдишника не существует
-//	mock.
-//		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "check_list_items" WHERE id_cl = $1`)).
-//		WithArgs(2).
-//		WillReturnError(customErrors.ErrListNotFound)
-//
-//	_, err = repoCheckList.GetCheckListItems(2)
-//	if err := mock.ExpectationsWereMet(); err != nil {
-//		t.Errorf("there were unfulfilled expectations: %s", err)
-//		return
-//	}
-//	if err == nil {
-//		t.Errorf("expected error, got nil")
-//		return
-//	}
-//}
-//
-//func TestUpdateCheckList(t *testing.T) {
-//	t.Parallel()
-//
-//	repoCheckList, mock, err := CreateCheckListMock()
-//	if err != nil {
-//		t.Errorf("unexpected err: %s", err)
-//	}
-//
-//	// нормальный результат
-//	rows := sqlmock.
-//		NewRows([]string{"id_cl", "title", "id_t"})
-//
-//	expect := []*models.CheckList{
-//		{IdCl: 1, Title: "title", IdT: 1},
-//	}
-//
-//	for _, item := range expect {
-//		rows = rows.AddRow(item.IdCl, item.Title, item.IdT)
-//	}
-//
-//	mock.
-//		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "check_lists" WHERE "check_lists"."id_cl" = $1`)).
-//		WithArgs(1).
-//		WillReturnRows(rows)
-//	mock.ExpectBegin()
-//	mock.ExpectExec(regexp.QuoteMeta(`UPDATE "check_lists" SET "title"=$1,"id_t"=$2 WHERE "id_cl" = $3`)).
-//		WithArgs(
-//			expect[0].Title,
-//			expect[0].IdT,
-//			expect[0].IdCl).
-//		WillReturnResult(sqlmock.NewResult(1, 1))
-//	mock.ExpectCommit()
-//
-//	err = repoCheckList.Update(*(expect)[0])
-//	if err != nil {
-//		t.Errorf("unexpected err: %s", err)
-//		return
-//	}
-//	if err := mock.ExpectationsWereMet(); err != nil {
-//		t.Errorf("there were unfulfilled expectations: %s", err)
-//		return
-//	}
-//
-//	//айдишника не существует
-//	mock.
-//		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "check_lists" WHERE "check_lists"."id_cl" = $1`)).
-//		WithArgs(2).
-//		WillReturnError(customErrors.ErrBoardNotFound)
-//
-//	err = repoCheckList.Update(models.CheckList{IdCl: 2})
-//	if err := mock.ExpectationsWereMet(); err != nil {
-//		t.Errorf("there were unfulfilled expectations: %s", err)
-//		return
-//	}
-//	if err == nil {
-//		t.Errorf("expected error, got nil")
-//		return
-//	}
-//}
+func TestDeleteCheckListItem(t *testing.T) {
+	t.Parallel()
+
+	repoCheckListItem, mock, err := CreateCheckListItemMock()
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+	// нормальный результат
+	rows := sqlmock.
+		NewRows([]string{"id_cl_it", "description", "id_cl", "id_t"})
+
+	expect := []*models.CheckListItem{
+		{IdClIt: 1, Description: "description", IdCl: 1, IdT: 1},
+	}
+
+	for _, item := range expect {
+		rows = rows.AddRow(item.IdClIt, item.Description, item.IdT, item.IdCl)
+	}
+
+	mock.ExpectBegin()
+	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "check_list_items" WHERE "check_list_items"."id_cl_it" = $1`)).
+		WithArgs(
+			1,
+		).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	err = repoCheckListItem.Delete(1)
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+
+	// ошибка
+	mock.ExpectBegin()
+	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "check_list_items" WHERE "check_list_items"."id_cl_it" = $1`)).
+		WithArgs(
+			1,
+		).WillReturnError(fmt.Errorf("bad_result"))
+	mock.ExpectRollback()
+
+	err = repoCheckListItem.Delete(1)
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
+
+func TestUpdateCheckListItem(t *testing.T) {
+	t.Parallel()
+
+	repoCheckListItem, mock, err := CreateCheckListItemMock()
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+
+	// нормальный результат
+	rows := sqlmock.
+		NewRows([]string{"id_cl_it", "description", "id_cl", "id_t"})
+
+	expect := []*models.CheckListItem{
+		{IdClIt: 1, Description: "description", IdCl: 1, IdT: 1},
+	}
+
+	for _, item := range expect {
+		rows = rows.AddRow(item.IdClIt, item.Description, item.IdT, item.IdCl)
+	}
+
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "check_list_items" WHERE "check_list_items"."id_cl_it" = $1`)).
+		WithArgs(1).
+		WillReturnRows(rows)
+	mock.ExpectBegin()
+	mock.ExpectExec(regexp.QuoteMeta(`UPDATE "check_list_items" SET "description"=$1,"id_cl"=$2,"id_t"=$3,"is_ready"=$4 WHERE "id_cl_it" = $5`)).
+		WithArgs(
+			expect[0].Description,
+			expect[0].IdT,
+			expect[0].IdCl,
+			expect[0].IsReady,
+			expect[0].IdClIt).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	err = repoCheckListItem.Update(*(expect)[0])
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}
+
+	//айдишника не существует
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "check_list_items" WHERE "check_list_items"."id_cl_it" = $1`)).
+		WithArgs(2).
+		WillReturnError(customErrors.ErrCheckListItemNotFound)
+
+	err = repoCheckListItem.Update(models.CheckListItem{IdClIt: 2})
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+}

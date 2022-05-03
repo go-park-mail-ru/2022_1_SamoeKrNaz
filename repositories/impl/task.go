@@ -149,7 +149,7 @@ func (taskRepository *TaskRepositoryImpl) GetById(IdT uint) (*models.Task, error
 
 func (taskRepository *TaskRepositoryImpl) GetCheckLists(IdT uint) (*[]models.CheckList, error) {
 	checkLists := new([]models.CheckList)
-	err := taskRepository.db.Where("id_t = ?", IdT).Find(checkLists).Error
+	err := taskRepository.db.Where("id_t = ?", IdT).Order("id_cl").Find(checkLists).Error
 	return checkLists, err
 }
 

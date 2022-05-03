@@ -24,7 +24,7 @@ func (commentRepository *CommentRepositoryImpl) GetById(IdCm uint) (*models.Comm
 	comment := new(models.Comment)
 	result := commentRepository.db.Find(comment, IdCm)
 	if result.RowsAffected == 0 {
-		return nil, customErrors.ErrBoardNotFound
+		return nil, customErrors.ErrCommentNotFound
 	} else if result.Error != nil {
 		return nil, result.Error
 	}
