@@ -137,7 +137,6 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 			if err != nil {
 				return models.Board{}, err
 			}
-
 			for k, checkList := range *checkLists {
 				checkListItem, err := boardUseCase.repCheckList.GetCheckListItems(checkList.IdCl)
 				if err != nil {

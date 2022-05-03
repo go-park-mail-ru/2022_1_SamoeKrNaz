@@ -24,7 +24,7 @@ func (commentRepository *CommentRepositoryImpl) GetById(IdCm uint) (*models.Comm
 	comment := new(models.Comment)
 	result := commentRepository.db.Find(comment, IdCm)
 	if result.RowsAffected == 0 {
-		return nil, customErrors.ErrBoardNotFound
+		return nil, customErrors.ErrCommentNotFound
 	} else if result.Error != nil {
 		return nil, result.Error
 	}
@@ -48,7 +48,7 @@ func (commentRepository *CommentRepositoryImpl) Delete(IdCm uint) error {
 
 func (commentRepository *CommentRepositoryImpl) GetComments(IdT uint) (*[]models.Comment, error) {
 	comments := new([]models.Comment)
-	err := commentRepository.db.Where("id_t = ?", IdT).Find(comments).Error
+	err := commentRepository.db.Where("id_t = ?", IdT).Order("id_cm").Find(comments).Error
 	return comments, err
 }
 

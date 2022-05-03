@@ -7,6 +7,7 @@ services:
     depends_on:
       - postgres
       - session
+      - user_microservice
     ports:
       - "8080:8080"
     volumes:
@@ -45,13 +46,25 @@ services:
     volumes:
       - ./:/session
 
+  user_microservice:
+    build:
+      context: .
+      dockerfile: Dockerfile-user
+    container_name: "2022_1_samoekrnaz_user_microservice_1"
+    depends_on:
+      - session
+    ports:
+      - "8083:8083"
+      - "8084:8084"
+    volumes:
+      - ./:/user
+
   prometheus:
     image: "prom/prometheus"
     ports:
       - "9090:9090"
     depends_on:
       - nodeexporter
-      - session
     volumes:
       - ./metrics/:/etc/prometheus/
     command:
@@ -79,4 +92,3 @@ services:
       - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)'
     ports:
       - "9100:9100"
-

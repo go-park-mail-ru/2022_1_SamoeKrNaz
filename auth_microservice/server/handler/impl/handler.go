@@ -20,7 +20,7 @@ func CreateSessionServer(sessUseCase usecase.SessionUseCase) handler.AuthChecker
 }
 
 func (sessServer *SessionServerImpl) Create(ctx context.Context, in *handler.SessionModel) (*handler.Nothing, error) {
-	timer := prometheus.NewTimer(metrics.Duration.WithLabelValues("create"))
+	timer := prometheus.NewTimer(metrics.DurationSession.WithLabelValues("create"))
 	if in == nil {
 		metrics.Session.WithLabelValues("500", "nil \"in\" create session").Inc()
 		return &handler.Nothing{}, customErrors.ErrBadInputData
@@ -38,7 +38,7 @@ func (sessServer *SessionServerImpl) Create(ctx context.Context, in *handler.Ses
 }
 
 func (sessServer *SessionServerImpl) Get(ctx context.Context, in *handler.SessionValue) (*handler.SessionID, error) {
-	timer := prometheus.NewTimer(metrics.Duration.WithLabelValues("get"))
+	timer := prometheus.NewTimer(metrics.DurationSession.WithLabelValues("get"))
 	if in == nil {
 		metrics.Session.WithLabelValues("500", "nil \"in\", get session").Inc()
 		return &handler.SessionID{ID: 0}, customErrors.ErrBadInputData
@@ -55,7 +55,7 @@ func (sessServer *SessionServerImpl) Get(ctx context.Context, in *handler.Sessio
 }
 
 func (sessServer *SessionServerImpl) Delete(ctx context.Context, in *handler.SessionValue) (*handler.Nothing, error) {
-	timer := prometheus.NewTimer(metrics.Duration.WithLabelValues("delete"))
+	timer := prometheus.NewTimer(metrics.DurationSession.WithLabelValues("delete"))
 	if in == nil {
 		metrics.Session.WithLabelValues("500", "nil \"in\" delete session").Inc()
 		return &handler.Nothing{}, customErrors.ErrBadInputData
