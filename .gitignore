@@ -5,4 +5,6 @@ db_postgres
 database.go
 api
 server
+server_user
 gin.log
+grafana_data

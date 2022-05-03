@@ -1,6 +1,6 @@
 FROM golang:latest
 
-WORKDIR /session
+WORKDIR /user
 
 COPY go.mod ./
 COPY go.sum ./
@@ -13,4 +13,4 @@ COPY . .
 
 EXPOSE 8083
 
-ENTRYPOINT CompileDaemon -build="go build ./user_microservice/server_user/" -command=./server
+ENTRYPOINT CompileDaemon -build="go build ./user_microservice/server_user/" -command=./server_user

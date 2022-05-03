@@ -60,6 +60,14 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 	} else if !isAccess {
 		return models.Task{}, customErrors.ErrNoAccess
 	}
+	appendedUsers, err := taskUseCase.repTask.GetTaskUser(taskId)
+	if err != nil {
+		return models.Task{}, err
+	}
+	for _, user := range *appendedUsers {
+		user.Password = ""
+	}
+	task.Users = *appendedUsers
 	return *task, err
 }
 

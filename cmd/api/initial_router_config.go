@@ -12,6 +12,7 @@ import (
 	handler_user "PLANEXA_backend/user_microservice/server_user/handler"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/penglongli/gin-metrics/ginmetrics"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"gorm.io/driver/postgres"
@@ -67,13 +68,21 @@ func initRouter() (*gin.Engine, error) {
 		return nil, err
 	}
 	grpcConnUser, err := grpc.Dial(
-		"2022_1_samoekrnaz_user_1:8083",
+		"2022_1_samoekrnaz_user_microservice_1:8083",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
 		return nil, customErrors.ErrNoAccess
 	}
 	userService := impl_rep.MakeUserRepository(db, handler_user.NewUserServiceClient(grpcConnUser))
+
+	monitor := ginmetrics.GetMonitor()
+	if err != nil {
+		return nil, err
+	}
+	monitor.SetMetricPath("/metrics")
+	monitor.SetSlowTime(10)
+	monitor.Use(router)
 
 	// создание репозиториев
 	taskRepository := impl_rep.MakeTaskRepository(db)
@@ -100,6 +109,7 @@ func initRouter() (*gin.Engine, error) {
 			boardRoutes.PUT("/:id", authMiddleware.CheckAuth, boardHandler.RefactorBoard)
 			boardRoutes.GET("/:id", authMiddleware.CheckAuth, boardHandler.GetSingleBoard)
 			boardRoutes.DELETE("/:id", authMiddleware.CheckAuth, boardHandler.DeleteBoard)
+			boardRoutes.POST("/:id/:idU", authMiddleware.CheckAuth, boardHandler.AppendUserToBoard)
 			boardRoutes.PUT("/:id/upload", authMiddleware.CheckAuth, boardHandler.SaveImage)
 			boardRoutes.GET("/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.GetLists)
 			boardRoutes.POST("/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.CreateList)
@@ -118,6 +128,7 @@ func initRouter() (*gin.Engine, error) {
 			taskRoutes.GET("/:id", authMiddleware.CheckAuth, taskHandler.GetSingleTask)
 			taskRoutes.PUT("/:id", authMiddleware.CheckAuth, taskHandler.RefactorTask)
 			taskRoutes.DELETE("/:id", authMiddleware.CheckAuth, taskHandler.DeleteTask)
+			taskRoutes.POST("/:id/:idU", authMiddleware.CheckAuth, taskHandler.AppendUserToTask)
 			taskRoutes.GET("/:id"+routes.CheckListRoute, authMiddleware.CheckAuth, checkListHandler.GetCheckLists)
 			taskRoutes.POST("/:id"+routes.CheckListRoute, authMiddleware.CheckAuth, checkListHandler.CreateCheckList)
 			taskRoutes.GET("/:id"+routes.CommentRouter, authMiddleware.CheckAuth, commentHandler.GetComments)
@@ -151,6 +162,7 @@ func initRouter() (*gin.Engine, error) {
 		mainRoutes.GET(routes.ProfileRoute, authMiddleware.CheckAuth, userHandler.GetInfoByCookie)
 		mainRoutes.PUT(routes.ProfileRoute+"/upload", authMiddleware.CheckAuth, userHandler.SaveAvatar)
 		mainRoutes.PUT(routes.ProfileRoute, authMiddleware.CheckAuth, userHandler.RefactorProfile)
+		mainRoutes.POST(routes.ProfileRoute+"/like", authMiddleware.CheckAuth, userHandler.GetUsersLike)
 	}
 	return router, nil
 }
