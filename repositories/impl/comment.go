@@ -48,7 +48,7 @@ func (commentRepository *CommentRepositoryImpl) Delete(IdCm uint) error {
 
 func (commentRepository *CommentRepositoryImpl) GetComments(IdT uint) (*[]models.Comment, error) {
 	comments := new([]models.Comment)
-	err := commentRepository.db.Where("id_t = ?", IdT).Find(comments).Error
+	err := commentRepository.db.Where("id_t = ?", IdT).Order("id_cm").Find(comments).Error
 	return comments, err
 }
 

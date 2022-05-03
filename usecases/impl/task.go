@@ -10,15 +10,16 @@ import (
 )
 
 type TaskUseCaseImpl struct {
-	repTask  repositories.TaskRepository
-	repBoard repositories.BoardRepository
-	repList  repositories.ListRepository
-	repUser  repositories.UserRepository
+	repTask    repositories.TaskRepository
+	repBoard   repositories.BoardRepository
+	repList    repositories.ListRepository
+	repUser    repositories.UserRepository
+	repComment repositories.CommentRepository
 }
 
 func MakeTaskUsecase(repTask_ repositories.TaskRepository, repBoard_ repositories.BoardRepository,
-	repList_ repositories.ListRepository, repUser_ repositories.UserRepository) usecases.TaskUseCase {
-	return &TaskUseCaseImpl{repTask: repTask_, repBoard: repBoard_, repList: repList_, repUser: repUser_}
+	repList_ repositories.ListRepository, repUser_ repositories.UserRepository, repComment_ repositories.CommentRepository) usecases.TaskUseCase {
+	return &TaskUseCaseImpl{repTask: repTask_, repBoard: repBoard_, repList: repList_, repUser: repUser_, repComment: repComment_}
 }
 
 func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models.Task, error) {
@@ -55,6 +56,18 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 	task.Title = sanitizer.Sanitize(task.Title)
 	task.Description = sanitizer.Sanitize(task.Description)
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, task.IdB)
+	comments, err := taskUseCase.repComment.GetComments(taskId)
+	for i, comment := range *comments {
+		userComment, err := taskUseCase.repUser.GetUserById(comment.IdU)
+		if err != nil {
+			return models.Task{}, err
+		}
+		(*comments)[i].User = *userComment
+	}
+	task.Comments = *comments
+	if err != nil {
+		return models.Task{}, err
+	}
 	if err != nil {
 		return models.Task{}, err
 	} else if !isAccess {
