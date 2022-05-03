@@ -10,15 +10,18 @@ import (
 )
 
 type TaskUseCaseImpl struct {
-	repTask  repositories.TaskRepository
-	repBoard repositories.BoardRepository
-	repList  repositories.ListRepository
-	repUser  repositories.UserRepository
+	repTask      repositories.TaskRepository
+	repBoard     repositories.BoardRepository
+	repList      repositories.ListRepository
+	repUser      repositories.UserRepository
+	repCheckList repositories.CheckListRepository
 }
 
 func MakeTaskUsecase(repTask_ repositories.TaskRepository, repBoard_ repositories.BoardRepository,
-	repList_ repositories.ListRepository, repUser_ repositories.UserRepository) usecases.TaskUseCase {
-	return &TaskUseCaseImpl{repTask: repTask_, repBoard: repBoard_, repList: repList_, repUser: repUser_}
+	repList_ repositories.ListRepository, repUser_ repositories.UserRepository,
+	repCheckList_ repositories.CheckListRepository) usecases.TaskUseCase {
+	return &TaskUseCaseImpl{repTask: repTask_, repBoard: repBoard_,
+		repList: repList_, repUser: repUser_, repCheckList: repCheckList_}
 }
 
 func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models.Task, error) {
@@ -60,6 +63,26 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 	} else if !isAccess {
 		return models.Task{}, customErrors.ErrNoAccess
 	}
+	appendedUsers, err := taskUseCase.repTask.GetTaskUser(taskId)
+	if err != nil {
+		return models.Task{}, err
+	}
+	for _, user := range *appendedUsers {
+		user.Password = ""
+	}
+	checkLists, err := taskUseCase.repTask.GetCheckLists(taskId)
+	if err != nil {
+		return models.Task{}, err
+	}
+	for i, checkList := range *checkLists {
+		checkListItems, err := taskUseCase.repCheckList.GetCheckListItems(checkList.IdCl)
+		if err != nil {
+			return models.Task{}, err
+		}
+		(*checkLists)[i].CheckListItems = *checkListItems
+	}
+	task.CheckLists = *checkLists
+	task.Users = *appendedUsers
 	return *task, err
 }
 

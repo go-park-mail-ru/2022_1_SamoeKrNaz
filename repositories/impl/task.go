@@ -54,7 +54,7 @@ func (taskRepository *TaskRepositoryImpl) Update(task models.Task) error {
 	if currentData.Title != task.Title && task.Title != "" {
 		currentData.Title = task.Title
 	}
-	if currentData.Description != task.Description && task.Title != "" {
+	if currentData.Description != task.Description && task.Description != "" {
 		currentData.Description = task.Description
 	}
 	if currentData.IsReady != task.IsReady {
@@ -149,7 +149,7 @@ func (taskRepository *TaskRepositoryImpl) GetById(IdT uint) (*models.Task, error
 
 func (taskRepository *TaskRepositoryImpl) GetCheckLists(IdT uint) (*[]models.CheckList, error) {
 	checkLists := new([]models.CheckList)
-	err := taskRepository.db.Where("id_t = ?", IdT).Find(checkLists).Error
+	err := taskRepository.db.Where("id_t = ?", IdT).Order("id_cl").Find(checkLists).Error
 	return checkLists, err
 }
 

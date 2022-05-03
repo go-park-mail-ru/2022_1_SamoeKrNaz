@@ -24,7 +24,7 @@ func (checkListRepository *CheckListRepositoryImpl) GetById(IdCl uint) (*models.
 	checkList := new(models.CheckList)
 	result := checkListRepository.db.Find(checkList, IdCl)
 	if result.RowsAffected == 0 {
-		return nil, customErrors.ErrBoardNotFound
+		return nil, customErrors.ErrCheckListNotFound
 	} else if result.Error != nil {
 		return nil, result.Error
 	}
@@ -48,6 +48,6 @@ func (checkListRepository *CheckListRepositoryImpl) Delete(IdCl uint) error {
 
 func (checkListRepository *CheckListRepositoryImpl) GetCheckListItems(IdCl uint) (*[]models.CheckListItem, error) {
 	checkListItems := new([]models.CheckListItem)
-	err := checkListRepository.db.Where("id_cl = ?", IdCl).Find(checkListItems).Error
+	err := checkListRepository.db.Where("id_cl = ?", IdCl).Order("id_cl_it").Find(checkListItems).Error
 	return checkListItems, err
 }

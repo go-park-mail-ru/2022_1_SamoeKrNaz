@@ -30,7 +30,7 @@ func Run() {
 	handler.RegisterAuthCheckerServer(grpcSrv, impl.CreateSessionServer(sessUseCase))
 
 	prometheus.MustRegister(metrics.Session)
-	prometheus.MustRegister(metrics.Duration)
+	prometheus.MustRegister(metrics.DurationSession)
 
 	http.Handle("/metrics", promhttp.Handler())
 	go func() {

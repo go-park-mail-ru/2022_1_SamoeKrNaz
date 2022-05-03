@@ -12,6 +12,11 @@ scrape_configs:
     static_configs:
       - targets: ['session:8082']
 
+  - job_name: 'user_ms'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['user_microservice:8084']
+
   - job_name: 'api'
     metrics_path: /metrics
     static_configs:

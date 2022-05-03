@@ -5,7 +5,10 @@ import (
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/usecases"
+	rtime "github.com/ivahaev/russian-time"
 	"github.com/microcosm-cc/bluemonday"
+	"strconv"
+	"time"
 )
 
 type CommentUseCaseImpl struct {
@@ -71,11 +74,16 @@ func (commentUseCase *CommentUseCaseImpl) CreateComment(comment *models.Comment,
 	} else if !isAccess {
 		return nil, customErrors.ErrNoAccess
 	}
-	checkListId, err := commentUseCase.repComment.Create(comment)
+	moscow, err := time.LoadLocation("Europe/Moscow")
 	if err != nil {
 		return nil, err
 	}
-	createdComment, err := commentUseCase.repComment.GetById(checkListId)
+	comment.DateCreated = strconv.Itoa(time.Now().In(moscow).Day()) + " " + rtime.Now().Month().StringInCase() + " " + strconv.Itoa(time.Now().In(moscow).Year()) + ", " + time.Now().In(moscow).Format("15:04")
+	commentId, err := commentUseCase.repComment.Create(comment)
+	if err != nil {
+		return nil, err
+	}
+	createdComment, err := commentUseCase.repComment.GetById(commentId)
 	return createdComment, err
 }
 

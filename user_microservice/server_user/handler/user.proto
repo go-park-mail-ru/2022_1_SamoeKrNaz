@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+// protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative handler/user.proto
+
+package handler;
+
+option go_package = "./handler";
+
+message Username {
+  string USERNAME = 1;
+}
+
+message IdUser {
+  uint64 IDU = 1;
+}
+
+message IdBoard {
+  uint64 IDB = 1;
+}
+
+message Ids {
+  IdBoard IDB = 1;
+  IdUser IDU = 2;
+}
+
+message CheckLog {
+  Username uname = 1;
+  string pass = 2;
+}
+
+message User {
+  IdUser IDU = 1;
+  CheckLog userData = 2;
+  string IMG = 3;
+  bytes BOARDS = 4;
+}
+
+message NothingSec {
+  bool dummy = 1;
+}
+
+message Users {
+  bytes USERS = 1;
+}
+
+// grpc-сервис для картинок
+service UserService {
+  rpc Create(User) returns (IdUser) {}
+  rpc Update(User) returns (NothingSec) {}
+  rpc IsAbleToLogin(CheckLog) returns (NothingSec) {}
+  rpc AddUserToBoard(Ids) returns (NothingSec) {}
+  rpc GetUserByLogin(Username) returns (User) {}
+  rpc GetUserById(IdUser) returns (User) {}
+  rpc IsExist(Username) returns (NothingSec) {}
+  rpc GetUsersLike(Username) returns (Users) {}
+}
