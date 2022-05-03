@@ -139,9 +139,9 @@ func (userRepository *UserRepositoryImpl) GetUsersLike(username string) (*[]mode
 		return nil, err
 	}
 	type Users struct {
-		usersRepo *[]models.User
+		UsersRepo *[]models.User
 	}
 	var usersStruct Users
 	err = json.Unmarshal(users.USERS, &usersStruct)
-	return usersStruct.usersRepo, err
+	return usersStruct.UsersRepo, err
 }

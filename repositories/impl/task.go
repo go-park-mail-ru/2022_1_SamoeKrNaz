@@ -54,7 +54,7 @@ func (taskRepository *TaskRepositoryImpl) Update(task models.Task) error {
 	if currentData.Title != task.Title && task.Title != "" {
 		currentData.Title = task.Title
 	}
-	if currentData.Description != task.Description && task.Title != "" {
+	if currentData.Description != task.Description && task.Description != "" {
 		currentData.Description = task.Description
 	}
 	if currentData.IsReady != task.IsReady {

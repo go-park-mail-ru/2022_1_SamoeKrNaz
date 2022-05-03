@@ -95,7 +95,7 @@ func initRouter() (*gin.Engine, error) {
 	authMiddleware := middleware.CreateMiddleware(sessService)
 
 	userHandler := handlers.MakeUserHandler(impl.MakeUserUsecase(userService, sessService))
-	taskHandler := handlers.MakeTaskHandler(impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService))
+	taskHandler := handlers.MakeTaskHandler(impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository))
 	boardHandler := handlers.MakeBoardHandler(impl.MakeBoardUsecase(boardRepository, listRepository, taskRepository, checkListRepository, userService))
 	listHandler := handlers.MakeListHandler(impl.MakeListUsecase(listRepository, boardRepository))
 	checkListHandler := handlers.MakeCheckListHandler(impl.MakeCheckListUsecase(checkListRepository, taskRepository))
@@ -129,6 +129,7 @@ func initRouter() (*gin.Engine, error) {
 			taskRoutes.PUT("/:id", authMiddleware.CheckAuth, taskHandler.RefactorTask)
 			taskRoutes.DELETE("/:id", authMiddleware.CheckAuth, taskHandler.DeleteTask)
 			taskRoutes.POST("/:id/:idU", authMiddleware.CheckAuth, taskHandler.AppendUserToTask)
+			taskRoutes.DELETE("/:id/:idU", authMiddleware.CheckAuth, taskHandler.DeleteUserFromTask)
 			taskRoutes.GET("/:id"+routes.CheckListRoute, authMiddleware.CheckAuth, checkListHandler.GetCheckLists)
 			taskRoutes.POST("/:id"+routes.CheckListRoute, authMiddleware.CheckAuth, checkListHandler.CreateCheckList)
 			taskRoutes.GET("/:id"+routes.CommentRouter, authMiddleware.CheckAuth, commentHandler.GetComments)
