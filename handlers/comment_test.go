@@ -6,7 +6,7 @@ import (
 	"PLANEXA_backend/models"
 	mock_repositories "PLANEXA_backend/repositories/mocks"
 	"PLANEXA_backend/routes"
-	"PLANEXA_backend/usecases/mocks"
+	mock_usecases "PLANEXA_backend/usecases/mocks"
 	"bytes"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
@@ -17,12 +17,12 @@ import (
 	"testing"
 )
 
-func TestGetLists(t *testing.T) {
+func TestGetComments(t *testing.T) {
 	t.Parallel()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
-	listUseCase := mock_usecases.NewMockListUseCase(controller)
-	listHandler := MakeListHandler(listUseCase)
+	commentUseCase := mock_usecases.NewMockCommentUseCase(controller)
+	commentHandler := MakeCommentHandler(commentUseCase)
 
 	router := gin.Default()
 
@@ -37,39 +37,38 @@ func TestGetLists(t *testing.T) {
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
-		mainRoutes.GET(routes.BoardRoute+"/:id", authMiddleware.CheckAuth, listHandler.GetLists)
+		mainRoutes.GET(routes.TaskRoute+"/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.GetComments)
 	}
-	tasks1 := []models.Task{{Title: "title1", Description: "desc1", DateCreated: "22.02.02"}, {Title: "title2", Description: "desc2", DateCreated: "23.02.02"}}
-	tasks2 := []models.Task{{Title: "title3", Description: "desc3", DateCreated: "24.02.02"}, {Title: "title4", Description: "desc4", DateCreated: "25.02.02"}}
-	lists := []models.List{{Title: "title1", Position: 1, Tasks: tasks1}, {Title: "title2", Position: 2, Tasks: tasks2}}
+	comments := []models.Comment{{IdCm: 11, Text: "text1", DateCreated: "01.01.01", IdT: 11, IdU: 22, User: models.User{}},
+		{IdCm: 11, Text: "text2", DateCreated: "01.01.02", IdT: 11, IdU: 22, User: models.User{}}}
 
 	//good
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
-	listUseCase.EXPECT().GetLists(uint(10), uint(22)).Return(lists, nil)
-	request, _ := http.NewRequest("GET", routes.HomeRoute+routes.BoardRoute+"/10", nil)
+	commentUseCase.EXPECT().GetComments(uint(22), uint(11)).Return(&comments, nil)
+	request, _ := http.NewRequest("GET", routes.HomeRoute+routes.TaskRoute+"/11"+routes.CommentRoute, nil)
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusOK, writer.Code)
-	var newLists []models.List
-	_ = json.Unmarshal(writer.Body.Bytes(), &newLists)
-	assert.Equal(t, lists, newLists)
+	var newComments []models.Comment
+	_ = json.Unmarshal(writer.Body.Bytes(), &newComments)
+	assert.Equal(t, comments, newComments)
 
 	//bad
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
-	request, _ = http.NewRequest("GET", routes.HomeRoute+routes.BoardRoute+"/10", nil)
+	request, _ = http.NewRequest("GET", routes.HomeRoute+routes.TaskRoute+"/11"+routes.CommentRoute, nil)
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
 
-func TestGetList(t *testing.T) {
+func TestGetComment(t *testing.T) {
 	t.Parallel()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
-	listUseCase := mock_usecases.NewMockListUseCase(controller)
-	listHandler := MakeListHandler(listUseCase)
+	commentUseCase := mock_usecases.NewMockCommentUseCase(controller)
+	commentHandler := MakeCommentHandler(commentUseCase)
 
 	router := gin.Default()
 
@@ -84,39 +83,37 @@ func TestGetList(t *testing.T) {
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
-		mainRoutes.GET(routes.ListRoute+"/:id", authMiddleware.CheckAuth, listHandler.GetSingleList)
+		mainRoutes.GET(routes.CommentRoute+"/:id", authMiddleware.CheckAuth, commentHandler.GetSingleComment)
 	}
 
-	tasks1 := []models.Task{{Title: "title1", Description: "desc1", DateCreated: "22.02.02"}, {Title: "title2", Description: "desc2", DateCreated: "23.02.02"}}
-	list := models.List{Title: "title1", Position: 1, Tasks: tasks1}
-
+	comment := models.Comment{IdCm: 11, Text: "text1", DateCreated: "01.01.01", IdT: 11, IdU: 22, User: models.User{}}
 	//good
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
-	listUseCase.EXPECT().GetSingleList(uint(11), uint(22)).Return(list, nil)
-	request, _ := http.NewRequest("GET", routes.HomeRoute+routes.ListRoute+"/11", nil)
+	commentUseCase.EXPECT().GetSingleComment(uint(11), uint(22)).Return(&comment, nil)
+	request, _ := http.NewRequest("GET", routes.HomeRoute+routes.CommentRoute+"/11", nil)
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusOK, writer.Code)
-	var newList models.List
-	_ = json.Unmarshal(writer.Body.Bytes(), &newList)
-	assert.Equal(t, list, newList)
+	var newComment models.Comment
+	_ = json.Unmarshal(writer.Body.Bytes(), &newComment)
+	assert.Equal(t, comment, newComment)
 
 	//bad
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
-	request, _ = http.NewRequest("GET", routes.HomeRoute+routes.ListRoute+"/11", nil)
+	request, _ = http.NewRequest("GET", routes.HomeRoute+routes.CommentRoute+"/11", nil)
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
 
-func TestCreateList(t *testing.T) {
+func TestCreateComment(t *testing.T) {
 	t.Parallel()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
-	listUseCase := mock_usecases.NewMockListUseCase(controller)
-	listHandler := MakeListHandler(listUseCase)
+	commentUseCase := mock_usecases.NewMockCommentUseCase(controller)
+	commentHandler := MakeCommentHandler(commentUseCase)
 
 	router := gin.Default()
 
@@ -131,45 +128,39 @@ func TestCreateList(t *testing.T) {
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
-		mainRoutes.POST(routes.BoardRoute+"/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.CreateList)
+		mainRoutes.POST(routes.TaskRoute+"/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.CreateComment)
 	}
-
-	tasks1 := []models.Task{{Title: "title1", Description: "desc1", DateCreated: "22.02.02"}, {Title: "title2", Description: "desc2", DateCreated: "23.02.02"}}
-	list := models.List{
-		Title:    "title",
-		Position: 1,
-		Tasks:    tasks1,
-	}
-	jsonNewList, _ := json.Marshal(list)
-	body := bytes.NewReader(jsonNewList)
+	comment := models.Comment{IdCm: 11, Text: "text1", DateCreated: "01.01.01", IdT: 11, IdU: 22, User: models.User{}}
+	jsonNewComment, _ := json.Marshal(comment)
+	body := bytes.NewReader(jsonNewComment)
 
 	//good
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
-	listUseCase.EXPECT().CreateList(list, uint(11), uint(22)).Return(&list, nil)
-	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.BoardRoute+"/11"+routes.ListRoute, body)
+	commentUseCase.EXPECT().CreateComment(&comment, uint(11), uint(22)).Return(&comment, nil)
+	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.TaskRoute+"/11"+routes.CommentRoute, body)
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusOK, writer.Code)
-	var newList models.List
-	_ = json.Unmarshal(writer.Body.Bytes(), &newList)
-	assert.Equal(t, list, newList)
+	var newComment models.Comment
+	_ = json.Unmarshal(writer.Body.Bytes(), &newComment)
+	assert.Equal(t, comment, newComment)
 
 	//bad
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
-	request, _ = http.NewRequest("POST", routes.HomeRoute+routes.BoardRoute+"/11"+routes.ListRoute, body)
+	request, _ = http.NewRequest("POST", routes.HomeRoute+routes.TaskRoute+"/11"+routes.CommentRoute, body)
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
 
-func TestRefactorList(t *testing.T) {
+func TestRefactorComment(t *testing.T) {
 	t.Parallel()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
-	listUseCase := mock_usecases.NewMockListUseCase(controller)
-	listHandler := MakeListHandler(listUseCase)
+	commentUseCase := mock_usecases.NewMockCommentUseCase(controller)
+	commentHandler := MakeCommentHandler(commentUseCase)
 
 	router := gin.Default()
 
@@ -184,22 +175,16 @@ func TestRefactorList(t *testing.T) {
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
-		mainRoutes.PUT(routes.ListRoute+"/:id", authMiddleware.CheckAuth, listHandler.RefactorList)
+		mainRoutes.PUT(routes.CommentRoute+"/:id", authMiddleware.CheckAuth, commentHandler.RefactorComment)
 	}
-	tasks1 := []models.Task{{Title: "title1", Description: "desc1", DateCreated: "22.02.02"}, {Title: "title2", Description: "desc2", DateCreated: "23.02.02"}}
-	list := models.List{
-		IdL:      11,
-		Title:    "title",
-		Position: 1,
-		Tasks:    tasks1,
-	}
-	jsonNewList, _ := json.Marshal(list)
-	body := bytes.NewReader(jsonNewList)
+	comment := models.Comment{IdCm: 11, Text: "text1", DateCreated: "01.01.01", IdT: 11, IdU: 22, User: models.User{}}
+	jsonNewComment, _ := json.Marshal(comment)
+	body := bytes.NewReader(jsonNewComment)
 
 	//good
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
-	listUseCase.EXPECT().RefactorList(list, uint(22), uint(11)).Return(nil)
-	request, _ := http.NewRequest("PUT", routes.HomeRoute+routes.ListRoute+"/11", body)
+	commentUseCase.EXPECT().RefactorComment(&comment, uint(22)).Return(nil)
+	request, _ := http.NewRequest("PUT", routes.HomeRoute+routes.CommentRoute+"/11", body)
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
@@ -207,19 +192,19 @@ func TestRefactorList(t *testing.T) {
 
 	//bad
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
-	request, _ = http.NewRequest("PUT", routes.HomeRoute+routes.ListRoute+"/11", body)
+	request, _ = http.NewRequest("PUT", routes.HomeRoute+routes.CommentRoute+"/11", body)
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
 
-func TestDeleteList(t *testing.T) {
+func TestDeleteComment(t *testing.T) {
 	t.Parallel()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
-	listUseCase := mock_usecases.NewMockListUseCase(controller)
-	listHandler := MakeListHandler(listUseCase)
+	commentUseCase := mock_usecases.NewMockCommentUseCase(controller)
+	commentHandler := MakeCommentHandler(commentUseCase)
 
 	router := gin.Default()
 
@@ -234,13 +219,13 @@ func TestDeleteList(t *testing.T) {
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
-		mainRoutes.DELETE(routes.ListRoute+"/:id", authMiddleware.CheckAuth, listHandler.DeleteList)
+		mainRoutes.DELETE(routes.CommentRoute+"/:id", authMiddleware.CheckAuth, commentHandler.DeleteComment)
 	}
 
 	//good
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
-	listUseCase.EXPECT().DeleteList(uint(11), uint(22)).Return(nil)
-	request, _ := http.NewRequest("DELETE", routes.HomeRoute+routes.ListRoute+"/11", nil)
+	commentUseCase.EXPECT().DeleteComment(uint(11), uint(22)).Return(nil)
+	request, _ := http.NewRequest("DELETE", routes.HomeRoute+routes.CommentRoute+"/11", nil)
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
@@ -248,7 +233,7 @@ func TestDeleteList(t *testing.T) {
 
 	//bad
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
-	request, _ = http.NewRequest("DELETE", routes.HomeRoute+routes.ListRoute+"/11", nil)
+	request, _ = http.NewRequest("DELETE", routes.HomeRoute+routes.CommentRoute+"/11", nil)
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)

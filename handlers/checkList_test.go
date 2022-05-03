@@ -6,7 +6,7 @@ import (
 	"PLANEXA_backend/models"
 	mock_repositories "PLANEXA_backend/repositories/mocks"
 	"PLANEXA_backend/routes"
-	"PLANEXA_backend/usecases/mocks"
+	mock_usecases "PLANEXA_backend/usecases/mocks"
 	"bytes"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
@@ -17,12 +17,12 @@ import (
 	"testing"
 )
 
-func TestGetLists(t *testing.T) {
+func TestGetCheckLists(t *testing.T) {
 	t.Parallel()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
-	listUseCase := mock_usecases.NewMockListUseCase(controller)
-	listHandler := MakeListHandler(listUseCase)
+	checkListUseCase := mock_usecases.NewMockCheckListUseCase(controller)
+	checkListHandler := MakeCheckListHandler(checkListUseCase)
 
 	router := gin.Default()
 
@@ -37,39 +37,37 @@ func TestGetLists(t *testing.T) {
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
-		mainRoutes.GET(routes.BoardRoute+"/:id", authMiddleware.CheckAuth, listHandler.GetLists)
+		mainRoutes.GET(routes.TaskRoute+"/:id", authMiddleware.CheckAuth, checkListHandler.GetCheckLists)
 	}
-	tasks1 := []models.Task{{Title: "title1", Description: "desc1", DateCreated: "22.02.02"}, {Title: "title2", Description: "desc2", DateCreated: "23.02.02"}}
-	tasks2 := []models.Task{{Title: "title3", Description: "desc3", DateCreated: "24.02.02"}, {Title: "title4", Description: "desc4", DateCreated: "25.02.02"}}
-	lists := []models.List{{Title: "title1", Position: 1, Tasks: tasks1}, {Title: "title2", Position: 2, Tasks: tasks2}}
+	checkLists := []models.CheckList{{IdCl: 11, IdT: 11, Title: "title1", CheckListItems: nil}, {IdCl: 12, IdT: 12, Title: "title2", CheckListItems: nil}}
 
 	//good
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
-	listUseCase.EXPECT().GetLists(uint(10), uint(22)).Return(lists, nil)
-	request, _ := http.NewRequest("GET", routes.HomeRoute+routes.BoardRoute+"/10", nil)
+	checkListUseCase.EXPECT().GetCheckLists(uint(22), uint(11)).Return(&checkLists, nil)
+	request, _ := http.NewRequest("GET", routes.HomeRoute+routes.TaskRoute+"/11", nil)
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusOK, writer.Code)
-	var newLists []models.List
-	_ = json.Unmarshal(writer.Body.Bytes(), &newLists)
-	assert.Equal(t, lists, newLists)
+	var newCheckLists []models.CheckList
+	_ = json.Unmarshal(writer.Body.Bytes(), &newCheckLists)
+	assert.Equal(t, checkLists, newCheckLists)
 
 	//bad
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
-	request, _ = http.NewRequest("GET", routes.HomeRoute+routes.BoardRoute+"/10", nil)
+	request, _ = http.NewRequest("GET", routes.HomeRoute+routes.TaskRoute+"/11", nil)
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
 
-func TestGetList(t *testing.T) {
+func TestGetCheckList(t *testing.T) {
 	t.Parallel()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
-	listUseCase := mock_usecases.NewMockListUseCase(controller)
-	listHandler := MakeListHandler(listUseCase)
+	checkListUseCase := mock_usecases.NewMockCheckListUseCase(controller)
+	checkListHandler := MakeCheckListHandler(checkListUseCase)
 
 	router := gin.Default()
 
@@ -84,39 +82,38 @@ func TestGetList(t *testing.T) {
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
-		mainRoutes.GET(routes.ListRoute+"/:id", authMiddleware.CheckAuth, listHandler.GetSingleList)
+		mainRoutes.GET(routes.CheckListRoute+"/:id", authMiddleware.CheckAuth, checkListHandler.GetSingleCheckList)
 	}
 
-	tasks1 := []models.Task{{Title: "title1", Description: "desc1", DateCreated: "22.02.02"}, {Title: "title2", Description: "desc2", DateCreated: "23.02.02"}}
-	list := models.List{Title: "title1", Position: 1, Tasks: tasks1}
+	checkList := models.CheckList{IdCl: 11, IdT: 11, Title: "title1", CheckListItems: nil}
 
 	//good
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
-	listUseCase.EXPECT().GetSingleList(uint(11), uint(22)).Return(list, nil)
-	request, _ := http.NewRequest("GET", routes.HomeRoute+routes.ListRoute+"/11", nil)
+	checkListUseCase.EXPECT().GetSingleCheckList(uint(11), uint(22)).Return(&checkList, nil)
+	request, _ := http.NewRequest("GET", routes.HomeRoute+routes.CheckListRoute+"/11", nil)
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusOK, writer.Code)
-	var newList models.List
-	_ = json.Unmarshal(writer.Body.Bytes(), &newList)
-	assert.Equal(t, list, newList)
+	var newCheckList models.CheckList
+	_ = json.Unmarshal(writer.Body.Bytes(), &newCheckList)
+	assert.Equal(t, checkList, newCheckList)
 
 	//bad
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
-	request, _ = http.NewRequest("GET", routes.HomeRoute+routes.ListRoute+"/11", nil)
+	request, _ = http.NewRequest("GET", routes.HomeRoute+routes.CheckListRoute+"/11", nil)
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
 
-func TestCreateList(t *testing.T) {
+func TestCreateCheckList(t *testing.T) {
 	t.Parallel()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
-	listUseCase := mock_usecases.NewMockListUseCase(controller)
-	listHandler := MakeListHandler(listUseCase)
+	checkListUseCase := mock_usecases.NewMockCheckListUseCase(controller)
+	checkListHandler := MakeCheckListHandler(checkListUseCase)
 
 	router := gin.Default()
 
@@ -131,45 +128,39 @@ func TestCreateList(t *testing.T) {
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
-		mainRoutes.POST(routes.BoardRoute+"/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.CreateList)
+		mainRoutes.POST(routes.TaskRoute+"/:id"+routes.CheckListRoute, authMiddleware.CheckAuth, checkListHandler.CreateCheckList)
 	}
-
-	tasks1 := []models.Task{{Title: "title1", Description: "desc1", DateCreated: "22.02.02"}, {Title: "title2", Description: "desc2", DateCreated: "23.02.02"}}
-	list := models.List{
-		Title:    "title",
-		Position: 1,
-		Tasks:    tasks1,
-	}
-	jsonNewList, _ := json.Marshal(list)
-	body := bytes.NewReader(jsonNewList)
+	checkList := models.CheckList{IdCl: 11, IdT: 11, Title: "title1", CheckListItems: nil}
+	jsonNewCheckList, _ := json.Marshal(checkList)
+	body := bytes.NewReader(jsonNewCheckList)
 
 	//good
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
-	listUseCase.EXPECT().CreateList(list, uint(11), uint(22)).Return(&list, nil)
-	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.BoardRoute+"/11"+routes.ListRoute, body)
+	checkListUseCase.EXPECT().CreateCheckList(&checkList, uint(11), uint(22)).Return(&checkList, nil)
+	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.TaskRoute+"/11"+routes.CheckListRoute, body)
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusOK, writer.Code)
-	var newList models.List
-	_ = json.Unmarshal(writer.Body.Bytes(), &newList)
-	assert.Equal(t, list, newList)
+	var newCheckList models.CheckList
+	_ = json.Unmarshal(writer.Body.Bytes(), &newCheckList)
+	assert.Equal(t, checkList, newCheckList)
 
 	//bad
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
-	request, _ = http.NewRequest("POST", routes.HomeRoute+routes.BoardRoute+"/11"+routes.ListRoute, body)
+	request, _ = http.NewRequest("POST", routes.HomeRoute+routes.TaskRoute+"/11"+routes.CheckListRoute, body)
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
 
-func TestRefactorList(t *testing.T) {
+func TestRefactorCheckList(t *testing.T) {
 	t.Parallel()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
-	listUseCase := mock_usecases.NewMockListUseCase(controller)
-	listHandler := MakeListHandler(listUseCase)
+	checkListUseCase := mock_usecases.NewMockCheckListUseCase(controller)
+	checkListHandler := MakeCheckListHandler(checkListUseCase)
 
 	router := gin.Default()
 
@@ -184,22 +175,16 @@ func TestRefactorList(t *testing.T) {
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
-		mainRoutes.PUT(routes.ListRoute+"/:id", authMiddleware.CheckAuth, listHandler.RefactorList)
+		mainRoutes.PUT(routes.CheckListRoute+"/:id", authMiddleware.CheckAuth, checkListHandler.RefactorCheckList)
 	}
-	tasks1 := []models.Task{{Title: "title1", Description: "desc1", DateCreated: "22.02.02"}, {Title: "title2", Description: "desc2", DateCreated: "23.02.02"}}
-	list := models.List{
-		IdL:      11,
-		Title:    "title",
-		Position: 1,
-		Tasks:    tasks1,
-	}
-	jsonNewList, _ := json.Marshal(list)
-	body := bytes.NewReader(jsonNewList)
+	checkList := models.CheckList{IdCl: 11, IdT: 11, Title: "title1", CheckListItems: nil}
+	jsonNewCheckList, _ := json.Marshal(checkList)
+	body := bytes.NewReader(jsonNewCheckList)
 
 	//good
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
-	listUseCase.EXPECT().RefactorList(list, uint(22), uint(11)).Return(nil)
-	request, _ := http.NewRequest("PUT", routes.HomeRoute+routes.ListRoute+"/11", body)
+	checkListUseCase.EXPECT().RefactorCheckList(&checkList, uint(22)).Return(nil)
+	request, _ := http.NewRequest("PUT", routes.HomeRoute+routes.CheckListRoute+"/11", body)
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
@@ -207,19 +192,19 @@ func TestRefactorList(t *testing.T) {
 
 	//bad
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
-	request, _ = http.NewRequest("PUT", routes.HomeRoute+routes.ListRoute+"/11", body)
+	request, _ = http.NewRequest("PUT", routes.HomeRoute+routes.CheckListRoute+"/11", body)
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
 
-func TestDeleteList(t *testing.T) {
+func TestDeleteCheckList(t *testing.T) {
 	t.Parallel()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
-	listUseCase := mock_usecases.NewMockListUseCase(controller)
-	listHandler := MakeListHandler(listUseCase)
+	checkListUseCase := mock_usecases.NewMockCheckListUseCase(controller)
+	checkListHandler := MakeCheckListHandler(checkListUseCase)
 
 	router := gin.Default()
 
@@ -234,13 +219,13 @@ func TestDeleteList(t *testing.T) {
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
-		mainRoutes.DELETE(routes.ListRoute+"/:id", authMiddleware.CheckAuth, listHandler.DeleteList)
+		mainRoutes.DELETE(routes.CheckListRoute+"/:id", authMiddleware.CheckAuth, checkListHandler.DeleteCheckList)
 	}
 
 	//good
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
-	listUseCase.EXPECT().DeleteList(uint(11), uint(22)).Return(nil)
-	request, _ := http.NewRequest("DELETE", routes.HomeRoute+routes.ListRoute+"/11", nil)
+	checkListUseCase.EXPECT().DeleteCheckList(uint(11), uint(22)).Return(nil)
+	request, _ := http.NewRequest("DELETE", routes.HomeRoute+routes.CheckListRoute+"/11", nil)
 	request.AddCookie(cookie)
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
@@ -248,7 +233,7 @@ func TestDeleteList(t *testing.T) {
 
 	//bad
 	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
-	request, _ = http.NewRequest("DELETE", routes.HomeRoute+routes.ListRoute+"/11", nil)
+	request, _ = http.NewRequest("DELETE", routes.HomeRoute+routes.CheckListRoute+"/11", nil)
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
