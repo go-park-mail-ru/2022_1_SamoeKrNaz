@@ -302,8 +302,8 @@ func TestGetComments(t *testing.T) {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
 	}
-	if !reflect.DeepEqual((*item)[0], expect[0]) {
-		t.Errorf("results not match, want %v, have %v", expect[0], (*item)[0])
+	if !reflect.DeepEqual(&(*item)[0], expect[0]) {
+		t.Errorf("results not match, want %v, have %v", expect[0], &(*item)[0])
 		return
 	}
 
@@ -314,6 +314,63 @@ func TestGetComments(t *testing.T) {
 		WillReturnError(customErrors.ErrBoardNotFound)
 
 	_, err = repoComment.GetComments(2)
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+}
+
+func TestIsAccessComment(t *testing.T) {
+	t.Parallel()
+
+	//создание мока
+	repoComment, mock, err := CreateCommentMock()
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+
+	// нормальный результат
+	rows := sqlmock.
+		NewRows([]string{"id_cm", "text", "date_created", "id_t", "id_u"})
+
+	expect := []*models.Comment{
+		{IdCm: 1, Text: "text", DateCreated: "", IdT: 1, IdU: 1},
+	}
+
+	for _, item := range expect {
+		rows = rows.AddRow(item.IdCm, item.Text, item.DateCreated, item.IdT, item.IdU)
+	}
+
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "comments" WHERE id_cm = $1 and id_u = $2`)).
+		WithArgs(1, 1).
+		WillReturnRows(rows)
+
+	item, err := repoComment.IsAccessToComment(1, 1)
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}
+	if !reflect.DeepEqual(item, true) {
+		t.Errorf("results not match, want %v, have %v", expect[0], true)
+		return
+	}
+
+	// айдишника не существует
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "comments" WHERE id_cm = $1 and id_u = $2`)).
+		WithArgs(1, 2).
+		WillReturnError(customErrors.ErrCommentNotFound)
+
+	_, err = repoComment.IsAccessToComment(1, 2)
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
