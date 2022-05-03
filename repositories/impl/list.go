@@ -83,7 +83,7 @@ func (listRepository *ListRepositoryImpl) Delete(IdL uint) error {
 
 func (listRepository *ListRepositoryImpl) GetTasks(IdL uint) (*[]models.Task, error) {
 	tasks := new([]models.Task)
-	result := listRepository.db.Where("id_l = ?", IdL).Find(tasks).Order("id_t")
+	result := listRepository.db.Where("id_l = ?", IdL).Order("id_t").Find(tasks)
 	return tasks, result.Error
 }
 
