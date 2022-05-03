@@ -11,6 +11,7 @@ import (
 	"PLANEXA_backend/usecases/impl"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/penglongli/gin-metrics/ginmetrics"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"gorm.io/driver/postgres"
@@ -62,6 +63,14 @@ func initRouter() (*gin.Engine, error) {
 
 	sessService := impl_rep.CreateRepo(handler.NewAuthCheckerClient(grpcConn))
 
+	monitor := ginmetrics.GetMonitor()
+	if err != nil {
+		return nil, err
+	}
+	monitor.SetMetricPath("/metrics")
+	monitor.SetSlowTime(10)
+	monitor.Use(router)
+
 	// создание репозиториев
 	userRepository := impl_rep.MakeUserRepository(db)
 	taskRepository := impl_rep.MakeTaskRepository(db)
@@ -88,6 +97,7 @@ func initRouter() (*gin.Engine, error) {
 			boardRoutes.PUT("/:id", authMiddleware.CheckAuth, boardHandler.RefactorBoard)
 			boardRoutes.GET("/:id", authMiddleware.CheckAuth, boardHandler.GetSingleBoard)
 			boardRoutes.DELETE("/:id", authMiddleware.CheckAuth, boardHandler.DeleteBoard)
+			boardRoutes.POST("/:id/:idU", authMiddleware.CheckAuth, boardHandler.AppendUserToBoard)
 			boardRoutes.PUT("/:id/upload", authMiddleware.CheckAuth, boardHandler.SaveImage)
 			boardRoutes.GET("/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.GetLists)
 			boardRoutes.POST("/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.CreateList)
@@ -139,6 +149,7 @@ func initRouter() (*gin.Engine, error) {
 		mainRoutes.GET(routes.ProfileRoute, authMiddleware.CheckAuth, userHandler.GetInfoByCookie)
 		mainRoutes.PUT(routes.ProfileRoute+"/upload", authMiddleware.CheckAuth, userHandler.SaveAvatar)
 		mainRoutes.PUT(routes.ProfileRoute, authMiddleware.CheckAuth, userHandler.RefactorProfile)
+		mainRoutes.POST(routes.ProfileRoute+"/like", authMiddleware.CheckAuth, userHandler.GetUsersLike)
 	}
 	return router, nil
 }

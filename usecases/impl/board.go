@@ -71,7 +71,7 @@ func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Boar
 	if err != nil {
 		return nil, err
 	}
-	board.DateCreated = strconv.Itoa(time.Now().In(moscow).Day()) + " " + rtime.Now().Month().StringInCase() + " " + strconv.Itoa(time.Now().In(moscow).Year()) + ", " + strconv.Itoa(time.Now().In(moscow).Hour()) + ":" + strconv.Itoa(time.Now().In(moscow).Minute())
+	board.DateCreated = strconv.Itoa(time.Now().In(moscow).Day()) + " " + rtime.Now().Month().StringInCase() + " " + strconv.Itoa(time.Now().In(moscow).Year()) + ", " + time.Now().In(moscow).Format("15:04")
 	board.IdU = userId
 	boardId, err := boardUseCase.repBoard.Create(&board)
 	if err != nil {
@@ -156,6 +156,9 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 	appendedUsers, err := boardUseCase.repBoard.GetBoardUser(boardId)
 	if err != nil {
 		return models.Board{}, err
+	}
+	for _, user := range appendedUsers {
+		user.Password = ""
 	}
 	board.Users = appendedUsers
 	if err != nil {
