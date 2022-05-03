@@ -134,14 +134,11 @@ func (userRepository *UserRepositoryImpl) IsExist(username string) (bool, error)
 }
 
 func (userRepository *UserRepositoryImpl) GetUsersLike(username string) (*[]models.User, error) {
-	users, err := userRepository.client.GetUsersLike(userRepository.ctx, &handler.Username{USERNAME: username})
+	usersByte, err := userRepository.client.GetUsersLike(userRepository.ctx, &handler.Username{USERNAME: username})
 	if err != nil {
 		return nil, err
 	}
-	type Users struct {
-		UsersRepo *[]models.User
-	}
-	var usersStruct Users
-	err = json.Unmarshal(users.USERS, &usersStruct)
-	return usersStruct.UsersRepo, err
+	var users []models.User
+	err = json.Unmarshal(usersByte.USERS, &users)
+	return &users, err
 }

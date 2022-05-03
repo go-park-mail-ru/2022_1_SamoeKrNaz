@@ -315,11 +315,11 @@ func TestAppendUser(t *testing.T) {
 
 	// айдишника не существует
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "boards" WHERE "boards"."id_b" = $1`)).
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE "users"."id_u" = $1`)).
 		WithArgs(2).
 		WillReturnError(customErrors.ErrBoardNotFound)
 
-	_, err = repoBoard.GetById(2)
+	err = repoBoard.AppendUser(2, 2)
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
@@ -373,11 +373,11 @@ func TestGetLists(t *testing.T) {
 
 	// айдишника не существует
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "boards" WHERE "boards"."id_b" = $1`)).
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "lists" WHERE id_b = $1 ORDER BY position`)).
 		WithArgs(2).
 		WillReturnError(customErrors.ErrBoardNotFound)
 
-	_, err = repoBoard.GetById(2)
+	_, err = repoBoard.GetLists(2)
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
@@ -433,11 +433,11 @@ func TestGetUserBoard(t *testing.T) {
 
 	// айдишника не существует
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "boards" WHERE "boards"."id_b" = $1`)).
+		ExpectQuery(regexp.QuoteMeta(`SELECT "boards"."id_b","boards"."title","boards"."description","boards"."img_desk","boards"."date_created","boards"."id_u" FROM "boards" JOIN "users_boards" ON "users_boards"."board_id_b" = "boards"."id_b" AND "users_boards"."user_id_u" = $1`)).
 		WithArgs(2).
 		WillReturnError(customErrors.ErrBoardNotFound)
 
-	_, err = repoBoard.GetById(2)
+	_, err = repoBoard.GetUserBoards(2)
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
@@ -493,11 +493,11 @@ func TestIsAccess(t *testing.T) {
 
 	// айдишника не существует
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "boards" WHERE "boards"."id_b" = $1`)).
-		WithArgs(2).
+		ExpectQuery(regexp.QuoteMeta(`SELECT "boards"."id_b","boards"."title","boards"."description","boards"."img_desk","boards"."date_created","boards"."id_u" FROM "boards" JOIN "users_boards" ON "users_boards"."board_id_b" = "boards"."id_b" AND "users_boards"."user_id_u" = $1 WHERE id_b = $2`)).
+		WithArgs(1, 2).
 		WillReturnError(customErrors.ErrBoardNotFound)
 
-	_, err = repoBoard.GetById(2)
+	_, err = repoBoard.IsAccessToBoard(1, 2)
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
