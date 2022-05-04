@@ -77,7 +77,7 @@ services:
     volumes:
       - ./grafana_data:/var/lib/grafana
     ports:
-      - "3030:3030"
+      - "3030:3000"
 
   nodeexporter:
     image: prom/node-exporter
