@@ -104,6 +104,10 @@ func (userRepository *UserRepositoryImpl) IsAbleToLogin(username string, passwor
 	if strings.Contains(err.Error(), customErrors.ErrBadInputData.Error()) {
 		err = customErrors.ErrBadInputData
 	}
+	if err != nil {
+		fmt.Println(err)
+		return false, err
+	}
 	return isAble.Dummy, err
 }
 
