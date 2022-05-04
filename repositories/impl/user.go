@@ -6,7 +6,6 @@ import (
 	"PLANEXA_backend/user_microservice/server_user/handler"
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/kolesa-team/go-webp/encoder"
 	"github.com/kolesa-team/go-webp/webp"
 	"gorm.io/gorm"
@@ -40,7 +39,6 @@ func (userRepository *UserRepositoryImpl) Create(user *models.User) (uint, error
 	idU, err := userRepository.client.Create(userRepository.ctx, &handler.User{IDU: &handler.IdUser{IDU: uint64(user.IdU)},
 		UserData: &handler.CheckLog{Pass: user.Password, Uname: &handler.Username{USERNAME: user.Username}}, IMG: user.ImgAvatar,
 		BOARDS: boardBytes})
-	fmt.Println("create", err)
 	return uint(idU.IDU), err
 }
 
@@ -52,7 +50,6 @@ func (userRepository *UserRepositoryImpl) Update(user *models.User) error {
 	_, err = userRepository.client.Create(userRepository.ctx, &handler.User{IDU: &handler.IdUser{IDU: uint64(user.IdU)},
 		UserData: &handler.CheckLog{Pass: user.Password, Uname: &handler.Username{USERNAME: user.Username}}, IMG: user.ImgAvatar,
 		BOARDS: boardBytes})
-	fmt.Println("update", err)
 	return err
 }
 
@@ -98,14 +95,12 @@ func (userRepository *UserRepositoryImpl) SaveAvatar(user *models.User, header *
 
 func (userRepository *UserRepositoryImpl) IsAbleToLogin(username string, password string) (bool, error) {
 	isAble, err := userRepository.client.IsAbleToLogin(userRepository.ctx, &handler.CheckLog{Pass: password, Uname: &handler.Username{USERNAME: username}})
-	fmt.Println("isabletologin", err)
 	return isAble.Dummy, err
 }
 
 func (userRepository *UserRepositoryImpl) AddUserToBoard(IdB uint, IdU uint) error {
 	_, err := userRepository.client.AddUserToBoard(userRepository.ctx, &handler.Ids{IDU: &handler.IdUser{IDU: uint64(IdU)},
 		IDB: &handler.IdBoard{IDB: uint64(IdB)}})
-	fmt.Println("addusertoboard", err)
 	return err
 }
 
@@ -118,7 +113,6 @@ func (userRepository *UserRepositoryImpl) GetUserByLogin(username string) (*mode
 	}
 	var boards []models.Board
 	err = json.Unmarshal(user.BOARDS, &boards)
-	fmt.Println("getuserbylogin", err)
 	return &models.User{Username: user.UserData.Uname.USERNAME, Password: user.UserData.Pass, IdU: uint(user.IDU.IDU),
 		ImgAvatar: user.IMG, Boards: boards}, err
 }
@@ -130,14 +124,12 @@ func (userRepository *UserRepositoryImpl) GetUserById(IdU uint) (*models.User, e
 	}
 	var boards []models.Board
 	err = json.Unmarshal(user.BOARDS, &boards)
-	fmt.Println("getuserbyid", err)
 	return &models.User{Username: user.UserData.Uname.USERNAME, Password: user.UserData.Pass, IdU: uint(user.IDU.IDU),
 		ImgAvatar: user.IMG, Boards: boards}, err
 }
 
 func (userRepository *UserRepositoryImpl) IsExist(username string) (bool, error) {
 	isEx, err := userRepository.client.IsExist(userRepository.ctx, &handler.Username{USERNAME: username})
-	fmt.Println("isexist", err)
 	return isEx.Dummy, err
 }
 
@@ -148,6 +140,5 @@ func (userRepository *UserRepositoryImpl) GetUsersLike(username string) (*[]mode
 	}
 	var users []models.User
 	err = json.Unmarshal(usersByte.USERS, &users)
-	fmt.Println("getuserslike", err)
 	return &users, err
 }
