@@ -26,14 +26,8 @@ func (userServ *UserServerImpl) Create(ctx context.Context, in *handler.User) (*
 		metrics.User.WithLabelValues("500", "nil \"in\" create user").Inc()
 		return &handler.IdUser{}, customErrors.ErrBadInputData
 	}
-	var boards []models.Board
-	err := json.Unmarshal(in.BOARDS, &boards)
-	if err != nil {
-		metrics.User.WithLabelValues("500", "error unmarshal in create user").Inc()
-		return &handler.IdUser{}, err
-	}
 	userId, err := userServ.userUseCase.Create(&models.User{Username: in.UserData.Uname.USERNAME,
-		Password: in.UserData.Pass, IdU: uint(in.IDU.IDU), ImgAvatar: in.IMG, Boards: boards})
+		Password: in.UserData.Pass, IdU: uint(in.IDU.IDU), ImgAvatar: in.IMG})
 	if err != nil {
 		metrics.Session.WithLabelValues("500", "error in create user").Inc()
 		return &handler.IdUser{}, err
@@ -49,14 +43,8 @@ func (userServ *UserServerImpl) Update(ctx context.Context, in *handler.User) (*
 		metrics.User.WithLabelValues("500", "nil \"in\" update user").Inc()
 		return &handler.NothingSec{}, customErrors.ErrBadInputData
 	}
-	var boards []models.Board
-	err := json.Unmarshal(in.BOARDS, &boards)
-	if err != nil {
-		metrics.User.WithLabelValues("500", "error unmarshal in update user").Inc()
-		return &handler.NothingSec{}, err
-	}
-	err = userServ.userUseCase.Update(&models.User{Username: in.UserData.Uname.USERNAME,
-		Password: in.UserData.Pass, IdU: uint(in.IDU.IDU), ImgAvatar: in.IMG, Boards: boards})
+	err := userServ.userUseCase.Update(&models.User{Username: in.UserData.Uname.USERNAME,
+		Password: in.UserData.Pass, IdU: uint(in.IDU.IDU), ImgAvatar: in.IMG})
 	if err != nil {
 		metrics.Session.WithLabelValues("500", "error in update user").Inc()
 		return &handler.NothingSec{}, err
