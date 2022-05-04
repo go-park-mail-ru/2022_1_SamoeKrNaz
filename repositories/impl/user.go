@@ -1,11 +1,13 @@
 package impl
 
 import (
+	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/user_microservice/server_user/handler"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/kolesa-team/go-webp/encoder"
 	"github.com/kolesa-team/go-webp/webp"
 	"gorm.io/gorm"
@@ -95,6 +97,16 @@ func (userRepository *UserRepositoryImpl) SaveAvatar(user *models.User, header *
 
 func (userRepository *UserRepositoryImpl) IsAbleToLogin(username string, password string) (bool, error) {
 	isAble, err := userRepository.client.IsAbleToLogin(userRepository.ctx, &handler.CheckLog{Pass: password, Uname: &handler.Username{USERNAME: username}})
+	if err != nil {
+		if strings.Contains(err.Error(), customErrors.ErrUsernameNotExist.Error()) {
+			err = customErrors.ErrBadInputData
+		}
+		if strings.Contains(err.Error(), customErrors.ErrBadInputData.Error()) {
+			err = customErrors.ErrBadInputData
+		}
+		fmt.Println(err)
+		return false, err
+	}
 	return isAble.Dummy, err
 }
 
@@ -114,18 +126,19 @@ func (userRepository *UserRepositoryImpl) GetUserByLogin(username string) (*mode
 	var boards []models.Board
 	err = json.Unmarshal(user.BOARDS, &boards)
 	return &models.User{Username: user.UserData.Uname.USERNAME, Password: user.UserData.Pass, IdU: uint(user.IDU.IDU),
-		ImgAvatar: user.IMG, Boards: boards}, err
+		ImgAvatar: user.IMG}, err
 }
 
 func (userRepository *UserRepositoryImpl) GetUserById(IdU uint) (*models.User, error) {
 	user, err := userRepository.client.GetUserById(userRepository.ctx, &handler.IdUser{IDU: uint64(IdU)})
+	fmt.Println("repo main", user)
 	if err != nil {
 		return nil, err
 	}
 	var boards []models.Board
 	err = json.Unmarshal(user.BOARDS, &boards)
 	return &models.User{Username: user.UserData.Uname.USERNAME, Password: user.UserData.Pass, IdU: uint(user.IDU.IDU),
-		ImgAvatar: user.IMG, Boards: boards}, err
+		ImgAvatar: user.IMG}, err
 }
 
 func (userRepository *UserRepositoryImpl) IsExist(username string) (bool, error) {

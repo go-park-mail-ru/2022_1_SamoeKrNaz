@@ -15,13 +15,15 @@ type TaskUseCaseImpl struct {
 	repList      repositories.ListRepository
 	repUser      repositories.UserRepository
 	repCheckList repositories.CheckListRepository
+	repComment   repositories.CommentRepository
 }
 
 func MakeTaskUsecase(repTask_ repositories.TaskRepository, repBoard_ repositories.BoardRepository,
 	repList_ repositories.ListRepository, repUser_ repositories.UserRepository,
-	repCheckList_ repositories.CheckListRepository) usecases.TaskUseCase {
+	repCheckList_ repositories.CheckListRepository, repComment_ repositories.CommentRepository) usecases.TaskUseCase {
 	return &TaskUseCaseImpl{repTask: repTask_, repBoard: repBoard_,
-		repList: repList_, repUser: repUser_, repCheckList: repCheckList_}
+		repList: repList_, repUser: repUser_, repCheckList: repCheckList_,
+		repComment: repComment_}
 }
 
 func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models.Task, error) {
@@ -81,6 +83,18 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 		}
 		(*checkLists)[i].CheckListItems = *checkListItems
 	}
+	comments, err := taskUseCase.repComment.GetComments(taskId)
+	for i, comment := range *comments {
+		userComment, err := taskUseCase.repUser.GetUserById(comment.IdU)
+		if err != nil {
+			return models.Task{}, err
+		}
+		(*comments)[i].User = *userComment
+	}
+	if err != nil {
+		return models.Task{}, err
+	}
+	task.Comments = *comments
 	task.CheckLists = *checkLists
 	task.Users = *appendedUsers
 	return *task, err
