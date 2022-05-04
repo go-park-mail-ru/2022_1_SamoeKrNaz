@@ -97,7 +97,7 @@ func (userRepository *UserRepositoryImpl) SaveAvatar(user *models.User, header *
 
 func (userRepository *UserRepositoryImpl) IsAbleToLogin(username string, password string) (bool, error) {
 	isAble, err := userRepository.client.IsAbleToLogin(userRepository.ctx, &handler.CheckLog{Pass: password, Uname: &handler.Username{USERNAME: username}})
-	if strings.Contains(err.Error(), customErrors.ErrUserNotFound.Error()) {
+	if strings.Contains(err.Error(), customErrors.ErrUsernameNotExist.Error()) {
 		err = customErrors.ErrUserNotFound
 	}
 
