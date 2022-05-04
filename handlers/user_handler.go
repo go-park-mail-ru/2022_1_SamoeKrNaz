@@ -122,7 +122,6 @@ func (userHandler *UserHandler) GetInfoById(c *gin.Context) {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
-
 	user, err := userHandler.usecase.GetInfoById(uint(userId))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})

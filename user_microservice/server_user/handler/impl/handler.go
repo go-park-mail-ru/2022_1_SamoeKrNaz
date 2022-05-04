@@ -8,6 +8,7 @@ import (
 	"PLANEXA_backend/user_microservice/server_user/usecase"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -60,7 +61,6 @@ func (userServ *UserServerImpl) IsAbleToLogin(ctx context.Context, in *handler.C
 		metrics.User.WithLabelValues("500", "nil \"in\" isabletologin user").Inc()
 		return &handler.NothingSec{}, customErrors.ErrBadInputData
 	}
-
 	is, err := userServ.userUseCase.IsAbleToLogin(in.Pass, in.Uname.USERNAME)
 	if err != nil {
 		metrics.Session.WithLabelValues("500", "error in isabletologin user").Inc()
@@ -93,6 +93,7 @@ func (userServ *UserServerImpl) GetUserByLogin(ctx context.Context, in *handler.
 	}
 
 	user, err := userServ.userUseCase.GetUserByLogin(in.USERNAME)
+	fmt.Println("getuserbylogin", in.USERNAME, err)
 	if err != nil {
 		metrics.Session.WithLabelValues("500", "error in getuserbylogin user").Inc()
 		return &handler.User{}, err
@@ -115,6 +116,7 @@ func (userServ *UserServerImpl) GetUserById(ctx context.Context, in *handler.IdU
 		return &handler.User{}, customErrors.ErrBadInputData
 	}
 	user, err := userServ.userUseCase.GetUserById(uint(in.IDU))
+	fmt.Println("getuserbyid", in, err)
 	if err != nil {
 		metrics.Session.WithLabelValues("500", "error in getuserbyid user").Inc()
 		return &handler.User{}, err
@@ -136,8 +138,8 @@ func (userServ *UserServerImpl) IsExist(ctx context.Context, in *handler.Usernam
 		metrics.User.WithLabelValues("500", "nil \"in\" isexist user").Inc()
 		return &handler.NothingSec{}, customErrors.ErrBadInputData
 	}
-
 	is, err := userServ.userUseCase.IsExist(in.USERNAME)
+	fmt.Println("isexist", in.USERNAME, err)
 	if err != nil {
 		metrics.Session.WithLabelValues("500", "error in isexist user").Inc()
 		return &handler.NothingSec{}, err

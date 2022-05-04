@@ -149,7 +149,7 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 			}
 			comments, err := boardUseCase.repComment.GetComments(task.IdT)
 			for i, comment := range *comments {
-				userComment, err := boardUseCase.repUser.GetUserById(comment.User.IdU)
+				userComment, err := boardUseCase.repUser.GetUserById(comment.IdU)
 				if err != nil {
 					return models.Board{}, err
 				}

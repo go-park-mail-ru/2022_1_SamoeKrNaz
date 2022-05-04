@@ -99,6 +99,7 @@ func (boardRepository *BoardRepositoryImpl) GetById(IdB uint) (*models.Board, er
 
 func (boardRepository *BoardRepositoryImpl) IsAccessToBoard(IdU uint, IdB uint) (bool, error) {
 	board := new(models.Board)
+
 	err := boardRepository.db.Model(&models.User{IdU: IdU}).Where("id_b = ?", IdB).Association("Boards").Find(board)
 	if err != nil {
 		return false, err
