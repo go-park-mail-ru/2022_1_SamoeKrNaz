@@ -46,7 +46,6 @@ func (boardHandler *BoardHandler) GetSingleBoard(c *gin.Context) {
 	}
 
 	//вызываю юзкейс
-
 	board, err := boardHandler.usecase.GetBoard(uint(boardId), uint(userId.(uint64)))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
