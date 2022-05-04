@@ -5,7 +5,6 @@ import (
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/user_microservice/server_user/repository"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -15,8 +14,7 @@ type UserRepImpl struct {
 	db *gorm.DB
 }
 
-func CreateUserRep() repository.UserRepo {
-	newDb, _ := gorm.Open(postgres.Open("host=postgres user=Planexa password=WEB21Planexa dbname=DB_Planexa port=5432"))
+func CreateUserRep(newDb *gorm.DB) repository.UserRepo {
 	return &UserRepImpl{db: newDb}
 }
 
