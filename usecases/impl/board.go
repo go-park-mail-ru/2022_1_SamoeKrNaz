@@ -148,6 +148,9 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 				(*checkLists)[k].CheckListItems = *checkListItem
 			}
 			comments, err := boardUseCase.repComment.GetComments(task.IdT)
+			if err != nil {
+				return models.Board{}, err
+			}
 			for i, comment := range *comments {
 				userComment, err := boardUseCase.repUser.GetUserById(comment.IdU)
 				if err != nil {
