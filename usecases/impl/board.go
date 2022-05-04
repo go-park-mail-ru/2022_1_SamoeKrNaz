@@ -206,7 +206,7 @@ func (boardUseCase *BoardUseCaseImpl) AppendUserToBoard(userId uint, appendedUse
 	if err != nil {
 		return models.User{}, err
 	}
-	user, err := boardUseCase.repUser.GetUserById(userId)
+	user, err := boardUseCase.repUser.GetUserById(appendedUserId)
 	if err != nil {
 		return models.User{}, err
 	}

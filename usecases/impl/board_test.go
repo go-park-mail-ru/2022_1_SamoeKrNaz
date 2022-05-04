@@ -7,6 +7,7 @@ import (
 	"github.com/golang/mock/gomock"
 	rtime "github.com/ivahaev/russian-time"
 	"github.com/stretchr/testify/assert"
+	"mime/multipart"
 	"strconv"
 	"testing"
 	"time"
@@ -21,7 +22,8 @@ func TestGetBoards(t *testing.T) {
 	taskRepo := mock_repositories.NewMockTaskRepository(controller)
 	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
 	userRepo := mock_repositories.NewMockUserRepository(controller)
-	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
+	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo, commentRepo)
 
 	boards := []models.Board{{Title: "title1", Description: "desc1"}, {Title: "title2", Description: "desc2"}}
 	boardRepo.EXPECT().GetUserBoards(uint(22)).Return(boards, nil)
@@ -44,7 +46,8 @@ func TestGetSingleBoard(t *testing.T) {
 	taskRepo := mock_repositories.NewMockTaskRepository(controller)
 	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
 	userRepo := mock_repositories.NewMockUserRepository(controller)
-	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
+	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo, commentRepo)
 
 	board := models.Board{Title: "title2", Description: "desc2", IdB: 22, IdU: 11}
 	boardRepo.EXPECT().IsAccessToBoard(uint(11), uint(22)).Return(true, nil)
@@ -68,7 +71,8 @@ func TestCreateBoard(t *testing.T) {
 	taskRepo := mock_repositories.NewMockTaskRepository(controller)
 	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
 	userRepo := mock_repositories.NewMockUserRepository(controller)
-	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
+	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo, commentRepo)
 
 	board := models.Board{Title: "title2", Description: "desc2", IdB: 22, IdU: 11}
 	moscow, _ := time.LoadLocation("Europe/Moscow")
@@ -96,7 +100,8 @@ func TestRefactorBoard(t *testing.T) {
 	taskRepo := mock_repositories.NewMockTaskRepository(controller)
 	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
 	userRepo := mock_repositories.NewMockUserRepository(controller)
-	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
+	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo, commentRepo)
 
 	board := models.Board{Title: "title2", Description: "desc2", IdB: 22, IdU: 11}
 	moscow, _ := time.LoadLocation("Europe/Moscow")
@@ -121,7 +126,8 @@ func TestDeleteBoard(t *testing.T) {
 	taskRepo := mock_repositories.NewMockTaskRepository(controller)
 	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
 	userRepo := mock_repositories.NewMockUserRepository(controller)
-	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
+	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo, commentRepo)
 
 	boardRepo.EXPECT().IsAccessToBoard(uint(22), uint(11)).Return(true, nil)
 	boardRepo.EXPECT().Delete(uint(11)).Return(nil)
@@ -142,7 +148,8 @@ func TestGetBoard(t *testing.T) {
 	taskRepo := mock_repositories.NewMockTaskRepository(controller)
 	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
 	userRepo := mock_repositories.NewMockUserRepository(controller)
-	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
+	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo, commentRepo)
 
 	board := models.Board{Title: "title2", Description: "desc2", IdB: 22, IdU: 11}
 
@@ -158,4 +165,69 @@ func TestGetBoard(t *testing.T) {
 	newBoard, err = boardUseCase.GetBoard(uint(11), uint(22))
 	assert.Equal(t, customErrors.ErrNoAccess, err)
 	assert.Equal(t, models.Board{}, newBoard)
+}
+
+func TestSaveImageBoard(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	userRepo := mock_repositories.NewMockUserRepository(controller)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
+	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo, commentRepo)
+
+	board := models.Board{Title: "title2", Description: "desc2", IdB: 22, IdU: 11}
+
+	boardRepo.EXPECT().IsAccessToBoard(uint(11), uint(22)).Return(true, nil)
+	boardRepo.EXPECT().SaveImage(&board, &multipart.FileHeader{}).Return(nil)
+	_, err := boardUseCase.SaveImage(uint(11), &board, &multipart.FileHeader{})
+	assert.Equal(t, nil, err)
+
+	boardRepo.EXPECT().IsAccessToBoard(uint(11), uint(22)).Return(false, customErrors.ErrNoAccess)
+	_, err = boardUseCase.SaveImage(uint(11), &board, &multipart.FileHeader{})
+	assert.Equal(t, customErrors.ErrNoAccess, err)
+}
+
+func TestAppendUserToBoard(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	userRepo := mock_repositories.NewMockUserRepository(controller)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
+	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo, commentRepo)
+
+	boardRepo.EXPECT().IsAccessToBoard(uint(11), uint(22)).Return(true, nil)
+	boardRepo.EXPECT().AppendUser(uint(22), uint(15))
+	userRepo.EXPECT().GetUserById(uint(15)).Return(nil, customErrors.ErrUserNotFound)
+	_, err := boardUseCase.AppendUserToBoard(uint(11), uint(15), uint(22))
+	assert.Equal(t, customErrors.ErrUserNotFound, err)
+}
+
+func TestDeleteUserFromBoard(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	userRepo := mock_repositories.NewMockUserRepository(controller)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
+	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo, commentRepo)
+
+	boardRepo.EXPECT().IsAccessToBoard(uint(11), uint(22)).Return(true, nil)
+	boardRepo.EXPECT().DeleteUser(uint(22), uint(15)).Return(nil)
+	err := boardUseCase.DeleteUserFromBoard(uint(11), uint(15), uint(22))
+	assert.Equal(t, nil, err)
+
+	boardRepo.EXPECT().IsAccessToBoard(uint(11), uint(22)).Return(false, customErrors.ErrNoAccess)
+	err = boardUseCase.DeleteUserFromBoard(uint(11), uint(15), uint(22))
+	assert.Equal(t, err, customErrors.ErrNoAccess)
 }
