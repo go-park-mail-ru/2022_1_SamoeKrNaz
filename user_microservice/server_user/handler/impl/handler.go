@@ -66,6 +66,7 @@ func (userServ *UserServerImpl) IsAbleToLogin(ctx context.Context, in *handler.C
 		metrics.Session.WithLabelValues("500", "error in isabletologin user").Inc()
 		return &handler.NothingSec{}, err
 	}
+	metrics.Session.WithLabelValues("200", "success in isabletologin user").Inc()
 	timer.ObserveDuration()
 	return &handler.NothingSec{Dummy: is}, nil
 }
@@ -81,6 +82,7 @@ func (userServ *UserServerImpl) AddUserToBoard(ctx context.Context, in *handler.
 		metrics.Session.WithLabelValues("500", "error in addusertoboard user").Inc()
 		return &handler.NothingSec{}, err
 	}
+	metrics.Session.WithLabelValues("200", "success in addusertoboard user").Inc()
 	timer.ObserveDuration()
 	return &handler.NothingSec{}, nil
 }
@@ -103,6 +105,7 @@ func (userServ *UserServerImpl) GetUserByLogin(ctx context.Context, in *handler.
 		metrics.User.WithLabelValues("500", "error unmarshal in getuserbylogin user").Inc()
 		return &handler.User{}, err
 	}
+	metrics.Session.WithLabelValues("200", "success in getuserbylogin user").Inc()
 	timer.ObserveDuration()
 	return &handler.User{IDU: &handler.IdUser{IDU: uint64(user.IdU)},
 		UserData: &handler.CheckLog{Uname: &handler.Username{USERNAME: user.Username}, Pass: user.Password},
@@ -126,6 +129,7 @@ func (userServ *UserServerImpl) GetUserById(ctx context.Context, in *handler.IdU
 		metrics.Session.WithLabelValues("500", "error unmarshal in getuserbyid user").Inc()
 		return &handler.User{}, err
 	}
+	metrics.Session.WithLabelValues("200", "success in getuserbyid user").Inc()
 	timer.ObserveDuration()
 	return &handler.User{IDU: &handler.IdUser{IDU: uint64(user.IdU)},
 		UserData: &handler.CheckLog{Uname: &handler.Username{USERNAME: user.Username}, Pass: user.Password},
@@ -144,6 +148,7 @@ func (userServ *UserServerImpl) IsExist(ctx context.Context, in *handler.Usernam
 		metrics.Session.WithLabelValues("500", "error in isexist user").Inc()
 		return &handler.NothingSec{}, err
 	}
+	metrics.Session.WithLabelValues("200", "success in isexist user").Inc()
 	timer.ObserveDuration()
 	return &handler.NothingSec{Dummy: is}, nil
 }
@@ -163,6 +168,7 @@ func (userServ *UserServerImpl) GetUsersLike(ctx context.Context, in *handler.Us
 	if err != nil {
 		metrics.Session.WithLabelValues("500", "error unmarshal in getuserslike user").Inc()
 	}
+	metrics.Session.WithLabelValues("200", "success in getuserslike user").Inc()
 	timer.ObserveDuration()
 	return &handler.Users{USERS: bytesUsers}, nil
 }
