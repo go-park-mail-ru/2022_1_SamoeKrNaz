@@ -1,6 +1,7 @@
 package impl
 
 import (
+	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/repositories"
 	"PLANEXA_backend/user_microservice/server_user/handler"
@@ -96,6 +97,13 @@ func (userRepository *UserRepositoryImpl) SaveAvatar(user *models.User, header *
 
 func (userRepository *UserRepositoryImpl) IsAbleToLogin(username string, password string) (bool, error) {
 	isAble, err := userRepository.client.IsAbleToLogin(userRepository.ctx, &handler.CheckLog{Pass: password, Uname: &handler.Username{USERNAME: username}})
+	if strings.Contains(err.Error(), customErrors.ErrUserNotFound.Error()) {
+		err = customErrors.ErrUserNotFound
+	}
+
+	if strings.Contains(err.Error(), customErrors.ErrBadInputData.Error()) {
+		err = customErrors.ErrBadInputData
+	}
 	return isAble.Dummy, err
 }
 
