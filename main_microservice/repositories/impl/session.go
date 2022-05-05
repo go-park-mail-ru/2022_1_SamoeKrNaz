@@ -1,7 +1,7 @@
 package impl
 
 import (
-	"PLANEXA_backend/auth_microservice/server/handler"
+	"PLANEXA_backend/auth_microservice/server_session_ms/handler"
 	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/models"
 	"context"

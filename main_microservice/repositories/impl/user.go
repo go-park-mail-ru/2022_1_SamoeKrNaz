@@ -4,7 +4,7 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/models"
-	"PLANEXA_backend/user_microservice/server_user/handler"
+	"PLANEXA_backend/user_microservice/server_user_ms/handler"
 	"context"
 	"encoding/json"
 	"fmt"
