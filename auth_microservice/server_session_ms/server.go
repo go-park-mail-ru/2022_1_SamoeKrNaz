@@ -1,10 +1,10 @@
 package main
 
 import (
-	"PLANEXA_backend/auth_microservice/server/handler"
-	"PLANEXA_backend/auth_microservice/server/handler/impl"
-	repository_impl "PLANEXA_backend/auth_microservice/server/repository/impl"
-	usecase_impl "PLANEXA_backend/auth_microservice/server/usecase/impl"
+	"PLANEXA_backend/auth_microservice/server_session_ms/handler"
+	"PLANEXA_backend/auth_microservice/server_session_ms/handler/impl"
+	repository_impl "PLANEXA_backend/auth_microservice/server_session_ms/repository/impl"
+	usecase_impl "PLANEXA_backend/auth_microservice/server_session_ms/usecase/impl"
 	"PLANEXA_backend/metrics"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

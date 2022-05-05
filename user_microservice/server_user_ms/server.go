@@ -2,10 +2,10 @@ package main
 
 import (
 	"PLANEXA_backend/metrics"
-	"PLANEXA_backend/user_microservice/server_user/handler"
-	service_impl "PLANEXA_backend/user_microservice/server_user/handler/impl"
-	repository_impl "PLANEXA_backend/user_microservice/server_user/repository/impl"
-	usecase_impl "PLANEXA_backend/user_microservice/server_user/usecase/impl"
+	"PLANEXA_backend/user_microservice/server_user_ms/handler"
+	service_impl "PLANEXA_backend/user_microservice/server_user_ms/handler/impl"
+	repository_impl "PLANEXA_backend/user_microservice/server_user_ms/repository/impl"
+	usecase_impl "PLANEXA_backend/user_microservice/server_user_ms/usecase/impl"
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
