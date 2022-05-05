@@ -2,7 +2,7 @@ package impl
 
 import (
 	customErrors "PLANEXA_backend/errors"
-	repositories2 "PLANEXA_backend/main_microservice/repositories"
+	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/main_microservice/usecases"
 	"PLANEXA_backend/models"
 	rtime "github.com/ivahaev/russian-time"
@@ -14,17 +14,17 @@ import (
 )
 
 type BoardUseCaseImpl struct {
-	repBoard     repositories2.BoardRepository
-	repList      repositories2.ListRepository
-	repTask      repositories2.TaskRepository
-	repCheckList repositories2.CheckListRepository
-	repUser      repositories2.UserRepository
-	repComment   repositories2.CommentRepository
+	repBoard     repositories.BoardRepository
+	repList      repositories.ListRepository
+	repTask      repositories.TaskRepository
+	repCheckList repositories.CheckListRepository
+	repUser      repositories.UserRepository
+	repComment   repositories.CommentRepository
 }
 
-func MakeBoardUsecase(repBoard_ repositories2.BoardRepository, repList_ repositories2.ListRepository,
-	repTask_ repositories2.TaskRepository, repCheckList_ repositories2.CheckListRepository,
-	repUser_ repositories2.UserRepository, repComment_ repositories2.CommentRepository) usecases.BoardUseCase {
+func MakeBoardUsecase(repBoard_ repositories.BoardRepository, repList_ repositories.ListRepository,
+	repTask_ repositories.TaskRepository, repCheckList_ repositories.CheckListRepository,
+	repUser_ repositories.UserRepository, repComment_ repositories.CommentRepository) usecases.BoardUseCase {
 	return &BoardUseCaseImpl{repBoard: repBoard_, repList: repList_,
 		repTask: repTask_, repCheckList: repCheckList_, repUser: repUser_,
 		repComment: repComment_}

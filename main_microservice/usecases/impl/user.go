@@ -3,7 +3,7 @@ package impl
 import (
 	"PLANEXA_backend/errors"
 	"PLANEXA_backend/hash"
-	repositories2 "PLANEXA_backend/main_microservice/repositories"
+	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/main_microservice/usecases"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/utils"
@@ -14,11 +14,11 @@ import (
 )
 
 type UserUseCaseImpl struct {
-	rep repositories2.UserRepository
-	red repositories2.SessionRepository
+	rep repositories.UserRepository
+	red repositories.SessionRepository
 }
 
-func MakeUserUsecase(rep_ repositories2.UserRepository, red_ repositories2.SessionRepository) usecases.UserUseCase {
+func MakeUserUsecase(rep_ repositories.UserRepository, red_ repositories.SessionRepository) usecases.UserUseCase {
 	return &UserUseCaseImpl{rep: rep_, red: red_}
 }
 

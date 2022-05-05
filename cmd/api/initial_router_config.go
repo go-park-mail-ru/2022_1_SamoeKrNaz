@@ -1,12 +1,12 @@
 package main
 
 import (
-	"PLANEXA_backend/auth_microservice/server_session_ms/handler"
+	handler_session "PLANEXA_backend/auth_microservice/server_session_ms/handler"
 	customErrors "PLANEXA_backend/errors"
-	handlers2 "PLANEXA_backend/main_microservice/handlers"
+	handlers_impl "PLANEXA_backend/main_microservice/handlers"
 	"PLANEXA_backend/main_microservice/middleware"
-	impl3 "PLANEXA_backend/main_microservice/repositories/impl"
-	impl2 "PLANEXA_backend/main_microservice/usecases/impl"
+	repositories_impl "PLANEXA_backend/main_microservice/repositories/impl"
+	usecases_impl "PLANEXA_backend/main_microservice/usecases/impl"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/routes"
 	handler_user "PLANEXA_backend/user_microservice/server_user_ms/handler"
@@ -62,7 +62,7 @@ func initRouter() (*gin.Engine, error) {
 		return nil, customErrors.ErrNoAccess
 	}
 
-	sessService := impl3.CreateRepo(handler.NewAuthCheckerClient(grpcConn))
+	sessService := repositories_impl.CreateRepo(handler_session.NewAuthCheckerClient(grpcConn))
 
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func initRouter() (*gin.Engine, error) {
 	if err != nil {
 		return nil, customErrors.ErrNoAccess
 	}
-	userService := impl3.MakeUserRepository(db, handler_user.NewUserServiceClient(grpcConnUser))
+	userService := repositories_impl.MakeUserRepository(db, handler_user.NewUserServiceClient(grpcConnUser))
 
 	monitor := ginmetrics.GetMonitor()
 	if err != nil {
@@ -85,22 +85,22 @@ func initRouter() (*gin.Engine, error) {
 	monitor.Use(router)
 
 	// создание репозиториев
-	taskRepository := impl3.MakeTaskRepository(db)
-	listRepository := impl3.MakeListRepository(db)
-	boardRepository := impl3.MakeBoardRepository(db)
-	checkListRepository := impl3.MakeCheckListRepository(db)
-	checkListItemRepository := impl3.MakeCheckListItemRepository(db)
-	commentRepository := impl3.MakeCommentRepository(db)
+	taskRepository := repositories_impl.MakeTaskRepository(db)
+	listRepository := repositories_impl.MakeListRepository(db)
+	boardRepository := repositories_impl.MakeBoardRepository(db)
+	checkListRepository := repositories_impl.MakeCheckListRepository(db)
+	checkListItemRepository := repositories_impl.MakeCheckListItemRepository(db)
+	commentRepository := repositories_impl.MakeCommentRepository(db)
 
 	authMiddleware := middleware.CreateMiddleware(sessService)
 
-	userHandler := handlers2.MakeUserHandler(impl2.MakeUserUsecase(userService, sessService))
-	taskHandler := handlers2.MakeTaskHandler(impl2.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
-	boardHandler := handlers2.MakeBoardHandler(impl2.MakeBoardUsecase(boardRepository, listRepository, taskRepository, checkListRepository, userService, commentRepository))
-	listHandler := handlers2.MakeListHandler(impl2.MakeListUsecase(listRepository, boardRepository))
-	checkListHandler := handlers2.MakeCheckListHandler(impl2.MakeCheckListUsecase(checkListRepository, taskRepository))
-	checkListItemHandler := handlers2.MakeCheckListItemHandler(impl2.MakeCheckListItemUsecase(checkListItemRepository, checkListRepository, taskRepository))
-	commentHandler := handlers2.MakeCommentHandler(impl2.MakeCommentUsecase(commentRepository, taskRepository, userService))
+	userHandler := handlers_impl.MakeUserHandler(usecases_impl.MakeUserUsecase(userService, sessService))
+	taskHandler := handlers_impl.MakeTaskHandler(usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
+	boardHandler := handlers_impl.MakeBoardHandler(usecases_impl.MakeBoardUsecase(boardRepository, listRepository, taskRepository, checkListRepository, userService, commentRepository))
+	listHandler := handlers_impl.MakeListHandler(usecases_impl.MakeListUsecase(listRepository, boardRepository))
+	checkListHandler := handlers_impl.MakeCheckListHandler(usecases_impl.MakeCheckListUsecase(checkListRepository, taskRepository))
+	checkListItemHandler := handlers_impl.MakeCheckListItemHandler(usecases_impl.MakeCheckListItemUsecase(checkListItemRepository, checkListRepository, taskRepository))
+	commentHandler := handlers_impl.MakeCommentHandler(usecases_impl.MakeCommentUsecase(commentRepository, taskRepository, userService))
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
 		boardRoutes := router.Group(routes.BoardRoute)

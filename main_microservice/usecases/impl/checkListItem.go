@@ -2,20 +2,20 @@ package impl
 
 import (
 	customErrors "PLANEXA_backend/errors"
-	repositories2 "PLANEXA_backend/main_microservice/repositories"
+	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/main_microservice/usecases"
 	"PLANEXA_backend/models"
 	"github.com/microcosm-cc/bluemonday"
 )
 
 type CheckListItemUseCaseImpl struct {
-	repCheckListItem repositories2.CheckListItemRepository
-	repCheckList     repositories2.CheckListRepository
-	repTask          repositories2.TaskRepository
+	repCheckListItem repositories.CheckListItemRepository
+	repCheckList     repositories.CheckListRepository
+	repTask          repositories.TaskRepository
 }
 
-func MakeCheckListItemUsecase(repCheckListItem_ repositories2.CheckListItemRepository, repCheckList_ repositories2.CheckListRepository,
-	repTask_ repositories2.TaskRepository) usecases.CheckListItemUseCase {
+func MakeCheckListItemUsecase(repCheckListItem_ repositories.CheckListItemRepository, repCheckList_ repositories.CheckListRepository,
+	repTask_ repositories.TaskRepository) usecases.CheckListItemUseCase {
 	return &CheckListItemUseCaseImpl{repCheckListItem: repCheckListItem_, repCheckList: repCheckList_, repTask: repTask_}
 }
 

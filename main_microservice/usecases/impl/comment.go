@@ -2,7 +2,7 @@ package impl
 
 import (
 	customErrors "PLANEXA_backend/errors"
-	repositories2 "PLANEXA_backend/main_microservice/repositories"
+	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/main_microservice/usecases"
 	"PLANEXA_backend/models"
 	rtime "github.com/ivahaev/russian-time"
@@ -12,12 +12,12 @@ import (
 )
 
 type CommentUseCaseImpl struct {
-	repComment repositories2.CommentRepository
-	repTask    repositories2.TaskRepository
-	repUser    repositories2.UserRepository
+	repComment repositories.CommentRepository
+	repTask    repositories.TaskRepository
+	repUser    repositories.UserRepository
 }
 
-func MakeCommentUsecase(repComment_ repositories2.CommentRepository, repTask_ repositories2.TaskRepository, repUser_ repositories2.UserRepository) usecases.CommentUseCase {
+func MakeCommentUsecase(repComment_ repositories.CommentRepository, repTask_ repositories.TaskRepository, repUser_ repositories.UserRepository) usecases.CommentUseCase {
 	return &CommentUseCaseImpl{repComment: repComment_, repTask: repTask_, repUser: repUser_}
 }
 
