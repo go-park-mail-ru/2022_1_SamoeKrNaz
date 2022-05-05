@@ -6,10 +6,13 @@ import (
 	service_impl "PLANEXA_backend/user_microservice/server_user/handler/impl"
 	repository_impl "PLANEXA_backend/user_microservice/server_user/repository/impl"
 	usecase_impl "PLANEXA_backend/user_microservice/server_user/usecase/impl"
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"log"
 	"net"
 	"net/http"
@@ -17,7 +20,12 @@ import (
 )
 
 func Run() {
-	userRepo := repository_impl.CreateUserRep()
+	newDb, err := gorm.Open(postgres.Open("host=postgres user=Planexa password=WEB21Planexa dbname=DB_Planexa port=5432"))
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	userRepo := repository_impl.CreateUserRep(newDb)
 	userUseCase := usecase_impl.CreateUserUseCase(userRepo)
 	listener, err := net.Listen("tcp", "2022_1_samoekrnaz_user_microservice_1:8083")
 	if err != nil {

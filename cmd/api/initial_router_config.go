@@ -3,12 +3,12 @@ package main
 import (
 	"PLANEXA_backend/auth_microservice/server/handler"
 	customErrors "PLANEXA_backend/errors"
-	"PLANEXA_backend/handlers"
-	"PLANEXA_backend/middleware"
+	handlers2 "PLANEXA_backend/main_microservice/handlers"
+	"PLANEXA_backend/main_microservice/middleware"
+	impl3 "PLANEXA_backend/main_microservice/repositories/impl"
+	impl2 "PLANEXA_backend/main_microservice/usecases/impl"
 	"PLANEXA_backend/models"
-	impl_rep "PLANEXA_backend/repositories/impl"
 	"PLANEXA_backend/routes"
-	"PLANEXA_backend/usecases/impl"
 	handler_user "PLANEXA_backend/user_microservice/server_user/handler"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -62,7 +62,7 @@ func initRouter() (*gin.Engine, error) {
 		return nil, customErrors.ErrNoAccess
 	}
 
-	sessService := impl_rep.CreateRepo(handler.NewAuthCheckerClient(grpcConn))
+	sessService := impl3.CreateRepo(handler.NewAuthCheckerClient(grpcConn))
 
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func initRouter() (*gin.Engine, error) {
 	if err != nil {
 		return nil, customErrors.ErrNoAccess
 	}
-	userService := impl_rep.MakeUserRepository(db, handler_user.NewUserServiceClient(grpcConnUser))
+	userService := impl3.MakeUserRepository(db, handler_user.NewUserServiceClient(grpcConnUser))
 
 	monitor := ginmetrics.GetMonitor()
 	if err != nil {
@@ -85,22 +85,22 @@ func initRouter() (*gin.Engine, error) {
 	monitor.Use(router)
 
 	// создание репозиториев
-	taskRepository := impl_rep.MakeTaskRepository(db)
-	listRepository := impl_rep.MakeListRepository(db)
-	boardRepository := impl_rep.MakeBoardRepository(db)
-	checkListRepository := impl_rep.MakeCheckListRepository(db)
-	checkListItemRepository := impl_rep.MakeCheckListItemRepository(db)
-	commentRepository := impl_rep.MakeCommentRepository(db)
+	taskRepository := impl3.MakeTaskRepository(db)
+	listRepository := impl3.MakeListRepository(db)
+	boardRepository := impl3.MakeBoardRepository(db)
+	checkListRepository := impl3.MakeCheckListRepository(db)
+	checkListItemRepository := impl3.MakeCheckListItemRepository(db)
+	commentRepository := impl3.MakeCommentRepository(db)
 
 	authMiddleware := middleware.CreateMiddleware(sessService)
 
-	userHandler := handlers.MakeUserHandler(impl.MakeUserUsecase(userService, sessService))
-	taskHandler := handlers.MakeTaskHandler(impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
-	boardHandler := handlers.MakeBoardHandler(impl.MakeBoardUsecase(boardRepository, listRepository, taskRepository, checkListRepository, userService, commentRepository))
-	listHandler := handlers.MakeListHandler(impl.MakeListUsecase(listRepository, boardRepository))
-	checkListHandler := handlers.MakeCheckListHandler(impl.MakeCheckListUsecase(checkListRepository, taskRepository))
-	checkListItemHandler := handlers.MakeCheckListItemHandler(impl.MakeCheckListItemUsecase(checkListItemRepository, checkListRepository, taskRepository))
-	commentHandler := handlers.MakeCommentHandler(impl.MakeCommentUsecase(commentRepository, taskRepository, userService))
+	userHandler := handlers2.MakeUserHandler(impl2.MakeUserUsecase(userService, sessService))
+	taskHandler := handlers2.MakeTaskHandler(impl2.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
+	boardHandler := handlers2.MakeBoardHandler(impl2.MakeBoardUsecase(boardRepository, listRepository, taskRepository, checkListRepository, userService, commentRepository))
+	listHandler := handlers2.MakeListHandler(impl2.MakeListUsecase(listRepository, boardRepository))
+	checkListHandler := handlers2.MakeCheckListHandler(impl2.MakeCheckListUsecase(checkListRepository, taskRepository))
+	checkListItemHandler := handlers2.MakeCheckListItemHandler(impl2.MakeCheckListItemUsecase(checkListItemRepository, checkListRepository, taskRepository))
+	commentHandler := handlers2.MakeCommentHandler(impl2.MakeCommentUsecase(commentRepository, taskRepository, userService))
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
 		boardRoutes := router.Group(routes.BoardRoute)
