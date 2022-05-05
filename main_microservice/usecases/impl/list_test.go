@@ -2,7 +2,7 @@ package impl
 
 import (
 	customErrors "PLANEXA_backend/errors"
-	mock_repositories2 "PLANEXA_backend/main_microservice/repositories/mocks"
+	mock_repositories "PLANEXA_backend/main_microservice/repositories/mocks"
 	"PLANEXA_backend/models"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -13,8 +13,8 @@ func TestGetLists(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	boardRepo := mock_repositories2.NewMockBoardRepository(controller)
-	listRepo := mock_repositories2.NewMockListRepository(controller)
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
 	listUseCase := MakeListUsecase(listRepo, boardRepo)
 
 	lists := []models.List{{Title: "title1", Position: 1}, {Title: "title2", Position: 2}}
@@ -35,8 +35,8 @@ func TestGetSingleList(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	boardRepo := mock_repositories2.NewMockBoardRepository(controller)
-	listRepo := mock_repositories2.NewMockListRepository(controller)
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
 	listUseCase := MakeListUsecase(listRepo, boardRepo)
 
 	list := models.List{Title: "title2", Position: 2}
@@ -59,8 +59,8 @@ func TestCreateList(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	boardRepo := mock_repositories2.NewMockBoardRepository(controller)
-	listRepo := mock_repositories2.NewMockListRepository(controller)
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
 	listUseCase := MakeListUsecase(listRepo, boardRepo)
 
 	list := models.List{Title: "title2", Position: 2}
@@ -83,8 +83,8 @@ func TestRefactorList(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	boardRepo := mock_repositories2.NewMockBoardRepository(controller)
-	listRepo := mock_repositories2.NewMockListRepository(controller)
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
 	listUseCase := MakeListUsecase(listRepo, boardRepo)
 
 	list := models.List{Title: "title2", Position: 2}
@@ -103,8 +103,8 @@ func TestDeleteList(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	boardRepo := mock_repositories2.NewMockBoardRepository(controller)
-	listRepo := mock_repositories2.NewMockListRepository(controller)
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
 	listUseCase := MakeListUsecase(listRepo, boardRepo)
 
 	list := models.List{Title: "title2", Position: 2}

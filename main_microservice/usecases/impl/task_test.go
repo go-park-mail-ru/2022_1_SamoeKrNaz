@@ -2,7 +2,7 @@ package impl
 
 import (
 	customErrors "PLANEXA_backend/errors"
-	mock_repositories2 "PLANEXA_backend/main_microservice/repositories/mocks"
+	mock_repositories "PLANEXA_backend/main_microservice/repositories/mocks"
 	"PLANEXA_backend/models"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -14,12 +14,12 @@ func TestGetTasks(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	boardRepo := mock_repositories2.NewMockBoardRepository(controller)
-	listRepo := mock_repositories2.NewMockListRepository(controller)
-	taskRepo := mock_repositories2.NewMockTaskRepository(controller)
-	userRepo := mock_repositories2.NewMockUserRepository(controller)
-	checkListRepo := mock_repositories2.NewMockCheckListRepository(controller)
-	commentRepo := mock_repositories2.NewMockCommentRepository(controller)
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	userRepo := mock_repositories.NewMockUserRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
 	taskUseCase := MakeTaskUsecase(taskRepo, boardRepo, listRepo, userRepo, checkListRepo, commentRepo)
 
 	tasks := []models.Task{{IdT: 11, Title: "title1"}, {IdT: 12, Title: "title2"}}
@@ -44,12 +44,12 @@ func TestCreateTask(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	boardRepo := mock_repositories2.NewMockBoardRepository(controller)
-	listRepo := mock_repositories2.NewMockListRepository(controller)
-	taskRepo := mock_repositories2.NewMockTaskRepository(controller)
-	userRepo := mock_repositories2.NewMockUserRepository(controller)
-	checkListRepo := mock_repositories2.NewMockCheckListRepository(controller)
-	commentRepo := mock_repositories2.NewMockCommentRepository(controller)
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	userRepo := mock_repositories.NewMockUserRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
 	taskUseCase := MakeTaskUsecase(taskRepo, boardRepo, listRepo, userRepo, checkListRepo, commentRepo)
 
 	task := models.Task{IdT: 0, Title: "title2"}
@@ -66,12 +66,12 @@ func TestRefactorTask(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	boardRepo := mock_repositories2.NewMockBoardRepository(controller)
-	listRepo := mock_repositories2.NewMockListRepository(controller)
-	taskRepo := mock_repositories2.NewMockTaskRepository(controller)
-	userRepo := mock_repositories2.NewMockUserRepository(controller)
-	checkListRepo := mock_repositories2.NewMockCheckListRepository(controller)
-	commentRepo := mock_repositories2.NewMockCommentRepository(controller)
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	userRepo := mock_repositories.NewMockUserRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
 	taskUseCase := MakeTaskUsecase(taskRepo, boardRepo, listRepo, userRepo, checkListRepo, commentRepo)
 
 	task := models.Task{IdT: 12, Title: "title2"}
@@ -95,12 +95,12 @@ func TestDeleteTask(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	boardRepo := mock_repositories2.NewMockBoardRepository(controller)
-	listRepo := mock_repositories2.NewMockListRepository(controller)
-	taskRepo := mock_repositories2.NewMockTaskRepository(controller)
-	userRepo := mock_repositories2.NewMockUserRepository(controller)
-	checkListRepo := mock_repositories2.NewMockCheckListRepository(controller)
-	commentRepo := mock_repositories2.NewMockCommentRepository(controller)
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	userRepo := mock_repositories.NewMockUserRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
 	taskUseCase := MakeTaskUsecase(taskRepo, boardRepo, listRepo, userRepo, checkListRepo, commentRepo)
 
 	task := models.Task{IdT: 0, Title: "title2"}
@@ -131,12 +131,12 @@ func TestGetImportantTask(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	boardRepo := mock_repositories2.NewMockBoardRepository(controller)
-	listRepo := mock_repositories2.NewMockListRepository(controller)
-	taskRepo := mock_repositories2.NewMockTaskRepository(controller)
-	userRepo := mock_repositories2.NewMockUserRepository(controller)
-	checkListRepo := mock_repositories2.NewMockCheckListRepository(controller)
-	commentRepo := mock_repositories2.NewMockCommentRepository(controller)
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	userRepo := mock_repositories.NewMockUserRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
 	taskUseCase := MakeTaskUsecase(taskRepo, boardRepo, listRepo, userRepo, checkListRepo, commentRepo)
 
 	task := models.Task{IdT: 0, Title: "title2"}
@@ -157,12 +157,12 @@ func TestAppendUser(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	boardRepo := mock_repositories2.NewMockBoardRepository(controller)
-	listRepo := mock_repositories2.NewMockListRepository(controller)
-	taskRepo := mock_repositories2.NewMockTaskRepository(controller)
-	userRepo := mock_repositories2.NewMockUserRepository(controller)
-	checkListRepo := mock_repositories2.NewMockCheckListRepository(controller)
-	commentRepo := mock_repositories2.NewMockCommentRepository(controller)
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	userRepo := mock_repositories.NewMockUserRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
 	taskUseCase := MakeTaskUsecase(taskRepo, boardRepo, listRepo, userRepo, checkListRepo, commentRepo)
 
 	user := models.User{IdU: 22, Username: "user1"}
@@ -175,7 +175,7 @@ func TestAppendUser(t *testing.T) {
 	assert.Equal(t, user, newUser)
 
 	taskRepo.EXPECT().IsAccessToTask(uint(22), uint(0)).Return(false, nil)
-	newUser, err = taskUseCase.AppendUserToTask(uint(22), uint(22), uint(0))
+	_, err = taskUseCase.AppendUserToTask(uint(22), uint(22), uint(0))
 	assert.Equal(t, err, customErrors.ErrNoAccess)
 }
 
@@ -184,12 +184,12 @@ func TestDeleteUser(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	boardRepo := mock_repositories2.NewMockBoardRepository(controller)
-	listRepo := mock_repositories2.NewMockListRepository(controller)
-	taskRepo := mock_repositories2.NewMockTaskRepository(controller)
-	userRepo := mock_repositories2.NewMockUserRepository(controller)
-	checkListRepo := mock_repositories2.NewMockCheckListRepository(controller)
-	commentRepo := mock_repositories2.NewMockCommentRepository(controller)
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	userRepo := mock_repositories.NewMockUserRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
 	taskUseCase := MakeTaskUsecase(taskRepo, boardRepo, listRepo, userRepo, checkListRepo, commentRepo)
 
 	taskRepo.EXPECT().IsAccessToTask(uint(22), uint(0)).Return(true, nil)
