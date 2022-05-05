@@ -1,7 +1,7 @@
 package main
 
 import (
-	"PLANEXA_backend/auth_microservice/server/handler"
+	"PLANEXA_backend/auth_microservice/server_session_ms/handler"
 	customErrors "PLANEXA_backend/errors"
 	handlers2 "PLANEXA_backend/main_microservice/handlers"
 	"PLANEXA_backend/main_microservice/middleware"
@@ -9,7 +9,7 @@ import (
 	impl2 "PLANEXA_backend/main_microservice/usecases/impl"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/routes"
-	handler_user "PLANEXA_backend/user_microservice/server_user/handler"
+	handler_user "PLANEXA_backend/user_microservice/server_user_ms/handler"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/penglongli/gin-metrics/ginmetrics"

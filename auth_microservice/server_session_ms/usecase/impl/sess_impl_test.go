@@ -1,7 +1,7 @@
 package usecase_impl
 
 import (
-	mock_sess "PLANEXA_backend/auth_microservice/server/repository/mocks"
+	mock_sess "PLANEXA_backend/auth_microservice/server_session_ms/repository/mocks"
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/models"
 	"github.com/golang/mock/gomock"

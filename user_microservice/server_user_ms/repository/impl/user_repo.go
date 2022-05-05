@@ -4,7 +4,7 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/hash"
 	"PLANEXA_backend/models"
-	"PLANEXA_backend/user_microservice/server_user/repository"
+	"PLANEXA_backend/user_microservice/server_user_ms/repository"
 	"gorm.io/gorm"
 )
 

@@ -1,7 +1,7 @@
 package repository_impl
 
 import (
-	"PLANEXA_backend/auth_microservice/server/repository"
+	"PLANEXA_backend/auth_microservice/server_session_ms/repository"
 	"PLANEXA_backend/models"
 	"github.com/go-redis/redis"
 )

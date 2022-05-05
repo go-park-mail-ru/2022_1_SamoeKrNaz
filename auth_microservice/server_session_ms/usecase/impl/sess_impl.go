@@ -1,8 +1,8 @@
 package usecase_impl
 
 import (
-	"PLANEXA_backend/auth_microservice/server/repository"
-	"PLANEXA_backend/auth_microservice/server/usecase"
+	"PLANEXA_backend/auth_microservice/server_session_ms/repository"
+	"PLANEXA_backend/auth_microservice/server_session_ms/usecase"
 	"PLANEXA_backend/models"
 )
 

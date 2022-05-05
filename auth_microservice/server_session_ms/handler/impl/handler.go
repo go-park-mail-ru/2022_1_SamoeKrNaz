@@ -1,8 +1,8 @@
 package impl
 
 import (
-	"PLANEXA_backend/auth_microservice/server/handler"
-	"PLANEXA_backend/auth_microservice/server/usecase"
+	"PLANEXA_backend/auth_microservice/server_session_ms/handler"
+	"PLANEXA_backend/auth_microservice/server_session_ms/usecase"
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/metrics"
 	"PLANEXA_backend/models"
