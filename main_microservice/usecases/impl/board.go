@@ -234,6 +234,9 @@ func (boardUseCase *BoardUseCaseImpl) DeleteUserFromBoard(userId uint, deletedUs
 
 func (boardUseCase *BoardUseCaseImpl) AppendUserByLink(userId uint, link string) error {
 	board, err := boardUseCase.repBoard.GetByLink(link)
+	if err != nil {
+		return err
+	}
 	isAccess, err := boardUseCase.repBoard.IsAccessToBoard(userId, board.IdB)
 	if isAccess {
 		return customErrors.ErrAlreadyAppended
