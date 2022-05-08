@@ -219,3 +219,26 @@ func (boardHandler *BoardHandler) DeleteUserToBoard(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"deleted": true})
 }
+
+func (boardHandler *BoardHandler) AppendUserToTaskByLink(c *gin.Context) {
+	userId, check := c.Get("Auth")
+	if !check {
+		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		return
+	}
+
+	link, err := strconv.ParseUint(c.Param("link"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	//вызываю юзкейс
+
+	err = boardHandler.usecase.AppendUserByLink(uint(userId.(uint64)), string(link))
+	if err != nil {
+		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"appended": true})
+}

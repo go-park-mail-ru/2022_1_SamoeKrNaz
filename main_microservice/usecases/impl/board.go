@@ -229,3 +229,15 @@ func (boardUseCase *BoardUseCaseImpl) DeleteUserFromBoard(userId uint, deletedUs
 	}
 	return err
 }
+
+func (boardUseCase *BoardUseCaseImpl) AppendUserByLink(userId uint, link string) error {
+	board, err := boardUseCase.repBoard.GetByLink(link)
+	if err != nil {
+		return err
+	}
+	err = boardUseCase.repBoard.AppendUser(board.IdB, userId)
+	if err != nil {
+		return err
+	}
+	return nil
+}

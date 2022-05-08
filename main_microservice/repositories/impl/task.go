@@ -197,3 +197,13 @@ func (taskRepository *TaskRepositoryImpl) DeleteUser(IdT uint, IdU uint) error {
 	err := taskRepository.db.Model(&models.Task{IdT: IdT}).Association("Users").Delete(user)
 	return err
 }
+
+func (taskRepository *TaskRepositoryImpl) GetByLink(link string) (*models.Task, error) {
+	// указатель на структуру, которую вернем
+	task := new(models.Task)
+	err := taskRepository.db.Where("link = ?", link).Find(task).Error
+	if err != nil {
+		return nil, err
+	}
+	return task, nil
+}

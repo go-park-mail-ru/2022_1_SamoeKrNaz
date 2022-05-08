@@ -35,6 +35,20 @@ func (m *MockBoardUseCase) EXPECT() *MockBoardUseCaseMockRecorder {
 	return m.recorder
 }
 
+// AppendUserByLink mocks base method.
+func (m *MockBoardUseCase) AppendUserByLink(userId uint, link string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AppendUserByLink", userId, link)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AppendUserByLink indicates an expected call of AppendUserByLink.
+func (mr *MockBoardUseCaseMockRecorder) AppendUserByLink(userId, link interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AppendUserByLink", reflect.TypeOf((*MockBoardUseCase)(nil).AppendUserByLink), userId, link)
+}
+
 // AppendUserToBoard mocks base method.
 func (m *MockBoardUseCase) AppendUserToBoard(userId, appendedUserId, boardId uint) (models.User, error) {
 	m.ctrl.T.Helper()

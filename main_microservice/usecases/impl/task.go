@@ -5,6 +5,7 @@ import (
 	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/main_microservice/usecases"
 	"PLANEXA_backend/models"
+	"github.com/google/uuid"
 	"github.com/microcosm-cc/bluemonday"
 	"time"
 )
@@ -104,6 +105,7 @@ func (taskUseCase *TaskUseCaseImpl) CreateTask(task models.Task, idB uint, idL u
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(idU, task.IdB)
 	task.IdU = idU
 	task.DateToOrder = time.Now()
+	task.Link = uuid.NewString()
 	task.IsReady = false
 	task.IsImportant = false
 	if err != nil {
@@ -184,6 +186,22 @@ func (taskUseCase *TaskUseCaseImpl) DeleteUserFromTask(userId uint, deletedUserI
 		return customErrors.ErrNoAccess
 	}
 	err = taskUseCase.repTask.DeleteUser(taskId, deletedUserId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (taskUseCase *TaskUseCaseImpl) AppendUserToTaskByLink(userId uint, link string) error {
+	task, err := taskUseCase.repTask.GetByLink(link)
+	if err != nil {
+		return err
+	}
+	err = taskUseCase.repBoard.AppendUser(task.IdB, userId)
+	if err != nil {
+		return err
+	}
+	err = taskUseCase.repTask.AppendUser(task.IdT, userId)
 	if err != nil {
 		return err
 	}

@@ -106,6 +106,21 @@ func (mr *MockTaskRepositoryMockRecorder) GetById(IdT interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockTaskRepository)(nil).GetById), IdT)
 }
 
+// GetByLink mocks base method.
+func (m *MockTaskRepository) GetByLink(link string) (*models.Task, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByLink", link)
+	ret0, _ := ret[0].(*models.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByLink indicates an expected call of GetByLink.
+func (mr *MockTaskRepositoryMockRecorder) GetByLink(link interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByLink", reflect.TypeOf((*MockTaskRepository)(nil).GetByLink), link)
+}
+
 // GetCheckLists mocks base method.
 func (m *MockTaskRepository) GetCheckLists(IdT uint) (*[]models.CheckList, error) {
 	m.ctrl.T.Helper()
