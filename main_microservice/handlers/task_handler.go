@@ -231,7 +231,7 @@ func (taskHandler *TaskHandler) AppendUserToTaskByLink(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	err = taskHandler.usecase.AppendUserToTaskByLink(uint(userId.(uint64)), string(link))
+	err = taskHandler.usecase.AppendUserToTaskByLink(uint(userId.(uint64)), strconv.FormatUint(link, 10))
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
