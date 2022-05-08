@@ -5,6 +5,7 @@ import (
 	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/main_microservice/usecases"
 	"PLANEXA_backend/models"
+	"github.com/google/uuid"
 	rtime "github.com/ivahaev/russian-time"
 	"github.com/microcosm-cc/bluemonday"
 	"mime/multipart"
@@ -76,6 +77,7 @@ func (boardUseCase *BoardUseCaseImpl) CreateBoard(userId uint, board models.Boar
 	}
 	board.DateCreated = strconv.Itoa(time.Now().In(moscow).Day()) + " " + rtime.Now().Month().StringInCase() + " " + strconv.Itoa(time.Now().In(moscow).Year()) + ", " + time.Now().In(moscow).Format("15:04")
 	board.IdU = userId
+	board.Link = uuid.NewString()
 	boardId, err := boardUseCase.repBoard.Create(&board)
 	if err != nil {
 		return nil, err
@@ -232,7 +234,10 @@ func (boardUseCase *BoardUseCaseImpl) DeleteUserFromBoard(userId uint, deletedUs
 
 func (boardUseCase *BoardUseCaseImpl) AppendUserByLink(userId uint, link string) error {
 	board, err := boardUseCase.repBoard.GetByLink(link)
-	if err != nil {
+	isAccess, err := boardUseCase.repBoard.IsAccessToBoard(userId, board.IdB)
+	if isAccess {
+		return customErrors.ErrAlreadyAppended
+	} else if err != nil {
 		return err
 	}
 	err = boardUseCase.repBoard.AppendUser(board.IdB, userId)

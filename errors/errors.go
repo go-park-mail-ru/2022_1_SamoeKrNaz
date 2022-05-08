@@ -29,6 +29,8 @@ var (
 	ErrCommentNotFound = errors.New("this comment is not found")
 
 	ErrNoAccess = errors.New("user doesn't have access")
+
+	ErrAlreadyAppended = errors.New("user has already been added")
 )
 
 var errorToCode = map[error]int{
@@ -53,6 +55,8 @@ var errorToCode = map[error]int{
 	ErrCheckListItemNotFound: http.StatusNotFound,
 
 	ErrCommentNotFound: http.StatusNotFound,
+
+	ErrAlreadyAppended: http.StatusConflict,
 
 	ErrNoAccess: http.StatusForbidden,
 }

@@ -197,8 +197,20 @@ func (taskUseCase *TaskUseCaseImpl) AppendUserToTaskByLink(userId uint, link str
 	if err != nil {
 		return err
 	}
+	isAccessToBoard, err := taskUseCase.repBoard.IsAccessToBoard(userId, task.IdB)
+	if isAccessToBoard {
+		return customErrors.ErrAlreadyAppended
+	} else if err != nil {
+		return err
+	}
 	err = taskUseCase.repBoard.AppendUser(task.IdB, userId)
 	if err != nil {
+		return err
+	}
+	isAccessToTask, err := taskUseCase.repTask.IsAccessToTask(userId, task.IdT)
+	if isAccessToTask {
+		return customErrors.ErrAlreadyAppended
+	} else if err != nil {
 		return err
 	}
 	err = taskUseCase.repTask.AppendUser(task.IdT, userId)
