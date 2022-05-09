@@ -1,0 +1,4 @@
+redisContainer: 'redis:6379'
+sessionContainer: '2022_1_samoekrnaz_session_1:8081'
+metricsPort: ':8082'
+metricsPath: '/metrics'

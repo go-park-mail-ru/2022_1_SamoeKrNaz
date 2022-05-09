@@ -3,8 +3,8 @@ Procfile
 bin
 db_postgres
 database.go
-api
 server
 server_user
 gin.log
+api
 grafana_data

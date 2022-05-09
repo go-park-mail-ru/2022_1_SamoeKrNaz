@@ -1,0 +1,10 @@
+postgresHost: 'postgres'
+postgresUser: 'Planexa'
+postgresPassword: 'WEB21Planexa'
+postgresDbName: 'DB_Planexa'
+postgresPort: '5432'
+
+userContainer: '2022_1_samoekrnaz_user_microservice_1:8083'
+
+metricsPath: '/metrics'
+metricsPort: ':8084'
