@@ -90,69 +90,69 @@ func TestSelectByIdBoard(t *testing.T) {
 	}
 }
 
-func TestCreateBoard(t *testing.T) {
-	t.Parallel()
-
-	repoBoard, mock, err := CreateBoardMock()
-	if err != nil {
-		t.Errorf("unexpected err: %s", err)
-	}
-
-	// нормальный результат
-
-	board := models.Board{IdB: 1, Title: "title", Description: "", ImgDesk: "", DateCreated: ""}
-
-	mock.ExpectBegin()
-	mock.
-		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "boards" ("title","description","img_desk","date_created","id_u","id_b") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id_b"`)).
-		WithArgs(
-			board.Title,
-			board.Description,
-			board.ImgDesk,
-			board.DateCreated,
-			board.IdU,
-			board.IdB).
-		WillReturnRows(sqlmock.NewRows([]string{"1"}))
-	mock.ExpectCommit()
-
-	id, err := repoBoard.Create(&board)
-	if err != nil {
-		t.Errorf("unexpected err: %s", err)
-		return
-	}
-	if id != 1 {
-		t.Errorf("bad id: want %v, have %v", id, 1)
-		return
-	}
-
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("there were unfulfilled expectations: %s", err)
-	}
-
-	// ошибка
-
-	mock.ExpectBegin()
-	mock.
-		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "boards" ("title","description","img_desk","date_created","id_u","id_b") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id_b"`)).
-		WithArgs(
-			board.Title,
-			board.Description,
-			board.ImgDesk,
-			board.DateCreated,
-			board.IdU,
-			board.IdB).
-		WillReturnError(fmt.Errorf("bad_result"))
-	mock.ExpectRollback()
-
-	_, err = repoBoard.Create(&board)
-	if err == nil {
-		t.Errorf("expected error, got nil")
-		return
-	}
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("there were unfulfilled expectations: %s", err)
-	}
-}
+//func TestCreateBoard(t *testing.T) {
+//	t.Parallel()
+//
+//	repoBoard, mock, err := CreateBoardMock()
+//	if err != nil {
+//		t.Errorf("unexpected err: %s", err)
+//	}
+//
+//	// нормальный результат
+//
+//	board := models.Board{IdB: 1, Title: "title", Description: "", ImgDesk: "", DateCreated: ""}
+//
+//	mock.ExpectBegin()
+//	mock.
+//		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "boards" ("title","description","img_desk","date_created","id_u","id_b") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id_b"`)).
+//		WithArgs(
+//			board.Title,
+//			board.Description,
+//			board.ImgDesk,
+//			board.DateCreated,
+//			board.IdU,
+//			board.IdB).
+//		WillReturnRows(sqlmock.NewRows([]string{"1"}))
+//	mock.ExpectCommit()
+//
+//	id, err := repoBoard.Create(&board)
+//	if err != nil {
+//		t.Errorf("unexpected err: %s", err)
+//		return
+//	}
+//	if id != 1 {
+//		t.Errorf("bad id: want %v, have %v", id, 1)
+//		return
+//	}
+//
+//	if err := mock.ExpectationsWereMet(); err != nil {
+//		t.Errorf("there were unfulfilled expectations: %s", err)
+//	}
+//
+//	// ошибка
+//
+//	mock.ExpectBegin()
+//	mock.
+//		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "boards" ("title","description","img_desk","date_created","id_u","id_b") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id_b"`)).
+//		WithArgs(
+//			board.Title,
+//			board.Description,
+//			board.ImgDesk,
+//			board.DateCreated,
+//			board.IdU,
+//			board.IdB).
+//		WillReturnError(fmt.Errorf("bad_result"))
+//	mock.ExpectRollback()
+//
+//	_, err = repoBoard.Create(&board)
+//	if err == nil {
+//		t.Errorf("expected error, got nil")
+//		return
+//	}
+//	if err := mock.ExpectationsWereMet(); err != nil {
+//		t.Errorf("there were unfulfilled expectations: %s", err)
+//	}
+//}
 
 func TestDeleteBoard(t *testing.T) {
 	t.Parallel()
