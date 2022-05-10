@@ -446,7 +446,7 @@ func TestIsAccessTask(t *testing.T) {
 		WithArgs(elemID).
 		WillReturnRows(rows)
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`SELECT "boards"."id_b","boards"."title","boards"."description","boards"."img_desk","boards"."date_created","boards"."id_u" FROM "boards" JOIN "users_boards" ON "users_boards"."board_id_b" = "boards"."id_b" AND "users_boards"."user_id_u" = $1 WHERE id_b = $2`)).
+		ExpectQuery(regexp.QuoteMeta(`SELECT "boards"."id_b","boards"."title","boards"."description","boards"."img_desk","boards"."date_created","boards"."id_u","boards"."link" FROM "boards" JOIN "users_boards" ON "users_boards"."board_id_b" = "boards"."id_b" AND "users_boards"."user_id_u" = $1 WHERE id_b = $2`)).
 		WithArgs(1, 0).
 		WillReturnRows(rows)
 

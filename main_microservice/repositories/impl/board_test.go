@@ -229,12 +229,13 @@ func TestUpdateBoard(t *testing.T) {
 		WithArgs(1).
 		WillReturnRows(rows)
 	mock.ExpectBegin()
-	mock.ExpectExec(regexp.QuoteMeta(`UPDATE "boards" SET "title"=$1,"description"=$2,"img_desk"=$3,"date_created"=$4,"id_u"=$5 WHERE "id_b" = $6`)).
+	mock.ExpectExec(regexp.QuoteMeta(`UPDATE "boards" SET "title"=$1,"description"=$2,"img_desk"=$3,"date_created"=$4,"id_u"=$5,"link"=$6 WHERE "id_b" = $7`)).
 		WithArgs(expect[1].Title,
 			expect[1].Description,
 			expect[1].ImgDesk,
 			expect[1].DateCreated,
 			expect[1].IdU,
+			expect[1].Link,
 			expect[1].IdB).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
@@ -413,7 +414,7 @@ func TestGetUserBoard(t *testing.T) {
 	}
 
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`SELECT "boards"."id_b","boards"."title","boards"."description","boards"."img_desk","boards"."date_created","boards"."id_u" FROM "boards" JOIN "users_boards" ON "users_boards"."board_id_b" = "boards"."id_b" AND "users_boards"."user_id_u" = $1`)).
+		ExpectQuery(regexp.QuoteMeta(`SELECT "boards"."id_b","boards"."title","boards"."description","boards"."img_desk","boards"."date_created","boards"."id_u","boards"."link" FROM "boards" JOIN "users_boards" ON "users_boards"."board_id_b" = "boards"."id_b" AND "users_boards"."user_id_u" = $1`)).
 		WithArgs(1).
 		WillReturnRows(rows)
 
@@ -433,7 +434,7 @@ func TestGetUserBoard(t *testing.T) {
 
 	// айдишника не существует
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`SELECT "boards"."id_b","boards"."title","boards"."description","boards"."img_desk","boards"."date_created","boards"."id_u" FROM "boards" JOIN "users_boards" ON "users_boards"."board_id_b" = "boards"."id_b" AND "users_boards"."user_id_u" = $1`)).
+		ExpectQuery(regexp.QuoteMeta(`SELECT "boards"."id_b","boards"."title","boards"."description","boards"."img_desk","boards"."date_created","boards"."id_u","boards"."link" FROM "boards" JOIN "users_boards" ON "users_boards"."board_id_b" = "boards"."id_b" AND "users_boards"."user_id_u" = $1`)).
 		WithArgs(2).
 		WillReturnError(customErrors.ErrBoardNotFound)
 
@@ -473,7 +474,7 @@ func TestIsAccess(t *testing.T) {
 	}
 
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`SELECT "boards"."id_b","boards"."title","boards"."description","boards"."img_desk","boards"."date_created","boards"."id_u" FROM "boards" JOIN "users_boards" ON "users_boards"."board_id_b" = "boards"."id_b" AND "users_boards"."user_id_u" = $1 WHERE id_b = $2`)).
+		ExpectQuery(regexp.QuoteMeta(`SELECT "boards"."id_b","boards"."title","boards"."description","boards"."img_desk","boards"."date_created","boards"."id_u","boards"."link" FROM "boards" JOIN "users_boards" ON "users_boards"."board_id_b" = "boards"."id_b" AND "users_boards"."user_id_u" = $1 WHERE id_b = $2`)).
 		WithArgs(1, 1).
 		WillReturnRows(rows)
 
@@ -493,7 +494,7 @@ func TestIsAccess(t *testing.T) {
 
 	// айдишника не существует
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`SELECT "boards"."id_b","boards"."title","boards"."description","boards"."img_desk","boards"."date_created","boards"."id_u" FROM "boards" JOIN "users_boards" ON "users_boards"."board_id_b" = "boards"."id_b" AND "users_boards"."user_id_u" = $1 WHERE id_b = $2`)).
+		ExpectQuery(regexp.QuoteMeta(`SELECT "boards"."id_b","boards"."title","boards"."description","boards"."img_desk","boards"."date_created","boards"."id_u","boards"."link" FROM "boards" JOIN "users_boards" ON "users_boards"."board_id_b" = "boards"."id_b" AND "users_boards"."user_id_u" = $1 WHERE id_b = $2`)).
 		WithArgs(1, 2).
 		WillReturnError(customErrors.ErrBoardNotFound)
 
