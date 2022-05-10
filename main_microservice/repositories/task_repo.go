@@ -14,4 +14,5 @@ type TaskRepository interface {
 	GetImportantTasks(IdU uint) (*[]models.Task, error)
 	GetTaskUser(IdT uint) (*[]models.User, error)
 	DeleteUser(IdT uint, IdU uint) error
+	GetAttachments(IdT uint) (*[]models.Attachment, error)
 }

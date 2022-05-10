@@ -94,9 +94,14 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 	if err != nil {
 		return models.Task{}, err
 	}
+	attachments, err := taskUseCase.repTask.GetAttachments(taskId)
+	if err != nil {
+		return models.Task{}, err
+	}
 	task.Comments = *comments
 	task.CheckLists = *checkLists
 	task.Users = *appendedUsers
+	task.Attachments = *attachments
 	return *task, err
 }
 

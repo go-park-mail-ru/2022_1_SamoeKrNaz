@@ -197,3 +197,12 @@ func (taskRepository *TaskRepositoryImpl) DeleteUser(IdT uint, IdU uint) error {
 	err := taskRepository.db.Model(&models.Task{IdT: IdT}).Association("Users").Delete(user)
 	return err
 }
+
+func (taskRepository *TaskRepositoryImpl) GetAttachments(IdT uint) (*[]models.Attachment, error) {
+	attachments := new([]models.Attachment)
+	err := taskRepository.db.Where("id_t = ?", IdT).Order("id_a").Find(attachments).Error
+	if err != nil {
+		return nil, err
+	}
+	return attachments, nil
+}
