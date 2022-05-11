@@ -169,3 +169,13 @@ func (boardRepository *BoardRepositoryImpl) DeleteUser(boardId uint, userId uint
 	err := boardRepository.db.Model(&models.Board{IdB: boardId}).Association("Users").Delete(user)
 	return err
 }
+
+func (boardRepository *BoardRepositoryImpl) GetByLink(link string) (*models.Board, error) {
+	// указатель на структуру, которую вернем
+	board := new(models.Board)
+	err := boardRepository.db.Where("link = ?", link).Find(board).Error
+	if err != nil {
+		return nil, err
+	}
+	return board, nil
+}

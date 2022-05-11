@@ -14,9 +14,9 @@ type SessionRepositoryImpl struct {
 	client *redis.Client
 }
 
-func CreateSessRep() repository.SessionRedis {
+func CreateSessRep(redisContainer string) repository.SessionRedis {
 	return &SessionRepositoryImpl{client: redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
+		Addr:     redisContainer,
 		Password: "",
 		DB:       0,
 	})}

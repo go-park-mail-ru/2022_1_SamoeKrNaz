@@ -206,3 +206,13 @@ func (taskRepository *TaskRepositoryImpl) GetAttachments(IdT uint) (*[]models.At
 	}
 	return attachments, nil
 }
+
+func (taskRepository *TaskRepositoryImpl) GetByLink(link string) (*models.Task, error) {
+	// указатель на структуру, которую вернем
+	task := new(models.Task)
+	err := taskRepository.db.Where("link = ?", link).Find(task).Error
+	if err != nil {
+		return nil, err
+	}
+	return task, nil
+}

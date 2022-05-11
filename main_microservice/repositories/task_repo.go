@@ -15,4 +15,5 @@ type TaskRepository interface {
 	GetTaskUser(IdT uint) (*[]models.User, error)
 	DeleteUser(IdT uint, IdU uint) error
 	GetAttachments(IdT uint) (*[]models.Attachment, error)
+	GetByLink(link string) (*models.Task, error)
 }

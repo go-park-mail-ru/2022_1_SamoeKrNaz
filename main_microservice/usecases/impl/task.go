@@ -5,6 +5,7 @@ import (
 	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/main_microservice/usecases"
 	"PLANEXA_backend/models"
+	"github.com/google/uuid"
 	"github.com/microcosm-cc/bluemonday"
 	"time"
 )
@@ -109,6 +110,7 @@ func (taskUseCase *TaskUseCaseImpl) CreateTask(task models.Task, idB uint, idL u
 	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(idU, task.IdB)
 	task.IdU = idU
 	task.DateToOrder = time.Now()
+	task.Link = uuid.NewString()
 	task.IsReady = false
 	task.IsImportant = false
 	if err != nil {
@@ -191,6 +193,36 @@ func (taskUseCase *TaskUseCaseImpl) DeleteUserFromTask(userId uint, deletedUserI
 	err = taskUseCase.repTask.DeleteUser(taskId, deletedUserId)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (taskUseCase *TaskUseCaseImpl) AppendUserToTaskByLink(userId uint, link string) error {
+	task, err := taskUseCase.repTask.GetByLink(link)
+	if err != nil {
+		return err
+	}
+	isAccessToBoard, err := taskUseCase.repBoard.IsAccessToBoard(userId, task.IdB)
+	if err != nil {
+		return err
+	}
+	if !isAccessToBoard {
+		err = taskUseCase.repBoard.AppendUser(task.IdB, userId)
+		if err != nil {
+			return err
+		}
+	}
+	isAccessToTask, err := taskUseCase.repTask.IsAccessToTask(userId, task.IdT)
+	if err != nil {
+		return err
+	}
+	if !isAccessToTask {
+		err = taskUseCase.repTask.AppendUser(task.IdT, userId)
+		if err != nil {
+			return err
+		}
+	} else {
+		return customErrors.ErrAlreadyAppended
 	}
 	return nil
 }
