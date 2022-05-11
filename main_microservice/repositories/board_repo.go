@@ -17,4 +17,5 @@ type BoardRepository interface {
 	SaveImage(board *models.Board, header *multipart.FileHeader) error
 	GetBoardUser(IdB uint) ([]models.User, error)
 	DeleteUser(boardId uint, userId uint) error
+	GetByLink(link string) (*models.Board, error)
 }

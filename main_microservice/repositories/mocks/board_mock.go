@@ -122,6 +122,21 @@ func (mr *MockBoardRepositoryMockRecorder) GetById(IdB interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockBoardRepository)(nil).GetById), IdB)
 }
 
+// GetByLink mocks base method.
+func (m *MockBoardRepository) GetByLink(link string) (*models.Board, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByLink", link)
+	ret0, _ := ret[0].(*models.Board)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByLink indicates an expected call of GetByLink.
+func (mr *MockBoardRepositoryMockRecorder) GetByLink(link interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByLink", reflect.TypeOf((*MockBoardRepository)(nil).GetByLink), link)
+}
+
 // GetLists mocks base method.
 func (m *MockBoardRepository) GetLists(IdB uint) ([]models.List, error) {
 	m.ctrl.T.Helper()

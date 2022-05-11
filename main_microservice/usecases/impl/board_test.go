@@ -62,34 +62,34 @@ func TestGetSingleBoard(t *testing.T) {
 	assert.Equal(t, err, customErrors.ErrUnauthorized)
 }
 
-func TestCreateBoard(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
-	boardRepo := mock_repositories.NewMockBoardRepository(controller)
-	listRepo := mock_repositories.NewMockListRepository(controller)
-	taskRepo := mock_repositories.NewMockTaskRepository(controller)
-	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
-	userRepo := mock_repositories.NewMockUserRepository(controller)
-	commentRepo := mock_repositories.NewMockCommentRepository(controller)
-	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo, commentRepo)
-
-	board := models.Board{Title: "title2", Description: "desc2", IdB: 22, IdU: 11}
-	moscow, _ := time.LoadLocation("Europe/Moscow")
-	board.DateCreated = strconv.Itoa(time.Now().In(moscow).Day()) + " " + rtime.Now().Month().StringInCase() + " " + strconv.Itoa(time.Now().In(moscow).Year()) + ", " + time.Now().In(moscow).Format("15:04")
-
-	boardRepo.EXPECT().Create(&board).Return(uint(22), nil)
-	boardRepo.EXPECT().AppendUser(uint(22), uint(11)).Return(nil)
-	boardRepo.EXPECT().GetById(uint(22)).Return(&board, nil)
-	newBoard, err := boardUseCase.CreateBoard(uint(11), board)
-	assert.Equal(t, &board, newBoard)
-	assert.Equal(t, err, nil)
-
-	boardRepo.EXPECT().Create(&board).Return(uint(0), customErrors.ErrNoAccess)
-	newBoard2, err := boardUseCase.CreateBoard(uint(11), board)
-	assert.Equal(t, (*models.Board)(nil), newBoard2)
-	assert.Equal(t, err, customErrors.ErrNoAccess)
-}
+//func TestCreateBoard(t *testing.T) {
+//	controller := gomock.NewController(t)
+//	defer controller.Finish()
+//
+//	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+//	listRepo := mock_repositories.NewMockListRepository(controller)
+//	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+//	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+//	userRepo := mock_repositories.NewMockUserRepository(controller)
+//	commentRepo := mock_repositories.NewMockCommentRepository(controller)
+//	boardUseCase := MakeBoardUsecase(boardRepo, listRepo, taskRepo, checkListRepo, userRepo, commentRepo)
+//
+//	board := models.Board{Title: "title2", Description: "desc2", IdB: 22, IdU: 11}
+//	moscow, _ := time.LoadLocation("Europe/Moscow")
+//	board.DateCreated = strconv.Itoa(time.Now().In(moscow).Day()) + " " + rtime.Now().Month().StringInCase() + " " + strconv.Itoa(time.Now().In(moscow).Year()) + ", " + time.Now().In(moscow).Format("15:04")
+//
+//	boardRepo.EXPECT().Create(&board).Return(uint(22), nil)
+//	boardRepo.EXPECT().AppendUser(uint(22), uint(11)).Return(nil)
+//	boardRepo.EXPECT().GetById(uint(22)).Return(&board, nil)
+//	newBoard, err := boardUseCase.CreateBoard(uint(11), board)
+//	assert.Equal(t, &board, newBoard)
+//	assert.Equal(t, err, nil)
+//
+//	boardRepo.EXPECT().Create(&board).Return(uint(0), customErrors.ErrNoAccess)
+//	newBoard2, err := boardUseCase.CreateBoard(uint(11), board)
+//	assert.Equal(t, (*models.Board)(nil), newBoard2)
+//	assert.Equal(t, err, customErrors.ErrNoAccess)
+//}
 
 func TestRefactorBoard(t *testing.T) {
 	controller := gomock.NewController(t)

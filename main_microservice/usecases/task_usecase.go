@@ -11,4 +11,5 @@ type TaskUseCase interface {
 	DeleteTask(taskId uint, userId uint) error
 	GetImportantTask(userId uint) (*[]models.Task, error)
 	DeleteUserFromTask(userId uint, deletedUserId uint, taskId uint) error
+	AppendUserToTaskByLink(userId uint, link string) error
 }

@@ -15,4 +15,5 @@ type BoardUseCase interface {
 	DeleteBoard(boardId uint, userId uint) error
 	SaveImage(userId uint, board *models.Board, header *multipart.FileHeader) (string, error)
 	DeleteUserFromBoard(userId uint, deletedUserId uint, boardId uint) error
+	AppendUserByLink(userId uint, link string) error
 }
