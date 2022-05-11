@@ -32,6 +32,9 @@ func (attachmentUseCase AttachmentUseCaseImpl) CreateAttachment(header *multipar
 }
 func (attachmentUseCase AttachmentUseCaseImpl) DeleteAttachment(attachId uint, userId uint) error {
 	attachment, err := attachmentUseCase.repAttachment.GetById(attachId)
+	if err != nil {
+		return err
+	}
 	isAccess, err := attachmentUseCase.repTask.IsAccessToTask(userId, attachment.IdT)
 	if err != nil {
 		return err
@@ -46,6 +49,9 @@ func (attachmentUseCase AttachmentUseCaseImpl) DeleteAttachment(attachId uint, u
 }
 func (attachmentUseCase AttachmentUseCaseImpl) GetById(attachId uint, userId uint) (*models.Attachment, error) {
 	attachment, err := attachmentUseCase.repAttachment.GetById(attachId)
+	if err != nil {
+		return nil, err
+	}
 	isAccess, err := attachmentUseCase.repTask.IsAccessToTask(userId, attachment.IdT)
 	if err != nil {
 		return nil, err

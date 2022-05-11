@@ -9,6 +9,7 @@ import (
 	"io"
 	"mime/multipart"
 	"os"
+	"strings"
 )
 
 const filePathAttach = "attachment/"
@@ -24,7 +25,7 @@ func MakeAttachmentRepository(db *gorm.DB) repositories.AttachmentRepository {
 func (attachmentRepository AttachmentRepositoryImpl) Create(header *multipart.FileHeader, IdT uint) (*models.Attachment, error) {
 	attachment := new(models.Attachment)
 	attachment.IdT = IdT
-	fileName := uuid.NewString()
+	fileName := strings.Join([]string{filePathAttach, uuid.NewString()}, "")
 	attachment.SystemName = fileName
 	attachment.DefaultName = header.Filename
 
