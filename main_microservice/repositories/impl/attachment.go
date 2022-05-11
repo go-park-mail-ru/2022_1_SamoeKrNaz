@@ -4,15 +4,14 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/models"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"io"
 	"mime/multipart"
 	"os"
-	"strconv"
-	"strings"
 )
 
-const filePathAttach = "img_boards/"
+const filePathAttach = "attachment/"
 
 type AttachmentRepositoryImpl struct {
 	db *gorm.DB
@@ -23,11 +22,9 @@ func MakeAttachmentRepository(db *gorm.DB) repositories.AttachmentRepository {
 }
 
 func (attachmentRepository AttachmentRepositoryImpl) Create(header *multipart.FileHeader, IdT uint) (*models.Attachment, error) {
-	var countFiles int64
 	attachment := new(models.Attachment)
 	attachment.IdT = IdT
-	err := attachmentRepository.db.Model(&models.Attachment{}).Count(&countFiles).Error
-	fileName := strings.Join([]string{filePathAttach, strconv.Itoa(int(countFiles))}, "")
+	fileName := uuid.NewString()
 	attachment.SystemName = fileName
 	attachment.DefaultName = header.Filename
 
