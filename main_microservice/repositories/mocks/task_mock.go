@@ -91,6 +91,21 @@ func (mr *MockTaskRepositoryMockRecorder) DeleteUser(IdT, IdU interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockTaskRepository)(nil).DeleteUser), IdT, IdU)
 }
 
+// GetAttachments mocks base method.
+func (m *MockTaskRepository) GetAttachments(IdT uint) (*[]models.Attachment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAttachments", IdT)
+	ret0, _ := ret[0].(*[]models.Attachment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAttachments indicates an expected call of GetAttachments.
+func (mr *MockTaskRepositoryMockRecorder) GetAttachments(IdT interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAttachments", reflect.TypeOf((*MockTaskRepository)(nil).GetAttachments), IdT)
+}
+
 // GetById mocks base method.
 func (m *MockTaskRepository) GetById(IdT uint) (*models.Task, error) {
 	m.ctrl.T.Helper()
