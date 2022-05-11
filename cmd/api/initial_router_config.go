@@ -13,16 +13,57 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/penglongli/gin-metrics/ginmetrics"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"io"
+	"log"
 	"os"
+	"strings"
 )
 
-func initDB() (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open("host=postgres user=Planexa password=WEB21Planexa dbname=DB_Planexa port=5432"))
+type Config struct {
+	postgresHost     string
+	postgresUser     string
+	postgresPassword string
+	postgresDbName   string
+	postgresPort     string
+
+	logFile string
+
+	sessionContainer string
+	userContainer    string
+
+	metricsPath string
+}
+
+func ParseConfig() (conf Config) {
+	viper.AddConfigPath(".")
+	viper.SetConfigName("config")
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatal(err)
+	}
+
+	conf.postgresHost = viper.GetString("postgresHost")
+	conf.postgresUser = viper.GetString("postgresUser")
+	conf.postgresPassword = viper.GetString("postgresPassword")
+	conf.postgresDbName = viper.GetString("postgresDbName")
+	conf.postgresPort = viper.GetString("postgresPort")
+
+	conf.logFile = viper.GetString("gin.log")
+
+	conf.sessionContainer = viper.GetString("sessionContainer")
+	conf.userContainer = viper.GetString("userContainer")
+
+	conf.metricsPath = viper.GetString("metricsPath")
+	return
+}
+
+func initDB(conf Config) (*gorm.DB, error) {
+	db, err := gorm.Open(postgres.Open(
+		strings.Join([]string{"host=", conf.postgresHost, " user=", conf.postgresUser, " password=", conf.postgresPassword, " dbname=", conf.postgresDbName, " port=", conf.postgresPort}, "")))
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +76,9 @@ func initDB() (*gorm.DB, error) {
 }
 
 func initRouter() (*gin.Engine, error) {
+	conf := ParseConfig()
 	gin.DisableConsoleColor()
-	f, err := os.Create("gin.log")
+	f, err := os.Create(conf.logFile)
 	if err != nil {
 		return nil, err
 	}
@@ -50,12 +92,12 @@ func initRouter() (*gin.Engine, error) {
 	config.AllowCredentials = true
 	router.Use(cors.New(config))
 
-	db, err := initDB()
+	db, err := initDB(conf)
 	if err != nil {
 		return nil, err
 	}
 	grpcConn, err := grpc.Dial(
-		"2022_1_samoekrnaz_session_1:8081",
+		conf.sessionContainer,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -68,7 +110,7 @@ func initRouter() (*gin.Engine, error) {
 		return nil, err
 	}
 	grpcConnUser, err := grpc.Dial(
-		"2022_1_samoekrnaz_user_microservice_1:8083",
+		conf.userContainer,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -80,7 +122,7 @@ func initRouter() (*gin.Engine, error) {
 	if err != nil {
 		return nil, err
 	}
-	monitor.SetMetricPath("/metrics")
+	monitor.SetMetricPath(conf.metricsPath)
 	monitor.SetSlowTime(10)
 	monitor.Use(router)
 

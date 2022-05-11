@@ -8,6 +8,7 @@ import (
 	"PLANEXA_backend/metrics"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"log"
@@ -16,10 +17,32 @@ import (
 	"time"
 )
 
+type Config struct {
+	sessionContainer string
+	metricsPort      string
+	redisContainer   string
+	metricsPath      string
+}
+
+func ParseConfig() (conf Config) {
+	viper.AddConfigPath(".")
+	viper.SetConfigName("config")
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatal(err)
+	}
+
+	conf.sessionContainer = viper.GetString("sessionContainer")
+	conf.redisContainer = viper.GetString("redisContainer")
+	conf.metricsPort = viper.GetString("metricsPort")
+	conf.metricsPath = viper.GetString("metricsPath")
+	return
+}
+
 func Run() {
-	redis := repository_impl.CreateSessRep()
+	conf := ParseConfig()
+	redis := repository_impl.CreateSessRep(conf.redisContainer)
 	sessUseCase := usecase_impl.CreateSessionUseCase(redis)
-	listener, err := net.Listen("tcp", "2022_1_samoekrnaz_session_1:8081")
+	listener, err := net.Listen("tcp", conf.sessionContainer)
 	if err != nil {
 		return
 	}
@@ -32,9 +55,9 @@ func Run() {
 	prometheus.MustRegister(metrics.Session)
 	prometheus.MustRegister(metrics.DurationSession)
 
-	http.Handle("/metrics", promhttp.Handler())
+	http.Handle(conf.metricsPath, promhttp.Handler())
 	go func() {
-		log.Fatal(http.ListenAndServe(":8082", nil))
+		log.Fatal(http.ListenAndServe(conf.metricsPort, nil))
 	}()
 
 	if err = grpcSrv.Serve(listener); err != nil {
