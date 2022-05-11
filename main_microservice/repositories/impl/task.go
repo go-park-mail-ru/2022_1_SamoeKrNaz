@@ -198,6 +198,15 @@ func (taskRepository *TaskRepositoryImpl) DeleteUser(IdT uint, IdU uint) error {
 	return err
 }
 
+func (taskRepository *TaskRepositoryImpl) GetAttachments(IdT uint) (*[]models.Attachment, error) {
+	attachments := new([]models.Attachment)
+	err := taskRepository.db.Where("id_t = ?", IdT).Order("id_a").Find(attachments).Error
+	if err != nil {
+		return nil, err
+	}
+	return attachments, nil
+}
+
 func (taskRepository *TaskRepositoryImpl) GetByLink(link string) (*models.Task, error) {
 	// указатель на структуру, которую вернем
 	task := new(models.Task)

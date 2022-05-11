@@ -12,4 +12,5 @@ var (
 	CheckListItemRoute = "/checklistitem"
 	CommentRoute       = "/comment"
 	ProfileRoute       = "/profile"
+	AttachmentRoute    = "/attachment"
 )

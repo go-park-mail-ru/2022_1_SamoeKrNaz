@@ -160,8 +160,13 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 				}
 				(*comments)[i].User = *userComment
 			}
+			attachments, err := boardUseCase.repTask.GetAttachments(task.IdT)
+			if err != nil {
+				return models.Board{}, err
+			}
 			(*tasks)[j].Comments = *comments
 			(*tasks)[j].CheckLists = *checkLists
+			(*tasks)[j].Attachments = *attachments
 		}
 		lists[i].Tasks = *tasks
 	}

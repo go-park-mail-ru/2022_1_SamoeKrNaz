@@ -133,6 +133,7 @@ func initRouter() (*gin.Engine, error) {
 	checkListRepository := repositories_impl.MakeCheckListRepository(db)
 	checkListItemRepository := repositories_impl.MakeCheckListItemRepository(db)
 	commentRepository := repositories_impl.MakeCommentRepository(db)
+	attachmentRepository := repositories_impl.MakeAttachmentRepository(db)
 
 	authMiddleware := middleware.CreateMiddleware(sessService)
 
@@ -143,6 +144,7 @@ func initRouter() (*gin.Engine, error) {
 	checkListHandler := handlers_impl.MakeCheckListHandler(usecases_impl.MakeCheckListUsecase(checkListRepository, taskRepository))
 	checkListItemHandler := handlers_impl.MakeCheckListItemHandler(usecases_impl.MakeCheckListItemUsecase(checkListItemRepository, checkListRepository, taskRepository))
 	commentHandler := handlers_impl.MakeCommentHandler(usecases_impl.MakeCommentUsecase(commentRepository, taskRepository, userService))
+	attachmentHandler := handlers_impl.MakeAttachmentHandler(usecases_impl.MakeAttachmentUseCase(attachmentRepository, taskRepository))
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
 		boardRoutes := router.Group(routes.BoardRoute)
@@ -177,6 +179,7 @@ func initRouter() (*gin.Engine, error) {
 			taskRoutes.POST("/:id"+routes.CheckListRoute, authMiddleware.CheckAuth, checkListHandler.CreateCheckList)
 			taskRoutes.GET("/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.GetComments)
 			taskRoutes.POST("/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.CreateComment)
+			taskRoutes.POST("/:id"+routes.AttachmentRoute, authMiddleware.CheckAuth, attachmentHandler.CreateAttachment)
 			taskRoutes.GET("/append/:link", authMiddleware.CheckAuth, taskHandler.AppendUserToTaskByLink)
 		}
 		checkListRoutes := router.Group(routes.CheckListRoute)
@@ -198,6 +201,11 @@ func initRouter() (*gin.Engine, error) {
 			commentRoutes.GET("/:id", authMiddleware.CheckAuth, commentHandler.GetSingleComment)
 			commentRoutes.PUT("/:id", authMiddleware.CheckAuth, commentHandler.RefactorComment)
 			commentRoutes.DELETE("/:id", authMiddleware.CheckAuth, commentHandler.DeleteComment)
+		}
+		attachmentRoutes := router.Group(routes.AttachmentRoute)
+		{
+			attachmentRoutes.GET("/:id", authMiddleware.CheckAuth, attachmentHandler.GetSingleAttachment)
+			attachmentRoutes.DELETE("/:id", authMiddleware.CheckAuth, attachmentHandler.DeleteAttachment)
 		}
 		mainRoutes.POST(routes.LoginRoute, userHandler.Login)
 		mainRoutes.GET("/get"+routes.BoardRoute+"s", authMiddleware.CheckAuth, boardHandler.GetBoards)

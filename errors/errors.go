@@ -26,6 +26,8 @@ var (
 
 	ErrCheckListItemNotFound = errors.New("this checklistitem is not found")
 
+	ErrAttachmentNotFound = errors.New("this attachment is not found")
+
 	ErrCommentNotFound = errors.New("this comment is not found")
 
 	ErrNoAccess = errors.New("user doesn't have access")
@@ -55,6 +57,8 @@ var errorToCode = map[error]int{
 	ErrCheckListItemNotFound: http.StatusNotFound,
 
 	ErrCommentNotFound: http.StatusNotFound,
+
+	ErrAttachmentNotFound: http.StatusNotFound,
 
 	ErrAlreadyAppended: http.StatusConflict,
 
