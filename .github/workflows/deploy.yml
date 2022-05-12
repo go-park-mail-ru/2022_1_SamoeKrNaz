@@ -5,6 +5,38 @@ on:
     branches: [ main ]
 
 jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - name: Verify dependencies
+        run: go mod verify
+
+      - name: Download library
+        run: sudo apt-get update; sudo apt-get install libwebp-dev;
+
+      - name: Github secrets
+        run: echo postgresUser=${{ secrets.POSTGRES_USER }} >> cmd/api/config.yml; echo postgresPassword=${{ secrets.POSTGRES_PASSWORD }} >> cmd/api/config.yml; echo postgresDbName=${{ secrets.POSTGRES_DB_NAME }} >> cmd/api/config.yml; echo postgresUser=${{ secrets.POSTGRES_USER }} >> user_microservice/server_user_ms/config.yml; echo postgresPassword=${{ secrets.POSTGRES_PASSWORD }} >> user_microservice/server_user_ms/config.yml; echo postgresDbName=${{ secrets.POSTGRES_DB_NAME }} >> user_microservice/server_user_ms/config.yml;
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Install golangci-lint
+        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.45.2
+
+      - name: Run golangci-lint
+        run: golangci-lint run
+
+      - name: Run tests
+        run: go test -race -coverpkg=./... -coverprofile cover.out.tmp ./...; cat cover.out.tmp | grep -v ".pb.go" > cover.out ; go tool cover -func cover.out
+
   deploy:
 
     runs-on: ubuntu-latest
