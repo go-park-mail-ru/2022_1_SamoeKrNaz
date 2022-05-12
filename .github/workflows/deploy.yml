@@ -28,7 +28,7 @@ jobs:
     - name: Docker-compose up
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ secrets.HOST_IP }}
+        host: ${{ secrets.SSH_IP }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         script: cd /home/ubuntu/planexa/backend/;sudo docker stop $(docker ps -aq);sudo docker-compose up -d;
