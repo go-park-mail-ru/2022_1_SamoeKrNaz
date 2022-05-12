@@ -5,30 +5,29 @@ on:
     branches: [ main ]
 
 jobs:
-
   deploy:
+
     runs-on: ubuntu-latest
+    steps:
+      - name: Download files
+        uses: actions/download-artifact@v2
+        with:
+          name: my-artifact
+          path: .
 
-  steps:
-    - name: Download files
-      uses: actions/download-artifact@v2
-      with:
-        name: my-artifact
-        path: .
+      - name: Send files to tachka
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "./*"
+          target: "/home/ubuntu/planexa/backend/"
 
-    - name: Send files to tachka
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.SSH_IP }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        source: "./*"
-        target: "/home/ubuntu/planexa/backend/"
-
-    - name: Docker-compose up
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SSH_IP }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        script: cd /home/ubuntu/planexa/backend/;sudo docker stop $(docker ps -aq);sudo docker-compose up -d;
+      - name: Docker-compose up
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: cd /home/ubuntu/planexa/backend/;sudo docker stop $(docker ps -aq);sudo docker-compose up -d;
