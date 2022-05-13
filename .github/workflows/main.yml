@@ -23,7 +23,7 @@ jobs:
       run: sudo apt-get update; sudo apt-get install libwebp-dev;
 
     - name: Github secrets
-      run: echo postgresUser: \'${{ secrets.POSTGRES_USER }}\' >> cmd/api/config.yml; echo postgresPassword: \'${{ secrets.POSTGRES_PASSWORD }}\' >> cmd/api/config.yml; echo postgresDbName: \'${{ secrets.POSTGRES_DB_NAME }}\' >> cmd/api/config.yml; echo postgresUser: \'${{ secrets.POSTGRES_USER }}\' >> user_microservice/server_user_ms/config.yml; echo postgresPassword: \'${{ secrets.POSTGRES_PASSWORD }}\' >> user_microservice/server_user_ms/config.yml; echo postgresDbName: \'${{ secrets.POSTGRES_DB_NAME }}\' >> user_microservice/server_user_ms/config.yml;
+      run: echo postgresUser:\'${{ secrets.POSTGRES_USER }}\' >> cmd/api/config.yml; echo postgresPassword:\'${{ secrets.POSTGRES_PASSWORD }}\' >> cmd/api/config.yml; echo postgresDbName:\'${{ secrets.POSTGRES_DB_NAME }}\' >> cmd/api/config.yml; echo postgresUser:\'${{ secrets.POSTGRES_USER }}\' >> user_microservice/server_user_ms/config.yml; echo postgresPassword:\'${{ secrets.POSTGRES_PASSWORD }}\' >> user_microservice/server_user_ms/config.yml; echo postgresDbName:\'${{ secrets.POSTGRES_DB_NAME }}\' >> user_microservice/server_user_ms/config.yml;
 
     - name: Run go vet
       run: go vet ./...
