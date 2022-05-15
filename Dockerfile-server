@@ -15,4 +15,4 @@ COPY . .
 
 EXPOSE 8080
 
-ENTRYPOINT CompileDaemon -build="go build ./cmd/api/" -command=./api
+ENTRYPOINT CompileDaemon -build="go build -o server ./cmd/api/" -command=./server

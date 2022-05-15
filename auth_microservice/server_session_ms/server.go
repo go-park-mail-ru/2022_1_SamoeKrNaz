@@ -25,7 +25,7 @@ type Config struct {
 }
 
 func ParseConfig() (conf Config) {
-	viper.AddConfigPath(".")
+	viper.AddConfigPath("./auth_microservice/server_session_ms/")
 	viper.SetConfigName("config")
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatal(err)

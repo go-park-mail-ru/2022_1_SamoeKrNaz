@@ -40,8 +40,7 @@ type Config struct {
 }
 
 func ParseConfig() (conf Config) {
-	viper.AddConfigPath("./cmd/api/")
-	viper.SetConfigName("config")
+	viper.SetConfigFile("/cmd/api/config.yml")
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatal(err)
 	}
