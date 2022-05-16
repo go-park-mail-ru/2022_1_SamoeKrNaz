@@ -52,7 +52,7 @@ func ParseConfig() (conf Config) {
 	conf.postgresDbName = viper.GetString("postgresDbName")
 	conf.postgresPort = viper.GetString("postgresPort")
 
-	conf.logFile = viper.GetString("gin.log")
+	conf.logFile = viper.GetString("logFile")
 
 	conf.sessionContainer = viper.GetString("sessionContainer")
 	conf.userContainer = viper.GetString("userContainer")
