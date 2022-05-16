@@ -13,4 +13,4 @@ COPY . .
 
 EXPOSE 8081
 
-ENTRYPOINT CompileDaemon -build="go build ./auth_microservice/server/" -command=./server
+ENTRYPOINT CompileDaemon -build="go build -o session ./auth_microservice/server_session_ms/" -command=./session
