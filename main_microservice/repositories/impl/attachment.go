@@ -4,11 +4,13 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/models"
+	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"io"
 	"mime/multipart"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -27,16 +29,18 @@ func (attachmentRepository AttachmentRepositoryImpl) Create(header *multipart.Fi
 	attachment.IdT = IdT
 	fileName := strings.Join([]string{filePathAttach, uuid.NewString()}, "")
 	attachment.SystemName = fileName
-	attachment.DefaultName = header.Filename
+	attachment.DefaultName = filepath.Base(header.Filename)
 
 	output, err := os.Create(fileName)
 	if err != nil {
+		fmt.Println("error create")
 		return nil, err
 	}
 	defer output.Close()
 
 	openFile, err := header.Open()
 	if err != nil {
+		fmt.Println("error open")
 		return nil, err
 	}
 
@@ -45,6 +49,7 @@ func (attachmentRepository AttachmentRepositoryImpl) Create(header *multipart.Fi
 	_, err = io.Copy(output, openFile)
 
 	if err != nil {
+		fmt.Println("error copy")
 		return nil, err
 	}
 

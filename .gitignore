@@ -10,3 +10,5 @@ user
 gin.log
 api
 grafana_data
+attachment
+avatars

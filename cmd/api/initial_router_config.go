@@ -68,7 +68,7 @@ func initDB(conf Config) (*gorm.DB, error) {
 		return nil, err
 	}
 	err = db.AutoMigrate(&models.User{}, &models.Board{}, &models.List{},
-		&models.Task{}, &models.CheckList{}, &models.CheckListItem{}, &models.Comment{})
+		&models.Task{}, &models.CheckList{}, &models.CheckListItem{}, &models.Comment{}, &models.Attachment{})
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +179,7 @@ func initRouter() (*gin.Engine, error) {
 			taskRoutes.POST("/:id"+routes.CheckListRoute, authMiddleware.CheckAuth, checkListHandler.CreateCheckList)
 			taskRoutes.GET("/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.GetComments)
 			taskRoutes.POST("/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.CreateComment)
-			taskRoutes.POST("/:id"+routes.AttachmentRoute, authMiddleware.CheckAuth, attachmentHandler.CreateAttachment)
+			taskRoutes.PUT("/:id"+routes.AttachmentRoute, authMiddleware.CheckAuth, attachmentHandler.CreateAttachment)
 			taskRoutes.GET("/append/:link", authMiddleware.CheckAuth, taskHandler.AppendUserToTaskByLink)
 		}
 		checkListRoutes := router.Group(routes.CheckListRoute)
