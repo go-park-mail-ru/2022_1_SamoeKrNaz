@@ -98,12 +98,11 @@ func (boardRepository *BoardRepositoryImpl) GetById(IdB uint) (*models.Board, er
 }
 
 func (boardRepository *BoardRepositoryImpl) IsAccessToBoard(IdU uint, IdB uint) (bool, error) {
-	board := new(models.Board)
-
-	err := boardRepository.db.Model(&models.User{IdU: IdU}).Where("id_b = ?", IdB).Association("Boards").Find(board)
+	user := new(models.User)
+	err := boardRepository.db.Model(&models.Board{IdB: IdB}).Where("id_u = ?", IdU).Association("Users").Find(user)
 	if err != nil {
 		return false, err
-	} else if board == nil {
+	} else if user.IdU == 0 {
 		return false, nil
 	}
 	return true, nil
@@ -173,9 +172,11 @@ func (boardRepository *BoardRepositoryImpl) DeleteUser(boardId uint, userId uint
 func (boardRepository *BoardRepositoryImpl) GetByLink(link string) (*models.Board, error) {
 	// указатель на структуру, которую вернем
 	board := new(models.Board)
-	err := boardRepository.db.Where("link = ?", link).Find(board).Error
-	if err != nil {
-		return nil, err
+	result := boardRepository.db.Where("link = ?", link).Find(board)
+	if result.RowsAffected == 0 {
+		return nil, customErrors.ErrBoardNotFound
+	} else if result.Error != nil {
+		return nil, result.Error
 	}
 	return board, nil
 }

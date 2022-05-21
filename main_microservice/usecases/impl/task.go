@@ -107,7 +107,7 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 }
 
 func (taskUseCase *TaskUseCaseImpl) CreateTask(task models.Task, idB uint, idL uint, idU uint) (*models.Task, error) {
-	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(idU, task.IdB)
+	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(idU, idB)
 	task.IdU = idU
 	task.DateToOrder = time.Now()
 	task.Link = uuid.NewString()
@@ -129,7 +129,11 @@ func (taskUseCase *TaskUseCaseImpl) CreateTask(task models.Task, idB uint, idL u
 
 func (taskUseCase *TaskUseCaseImpl) RefactorTask(task models.Task, userId uint) error {
 	// проверяю может ли юзер редачить
-	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, task.IdB)
+	currentTask, err := taskUseCase.repTask.GetById(task.IdT)
+	if err != nil {
+		return err
+	}
+	isAccess, err := taskUseCase.repBoard.IsAccessToBoard(userId, currentTask.IdB)
 	if err != nil {
 		return err
 	} else if !isAccess {
@@ -197,32 +201,32 @@ func (taskUseCase *TaskUseCaseImpl) DeleteUserFromTask(userId uint, deletedUserI
 	return nil
 }
 
-func (taskUseCase *TaskUseCaseImpl) AppendUserToTaskByLink(userId uint, link string) error {
+func (taskUseCase *TaskUseCaseImpl) AppendUserToTaskByLink(userId uint, link string) (*models.Task, error) {
 	task, err := taskUseCase.repTask.GetByLink(link)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	isAccessToBoard, err := taskUseCase.repBoard.IsAccessToBoard(userId, task.IdB)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if !isAccessToBoard {
 		err = taskUseCase.repBoard.AppendUser(task.IdB, userId)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
-	isAccessToTask, err := taskUseCase.repTask.IsAccessToTask(userId, task.IdT)
+	isAppendedToTask, err := taskUseCase.repTask.IsAppendedToTask(userId, task.IdT)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	if !isAccessToTask {
+	if !isAppendedToTask {
 		err = taskUseCase.repTask.AppendUser(task.IdT, userId)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	} else {
-		return customErrors.ErrAlreadyAppended
+		return nil, customErrors.ErrAlreadyAppended
 	}
-	return nil
+	return task, nil
 }

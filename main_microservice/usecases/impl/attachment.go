@@ -5,7 +5,6 @@ import (
 	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/main_microservice/usecases"
 	"PLANEXA_backend/models"
-	"fmt"
 	"mime/multipart"
 )
 
@@ -20,14 +19,12 @@ func MakeAttachmentUseCase(repAttachment_ repositories.AttachmentRepository, rep
 
 func (attachmentUseCase AttachmentUseCaseImpl) CreateAttachment(header *multipart.FileHeader, taskId uint, userId uint) (*models.Attachment, error) {
 	isAccess, err := attachmentUseCase.repTask.IsAccessToTask(userId, taskId)
-	fmt.Println("usecase error 1", err)
 	if err != nil {
 		return nil, err
 	} else if !isAccess {
 		return nil, customErrors.ErrNoAccess
 	}
 	attachment, err := attachmentUseCase.repAttachment.Create(header, taskId)
-	fmt.Println("usecase error 2", err)
 	if err != nil {
 		return nil, err
 	}

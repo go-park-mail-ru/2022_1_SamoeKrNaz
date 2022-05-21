@@ -32,7 +32,7 @@ func (listRepository *ListRepositoryImpl) Update(list models.List) error {
 	if err != nil {
 		return err
 	}
-	if currentData.Title != list.Title {
+	if currentData.Title != list.Title && list.Title != "" {
 		currentData.Title = list.Title
 	}
 	if currentData.Position != list.Position && list.Position != 0 {
@@ -88,7 +88,7 @@ func (listRepository *ListRepositoryImpl) GetTasks(IdL uint) (*[]models.Task, er
 }
 
 func (listRepository *ListRepositoryImpl) GetById(IdL uint) (*models.List, error) {
-	// указатель на структуру, которую вернем
+	//указатель на структуру, которую вернем
 	list := new(models.List)
 	result := listRepository.db.Find(list, IdL)
 	// если выборка в 0 строк, то такого листа нет

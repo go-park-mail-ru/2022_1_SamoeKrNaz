@@ -12,3 +12,4 @@ api
 grafana_data
 attachment
 avatars
+.env

@@ -158,7 +158,7 @@ func initRouter() (*gin.Engine, error) {
 			boardRoutes.GET("/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.GetLists)
 			boardRoutes.POST("/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.CreateList)
 			boardRoutes.POST("/:id"+routes.ListRoute+"/:idL"+routes.TaskRoute, authMiddleware.CheckAuth, taskHandler.CreateTask)
-			boardRoutes.GET("/append/:link", authMiddleware.CheckAuth, boardHandler.AppendUserToBoardByLink)
+			boardRoutes.POST("/append/:link", authMiddleware.CheckAuth, boardHandler.AppendUserToBoardByLink)
 		}
 		listRoutes := router.Group(routes.ListRoute)
 		{
@@ -180,7 +180,7 @@ func initRouter() (*gin.Engine, error) {
 			taskRoutes.GET("/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.GetComments)
 			taskRoutes.POST("/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.CreateComment)
 			taskRoutes.PUT("/:id"+routes.AttachmentRoute, authMiddleware.CheckAuth, attachmentHandler.CreateAttachment)
-			taskRoutes.GET("/append/:link", authMiddleware.CheckAuth, taskHandler.AppendUserToTaskByLink)
+			taskRoutes.POST("/append/:link", authMiddleware.CheckAuth, taskHandler.AppendUserToTaskByLink)
 		}
 		checkListRoutes := router.Group(routes.CheckListRoute)
 		{

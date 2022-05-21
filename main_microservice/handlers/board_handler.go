@@ -231,10 +231,10 @@ func (boardHandler *BoardHandler) AppendUserToBoardByLink(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	err := boardHandler.usecase.AppendUserByLink(uint(userId.(uint64)), link)
+	appendedBoard, err := boardHandler.usecase.AppendUserByLink(uint(userId.(uint64)), link)
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"appended": true})
+	c.JSON(http.StatusOK, appendedBoard)
 }

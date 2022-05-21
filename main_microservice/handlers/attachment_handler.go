@@ -3,7 +3,6 @@ package handlers
 import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/main_microservice/usecases"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -27,21 +26,18 @@ func (attachmentHandler *AttachmentHandler) CreateAttachment(c *gin.Context) {
 	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		fmt.Println("error in parse id")
 		return
 	}
 
 	header, err := c.FormFile("attachment")
 	if err != nil {
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
-		fmt.Println("error in formfile")
 		return
 	}
 
 	attachment, err := attachmentHandler.usecase.CreateAttachment(header, uint(taskId), uint(userId.(uint64)))
 
 	if err != nil {
-		fmt.Println("error in createattachment")
 		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
 		return
 	}
