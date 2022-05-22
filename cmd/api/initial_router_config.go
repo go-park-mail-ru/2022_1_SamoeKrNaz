@@ -91,6 +91,7 @@ func initRouter() (*gin.Engine, error) {
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowCredentials = true
 	router.Use(cors.New(config))
+	router.Use(middleware.CheckError())
 
 	db, err := initDB(conf)
 	if err != nil {
@@ -217,6 +218,5 @@ func initRouter() (*gin.Engine, error) {
 		mainRoutes.PUT(routes.ProfileRoute, authMiddleware.CheckAuth, userHandler.RefactorProfile)
 		mainRoutes.POST(routes.ProfileRoute+"/like", authMiddleware.CheckAuth, userHandler.GetUsersLike)
 	}
-	router.Use(middleware.CheckError)
 	return router, nil
 }
