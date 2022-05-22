@@ -217,5 +217,6 @@ func initRouter() (*gin.Engine, error) {
 		mainRoutes.PUT(routes.ProfileRoute, authMiddleware.CheckAuth, userHandler.RefactorProfile)
 		mainRoutes.POST(routes.ProfileRoute+"/like", authMiddleware.CheckAuth, userHandler.GetUsersLike)
 	}
+	router.Use(middleware.CheckError)
 	return router, nil
 }

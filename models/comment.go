@@ -1,5 +1,9 @@
 package models
 
+//easyjson:json
+type Comments []Comment
+
+//easyjson:json
 type Comment struct {
 	IdCm        uint   `json:"idcm" gorm:"primaryKey"`
 	Text        string `json:"title" gorm:"not null"`
