@@ -21,6 +21,5 @@ func CheckError() gin.HandlerFunc {
 			c.Data(customErrors.ConvertErrorToCode(c.Errors.Last()), "application/json; charset=utf-8", errJson)
 			return
 		}
-		return
 	}
 }
