@@ -19,3 +19,13 @@ type ImgBoard struct {
 type Appended struct {
 	AppendedInfo bool `json:"appended"`
 }
+
+//easyjson:json
+type Is_okayIn struct {
+	Is_okayInfo bool `json:"Is_okay"`
+}
+
+//easyjson:json
+type Avatar struct {
+	AvatarPath string `json:"avatar_path"`
+}

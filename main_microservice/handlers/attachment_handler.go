@@ -3,6 +3,7 @@ package handlers
 import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/main_microservice/usecases"
+	"PLANEXA_backend/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -19,64 +20,75 @@ func MakeAttachmentHandler(usecase_ usecases.AttachmentUseCase) *AttachmentHandl
 func (attachmentHandler *AttachmentHandler) CreateAttachment(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	header, err := c.FormFile("attachment")
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	attachment, err := attachmentHandler.usecase.CreateAttachment(header, uint(taskId), uint(userId.(uint64)))
 
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		_ = c.Error(err)
 		return
 	}
 
-	c.JSON(http.StatusOK, attachment)
+	attachmentJson, err := attachment.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", attachmentJson)
 }
 
 func (attachmentHandler *AttachmentHandler) GetSingleAttachment(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	attachmentId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	//вызываю юзкейс
 	attachment, err := attachmentHandler.usecase.GetById(uint(attachmentId), uint(userId.(uint64)))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, attachment)
+
+	attachmentJson, err := attachment.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", attachmentJson)
 }
 
 func (attachmentHandler *AttachmentHandler) DeleteAttachment(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	attachemntId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
@@ -84,8 +96,16 @@ func (attachmentHandler *AttachmentHandler) DeleteAttachment(c *gin.Context) {
 
 	err = attachmentHandler.usecase.DeleteAttachment(uint(attachemntId), uint(userId.(uint64)))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"deleted": true})
+
+	var isDeleted models.Deleted
+	isDeleted.DeletedInfo = true
+	isDeletedJson, err := isDeleted.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }

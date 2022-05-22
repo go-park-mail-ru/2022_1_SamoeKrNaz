@@ -5,6 +5,7 @@ import (
 	"PLANEXA_backend/main_microservice/usecases"
 	"PLANEXA_backend/models"
 	"github.com/gin-gonic/gin"
+	"github.com/mailru/easyjson"
 	"net/http"
 	"strconv"
 )
@@ -20,118 +21,161 @@ func MakeCheckListHandler(usecase_ usecases.CheckListUseCase) *CheckListHandler 
 func (checkListHandler *CheckListHandler) GetCheckLists(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
-	checkLists, err := checkListHandler.usecase.GetCheckLists(uint(userId.(uint64)), uint(taskId))
+	checkListSlice, err := checkListHandler.usecase.GetCheckLists(uint(userId.(uint64)), uint(taskId))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, checkLists)
+
+	checkLists := new(models.CheckLists)
+	*checkLists = *checkListSlice
+
+	checkListsJson, err := checkLists.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", checkListsJson)
 }
 
 func (checkListHandler *CheckListHandler) GetSingleCheckList(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	checkListId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	checkList, err := checkListHandler.usecase.GetSingleCheckList(uint(checkListId), uint(userId.(uint64)))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, checkList)
+
+	newCheckList := new(models.CheckList)
+	*newCheckList = *checkList
+	checkListJson, err := newCheckList.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+
+	c.Data(http.StatusOK, "application/json; charset=utf-8", checkListJson)
 }
 
 func (checkListHandler *CheckListHandler) CreateCheckList(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	var checkList models.CheckList
-	err := c.ShouldBindJSON(&checkList)
+	err := easyjson.UnmarshalFromReader(c.Request.Body, &checkList)
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	createdCheckList, err := checkListHandler.usecase.CreateCheckList(&checkList, uint(taskId), uint(userId.(uint64)))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, createdCheckList)
+
+	newCheckList := new(models.CheckList)
+	*newCheckList = *createdCheckList
+	checkListJson, err := newCheckList.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+
+	c.Data(http.StatusOK, "application/json; charset=utf-8", checkListJson)
 }
 
 func (checkListHandler *CheckListHandler) RefactorCheckList(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	var checkList models.CheckList
-	err := c.ShouldBindJSON(&checkList)
+	err := easyjson.UnmarshalFromReader(c.Request.Body, &checkList)
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	checkListId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 	checkList.IdCl = uint(checkListId)
 	err = checkListHandler.usecase.RefactorCheckList(&checkList, uint(userId.(uint64)))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"updated": true})
+
+	var isUpdated models.Updated
+	isUpdated.UpdatedInfo = true
+	isUpdatedJson, err := isUpdated.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusCreated, "application/json; charset=utf-8", isUpdatedJson)
 }
 
 func (checkListHandler *CheckListHandler) DeleteCheckList(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	checkListId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	err = checkListHandler.usecase.DeleteCheckList(uint(checkListId), uint(userId.(uint64)))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"deleted": true})
+
+	var isDeleted models.Deleted
+	isDeleted.DeletedInfo = true
+	isDeletedJson, err := isDeleted.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }

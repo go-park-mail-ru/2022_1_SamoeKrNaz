@@ -5,6 +5,7 @@ import (
 	"PLANEXA_backend/main_microservice/usecases"
 	"PLANEXA_backend/models"
 	"github.com/gin-gonic/gin"
+	"github.com/mailru/easyjson"
 	"net/http"
 	"strconv"
 )
@@ -20,118 +21,161 @@ func MakeCommentHandler(usecase_ usecases.CommentUseCase) *CommentHandler {
 func (commentHandler *CommentHandler) GetComments(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	comments, err := commentHandler.usecase.GetComments(uint(userId.(uint64)), uint(taskId))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, comments)
+
+	newComments := new(models.Comments)
+	*newComments = *comments
+
+	commentsJson, err := newComments.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", commentsJson)
 }
 
 func (commentHandler *CommentHandler) GetSingleComment(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	commentId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	comment, err := commentHandler.usecase.GetSingleComment(uint(commentId), uint(userId.(uint64)))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, comment)
+
+	newcomment := new(models.Comment)
+	*newcomment = *comment
+
+	commentJson, err := newcomment.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", commentJson)
 }
 
 func (commentHandler *CommentHandler) CreateComment(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	var comment models.Comment
-	err := c.ShouldBindJSON(&comment)
+	err := easyjson.UnmarshalFromReader(c.Request.Body, &comment)
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	createdComment, err := commentHandler.usecase.CreateComment(&comment, uint(taskId), uint(userId.(uint64)))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, createdComment)
+
+	newComment := new(models.Comment)
+	*newComment = *createdComment
+
+	commentJson, err := newComment.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", commentJson)
 }
 
 func (commentHandler *CommentHandler) RefactorComment(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	var comment models.Comment
-	err := c.ShouldBindJSON(&comment)
+	err := easyjson.UnmarshalFromReader(c.Request.Body, &comment)
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	commentId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 	comment.IdCm = uint(commentId)
 	err = commentHandler.usecase.RefactorComment(&comment, uint(userId.(uint64)))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"updated": true})
+
+	var isUpdated models.Updated
+	isUpdated.UpdatedInfo = true
+	isUpdatedJson, err := isUpdated.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusCreated, "application/json; charset=utf-8", isUpdatedJson)
 }
 
 func (commentHandler *CommentHandler) DeleteComment(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	commentId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	err = commentHandler.usecase.DeleteComment(uint(commentId), uint(userId.(uint64)))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"deleted": true})
+
+	var isDeleted models.Deleted
+	isDeleted.DeletedInfo = true
+	isDeletedJson, err := isDeleted.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }
