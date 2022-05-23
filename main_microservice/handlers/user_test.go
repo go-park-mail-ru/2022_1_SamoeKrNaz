@@ -275,5 +275,5 @@ func TestRefactorProfile(t *testing.T) {
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
-	assert.Equal(t, http.StatusBadRequest, writer.Code)
+	assert.Equal(t, http.StatusConflict, writer.Code)
 }
