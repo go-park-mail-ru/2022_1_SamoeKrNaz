@@ -4,6 +4,7 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/models"
+	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -95,6 +96,7 @@ func (taskRepository *TaskRepositoryImpl) Update(task models.Task) error {
 		}
 	}
 	if currentData.IdL != task.IdL && task.IdL != 0 {
+		fmt.Println("второе условие")
 		// если мы переместили таску из одного списка в другой и поменяли список
 		// то нужно в старом списке поменять позиции после текущей таски
 		err := taskRepository.db.Model(&models.Task{}).
