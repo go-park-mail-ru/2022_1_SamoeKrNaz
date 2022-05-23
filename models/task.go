@@ -2,6 +2,10 @@ package models
 
 import "time"
 
+//easyjson:json
+type Tasks []Task
+
+//easyjson:json
 type Task struct {
 	IdT         uint         `json:"idt" gorm:"primaryKey"`
 	Title       string       `json:"title" gorm:"not null"`

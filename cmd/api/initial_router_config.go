@@ -91,6 +91,7 @@ func initRouter() (*gin.Engine, error) {
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowCredentials = true
 	router.Use(cors.New(config))
+	router.Use(middleware.CheckError())
 
 	db, err := initDB(conf)
 	if err != nil {

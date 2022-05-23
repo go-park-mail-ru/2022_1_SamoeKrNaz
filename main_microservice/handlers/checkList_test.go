@@ -25,6 +25,7 @@ func TestGetCheckLists(t *testing.T) {
 	checkListHandler := MakeCheckListHandler(checkListUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -70,6 +71,7 @@ func TestGetCheckList(t *testing.T) {
 	checkListHandler := MakeCheckListHandler(checkListUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -116,6 +118,7 @@ func TestCreateCheckList(t *testing.T) {
 	checkListHandler := MakeCheckListHandler(checkListUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -163,6 +166,7 @@ func TestRefactorCheckList(t *testing.T) {
 	checkListHandler := MakeCheckListHandler(checkListUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -207,6 +211,7 @@ func TestDeleteCheckList(t *testing.T) {
 	checkListHandler := MakeCheckListHandler(checkListUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 

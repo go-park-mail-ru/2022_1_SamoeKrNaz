@@ -1,5 +1,9 @@
 package models
 
+//easyjson:json
+type Boards []Board
+
+//easyjson:json
 type Board struct {
 	IdB         uint   `json:"idb" gorm:"primaryKey"`
 	Title       string `json:"title" gorm:"not null"`

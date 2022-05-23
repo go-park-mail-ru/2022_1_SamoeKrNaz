@@ -25,6 +25,7 @@ func TestGetTasks(t *testing.T) {
 	taskHandler := MakeTaskHandler(taskUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -70,6 +71,7 @@ func TestGetTask(t *testing.T) {
 	taskHandler := MakeTaskHandler(taskUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -116,6 +118,7 @@ func TestCreateTask(t *testing.T) {
 	taskHandler := MakeTaskHandler(taskUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -168,6 +171,7 @@ func TestRefactorTask(t *testing.T) {
 	taskHandler := MakeTaskHandler(taskUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -216,6 +220,7 @@ func TestDeleteTask(t *testing.T) {
 	taskHandler := MakeTaskHandler(taskUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -257,6 +262,7 @@ func TestGetImportantTask(t *testing.T) {
 	taskHandler := MakeTaskHandler(taskUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 

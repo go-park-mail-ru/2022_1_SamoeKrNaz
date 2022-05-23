@@ -25,6 +25,7 @@ func TestLogin(t *testing.T) {
 	userHandler := MakeUserHandler(userUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -62,6 +63,7 @@ func TestRegister(t *testing.T) {
 	userHandler := MakeUserHandler(userUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -100,6 +102,7 @@ func TestLogout(t *testing.T) {
 	userHandler := MakeUserHandler(userUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	cookie := &http.Cookie{
 		Name:  "token",
@@ -136,6 +139,7 @@ func TestGetInfoById(t *testing.T) {
 	userHandler := MakeUserHandler(userUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
 	cookie := &http.Cookie{
@@ -181,6 +185,7 @@ func TestGetInfoByCookie(t *testing.T) {
 	userHandler := MakeUserHandler(userUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
 	cookie := &http.Cookie{
@@ -226,6 +231,7 @@ func TestRefactorProfile(t *testing.T) {
 	userHandler := MakeUserHandler(userUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
 	cookie := &http.Cookie{
@@ -269,5 +275,5 @@ func TestRefactorProfile(t *testing.T) {
 	request.AddCookie(cookie)
 	writer = httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
-	assert.Equal(t, http.StatusBadRequest, writer.Code)
+	assert.Equal(t, http.StatusConflict, writer.Code)
 }

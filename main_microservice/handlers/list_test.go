@@ -25,6 +25,7 @@ func TestGetLists(t *testing.T) {
 	listHandler := MakeListHandler(listUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -72,6 +73,7 @@ func TestGetList(t *testing.T) {
 	listHandler := MakeListHandler(listUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -119,6 +121,7 @@ func TestCreateList(t *testing.T) {
 	listHandler := MakeListHandler(listUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -172,6 +175,7 @@ func TestRefactorList(t *testing.T) {
 	listHandler := MakeListHandler(listUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -222,6 +226,7 @@ func TestDeleteList(t *testing.T) {
 	listHandler := MakeListHandler(listUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
