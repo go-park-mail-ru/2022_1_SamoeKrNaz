@@ -25,6 +25,7 @@ func TestGetBoards(t *testing.T) {
 	boardHandler := MakeBoardHandler(boardUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -70,6 +71,7 @@ func TestGetBoard(t *testing.T) {
 	boardHandler := MakeBoardHandler(boardUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -116,6 +118,7 @@ func TestCreateBoard(t *testing.T) {
 	boardHandler := MakeBoardHandler(boardUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -166,6 +169,7 @@ func TestRefactorBoard(t *testing.T) {
 	boardHandler := MakeBoardHandler(boardUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -214,6 +218,7 @@ func TestDeleteBoard(t *testing.T) {
 	boardHandler := MakeBoardHandler(boardUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 

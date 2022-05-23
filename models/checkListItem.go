@@ -1,5 +1,9 @@
 package models
 
+//easyjson:json
+type CheckListItems []CheckListItem
+
+//easyjson:json
 type CheckListItem struct {
 	IdClIt      uint   `json:"id_clit" gorm:"primaryKey"`
 	Description string `json:"title" gorm:"not null"`

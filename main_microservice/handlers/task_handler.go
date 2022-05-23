@@ -5,6 +5,7 @@ import (
 	"PLANEXA_backend/main_microservice/usecases"
 	"PLANEXA_backend/models"
 	"github.com/gin-gonic/gin"
+	"github.com/mailru/easyjson"
 	"net/http"
 	"strconv"
 )
@@ -20,131 +21,170 @@ func MakeTaskHandler(usecase_ usecases.TaskUseCase) *TaskHandler {
 func (taskHandler *TaskHandler) GetTasks(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	listId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
-	tasks, err := taskHandler.usecase.GetTasks(uint(listId), uint(userId.(uint64)))
+	var tasks models.Tasks
+	tasks, err = taskHandler.usecase.GetTasks(uint(listId), uint(userId.(uint64)))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, tasks)
+
+	tasksJson, err := tasks.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", tasksJson)
 }
 
 func (taskHandler *TaskHandler) GetImportantTasks(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	tasks, err := taskHandler.usecase.GetImportantTask(uint(userId.(uint64)))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, tasks)
+
+	newTasks := new(models.Tasks)
+	*newTasks = *tasks
+
+	tasksJson, err := newTasks.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", tasksJson)
 }
 
 func (taskHandler *TaskHandler) GetSingleTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	task, err := taskHandler.usecase.GetSingleTask(uint(taskId), uint(userId.(uint64)))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, task)
+
+	taskJson, err := task.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", taskJson)
 }
 
 func (taskHandler *TaskHandler) CreateTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	var task models.Task
-	err := c.ShouldBindJSON(&task)
+	err := easyjson.UnmarshalFromReader(c.Request.Body, &task)
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	listId, err := strconv.ParseUint(c.Param("idL"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	boardId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	createdTask, err := taskHandler.usecase.CreateTask(task, uint(boardId), uint(listId), uint(userId.(uint64)))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, createdTask)
+
+	newTask := new(models.Task)
+	*newTask = *createdTask
+
+	taskJson, err := newTask.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", taskJson)
 }
 
 func (taskHandler *TaskHandler) RefactorTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	var task models.Task
-	err := c.ShouldBindJSON(&task)
+	err := easyjson.UnmarshalFromReader(c.Request.Body, &task)
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrBadInputData), gin.H{"error": customErrors.ErrBadInputData.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 	task.IdT = uint(taskId)
 	err = taskHandler.usecase.RefactorTask(task, uint(userId.(uint64)))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"updated": true})
+
+	var isUpdated models.Updated
+	isUpdated.UpdatedInfo = true
+	isUpdatedJson, err := isUpdated.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusCreated, "application/json; charset=utf-8", isUpdatedJson)
 }
 
 func (taskHandler *TaskHandler) DeleteTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
@@ -152,28 +192,36 @@ func (taskHandler *TaskHandler) DeleteTask(c *gin.Context) {
 
 	err = taskHandler.usecase.DeleteTask(uint(taskId), uint(userId.(uint64)))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"deleted": true})
+
+	var isDeleted models.Deleted
+	isDeleted.DeletedInfo = true
+	isDeletedJson, err := isDeleted.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }
 
 func (taskHandler *TaskHandler) AppendUserToTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	appendedUserId, err := strconv.ParseUint(c.Param("idU"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
@@ -181,28 +229,34 @@ func (taskHandler *TaskHandler) AppendUserToTask(c *gin.Context) {
 
 	appendedUser, err := taskHandler.usecase.AppendUserToTask(uint(userId.(uint64)), uint(appendedUserId), uint(taskId))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, appendedUser)
+
+	userJson, err := appendedUser.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", userJson)
 }
 
 func (taskHandler *TaskHandler) DeleteUserFromTask(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
 	taskId, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
 	deletedUserId, err := strconv.ParseUint(c.Param("idU"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 
@@ -210,16 +264,24 @@ func (taskHandler *TaskHandler) DeleteUserFromTask(c *gin.Context) {
 
 	err = taskHandler.usecase.DeleteUserFromTask(uint(userId.(uint64)), uint(deletedUserId), uint(taskId))
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"deleted": true})
+
+	var isDeleted models.Deleted
+	isDeleted.DeletedInfo = true
+	isDeletedJson, err := isDeleted.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }
 
 func (taskHandler *TaskHandler) AppendUserToTaskByLink(c *gin.Context) {
 	userId, check := c.Get("Auth")
 	if !check {
-		c.JSON(customErrors.ConvertErrorToCode(customErrors.ErrUnauthorized), gin.H{"error": customErrors.ErrUnauthorized.Error()})
+		_ = c.Error(customErrors.ErrUnauthorized)
 		return
 	}
 
@@ -229,8 +291,16 @@ func (taskHandler *TaskHandler) AppendUserToTaskByLink(c *gin.Context) {
 
 	err := taskHandler.usecase.AppendUserToTaskByLink(uint(userId.(uint64)), link)
 	if err != nil {
-		c.JSON(customErrors.ConvertErrorToCode(err), gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"appended": true})
+
+	var isAppended models.Appended
+	isAppended.AppendedInfo = true
+	isAppendedJson, err := isAppended.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", isAppendedJson)
 }

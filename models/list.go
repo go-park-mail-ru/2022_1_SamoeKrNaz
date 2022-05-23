@@ -1,5 +1,9 @@
 package models
 
+//easyjson:json
+type Lists []List
+
+//easyjson:json
 type List struct {
 	IdL      uint   `json:"idl" gorm:"primaryKey"`
 	Title    string `json:"title" gorm:"not null"`

@@ -1,5 +1,9 @@
 package models
 
+//easyjson:json
+type Users []User
+
+//easyjson:json
 type User struct {
 	IdU       uint      `json:"idu" gorm:"primaryKey"`
 	Username  string    `json:"username" gorm:"not null;unique;index"`
