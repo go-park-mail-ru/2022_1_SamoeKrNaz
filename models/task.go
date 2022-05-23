@@ -8,7 +8,7 @@ type Task struct {
 	Description string       `json:"description"`
 	Position    uint         `json:"position" gorm:"not null"`
 	DateCreated string       `json:"dateCreated"`
-	IdL         uint         `gorm:"not null;"`
+	IdL         uint         `json:"idl" gorm:"not null;"`
 	IdB         uint         `gorm:"not null;"`
 	DateToOrder time.Time    `gorm:"not null;"`
 	Deadline    string       `json:"deadline"`

@@ -73,10 +73,10 @@ func (listUseCase *ListUseCaseImpl) CreateList(list models.List, boardId uint, u
 	return createdList, err
 }
 
-func (listUseCase *ListUseCaseImpl) RefactorList(list models.List, userId uint, boardId uint) error {
+func (listUseCase *ListUseCaseImpl) RefactorList(list models.List, userId uint, listId uint) error {
 	// проверяю может ли юзер редачить
 	// вношу изменения в бд
-	isAccess, err := listUseCase.repBoard.IsAccessToBoard(userId, boardId)
+	isAccess, err := listUseCase.repBoard.IsAccessToBoard(userId, listId)
 	if err != nil {
 		return err
 	} else if !isAccess {
