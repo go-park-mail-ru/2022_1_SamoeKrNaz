@@ -25,6 +25,7 @@ func TestGetComments(t *testing.T) {
 	commentHandler := MakeCommentHandler(commentUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -71,6 +72,7 @@ func TestGetComment(t *testing.T) {
 	commentHandler := MakeCommentHandler(commentUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -116,6 +118,7 @@ func TestCreateComment(t *testing.T) {
 	commentHandler := MakeCommentHandler(commentUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -163,6 +166,7 @@ func TestRefactorComment(t *testing.T) {
 	commentHandler := MakeCommentHandler(commentUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
@@ -207,6 +211,7 @@ func TestDeleteComment(t *testing.T) {
 	commentHandler := MakeCommentHandler(commentUseCase)
 
 	router := gin.Default()
+	router.Use(middleware.CheckError())
 
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
 
