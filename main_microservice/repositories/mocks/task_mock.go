@@ -211,6 +211,21 @@ func (mr *MockTaskRepositoryMockRecorder) IsAccessToTask(IdU, IdT interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsAccessToTask", reflect.TypeOf((*MockTaskRepository)(nil).IsAccessToTask), IdU, IdT)
 }
 
+// IsAppendedToTask mocks base method.
+func (m *MockTaskRepository) IsAppendedToTask(IdU, IdT uint) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsAppendedToTask", IdU, IdT)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsAppendedToTask indicates an expected call of IsAppendedToTask.
+func (mr *MockTaskRepositoryMockRecorder) IsAppendedToTask(IdU, IdT interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsAppendedToTask", reflect.TypeOf((*MockTaskRepository)(nil).IsAppendedToTask), IdU, IdT)
+}
+
 // Update mocks base method.
 func (m *MockTaskRepository) Update(task models.Task) error {
 	m.ctrl.T.Helper()

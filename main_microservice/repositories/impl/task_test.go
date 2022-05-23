@@ -4,6 +4,7 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/models"
+	"fmt"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -89,88 +90,92 @@ func TestSelectByIdTask(t *testing.T) {
 	}
 }
 
-//func TestCreateTask(t *testing.T) {
-//	t.Parallel()
-//
-//	repoTask, mock, err := CreateTaskMock()
-//	if err != nil {
-//		t.Errorf("unexpected err: %s", err)
-//	}
-//
-//	// нормальный результат
-//
-//	task := models.Task{IdT: 1, Title: "title", Position: 1, IdL: 1, IdB: 1, IdU: 1}
-//
-//	mock.
-//		ExpectQuery(regexp.QuoteMeta(`SELECT count(*) FROM "tasks" WHERE id_l = $1`)).
-//		WithArgs(1).
-//		WillReturnRows(sqlmock.NewRows([]string{"1"}))
-//	mock.ExpectBegin()
-//	mock.
-//		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "tasks" ("title","description","position","date_created","id_l","id_b","date_to_order","deadline","id_u","is_ready","is_important","id_t") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING "id_t"`)).
-//		WithArgs(
-//			task.Title,
-//			task.Description,
-//			task.Position,
-//			task.DateCreated,
-//			task.IdL,
-//			task.IdB,
-//			task.DateToOrder,
-//			task.Deadline,
-//			task.IdU,
-//			task.IsReady,
-//			task.IsImportant,
-//			task.IdT).
-//		WillReturnRows(sqlmock.NewRows([]string{"1"}))
-//	mock.ExpectCommit()
-//
-//	id, err := repoTask.Create(&task, 1, 1)
-//	if err != nil {
-//		t.Errorf("unexpected err: %s", err)
-//		return
-//	}
-//	if id != 1 {
-//		t.Errorf("bad id: want %v, have %v", id, 1)
-//		return
-//	}
-//
-//	if err := mock.ExpectationsWereMet(); err != nil {
-//		t.Errorf("there were unfulfilled expectations: %s", err)
-//	}
-//
-//	// ошибка
-//	mock.
-//		ExpectQuery(regexp.QuoteMeta(`SELECT count(*) FROM "tasks" WHERE id_l = $1`)).
-//		WithArgs(1).
-//		WillReturnRows(sqlmock.NewRows([]string{"1"}))
-//	mock.ExpectBegin()
-//	mock.
-//		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "tasks" ("title","description","position","date_created","id_l","id_b","date_to_order","deadline","id_u","is_ready","is_important","id_t") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING "id_t"`)).
-//		WithArgs(
-//			task.Title,
-//			task.Description,
-//			task.Position,
-//			task.DateCreated,
-//			task.IdL,
-//			task.IdB,
-//			task.DateToOrder,
-//			task.Deadline,
-//			task.IdU,
-//			task.IsReady,
-//			task.IsImportant,
-//			task.IdT).
-//		WillReturnError(fmt.Errorf("bad_result"))
-//	mock.ExpectRollback()
-//
-//	_, err = repoTask.Create(&task, 1, 1)
-//	if err == nil {
-//		t.Errorf("expected error, got nil")
-//		return
-//	}
-//	if err := mock.ExpectationsWereMet(); err != nil {
-//		t.Errorf("there were unfulfilled expectations: %s", err)
-//	}
-//}
+func TestCreateTask(t *testing.T) {
+	t.Parallel()
+
+	repoTask, mock, err := CreateTaskMock()
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+
+	// нормальный результат
+
+	task := models.Task{IdT: 1, Title: "title", Position: 1, IdL: 1, IdB: 1, IdU: 1}
+
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT count(*) FROM "tasks" WHERE id_l = $1`)).
+		WithArgs(1).
+		WillReturnRows(sqlmock.NewRows([]string{"1"}))
+	mock.ExpectBegin()
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "tasks" ("title","description","position","date_created","id_l","id_b","date_to_order","deadline","id_u","is_ready","is_important","link","id_t") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING "id_t`)).
+		WithArgs(
+			task.Title,
+			task.Description,
+			task.Position,
+			task.DateCreated,
+			task.IdL,
+			task.IdB,
+			task.DateToOrder,
+			task.Deadline,
+			task.IdU,
+			task.IsReady,
+			task.IsImportant,
+			task.Link,
+			task.IdT,
+		).
+		WillReturnRows(sqlmock.NewRows([]string{"1"}))
+	mock.ExpectCommit()
+
+	id, err := repoTask.Create(&task, 1, 1)
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+	if id != 1 {
+		t.Errorf("bad id: want %v, have %v", id, 1)
+		return
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+
+	// ошибка
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT count(*) FROM "tasks" WHERE id_l = $1`)).
+		WithArgs(1).
+		WillReturnRows(sqlmock.NewRows([]string{"1"}))
+	mock.ExpectBegin()
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "tasks" ("title","description","position","date_created","id_l","id_b","date_to_order","deadline","id_u","is_ready","is_important","link","id_t") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING "id_t`)).
+		WithArgs(
+			task.Title,
+			task.Description,
+			task.Position,
+			task.DateCreated,
+			task.IdL,
+			task.IdB,
+			task.DateToOrder,
+			task.Deadline,
+			task.IdU,
+			task.IsReady,
+			task.IsImportant,
+			task.Link,
+			task.IdT,
+		).
+		WillReturnError(fmt.Errorf("bad_result"))
+	mock.ExpectRollback()
+
+	_, err = repoTask.Create(&task, 1, 1)
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
 
 func TestGetTasks(t *testing.T) {
 	t.Parallel()
@@ -446,8 +451,8 @@ func TestIsAccessTask(t *testing.T) {
 		WithArgs(elemID).
 		WillReturnRows(rows)
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`SELECT "boards"."id_b","boards"."title","boards"."description","boards"."img_desk","boards"."date_created","boards"."id_u","boards"."link" FROM "boards" JOIN "users_boards" ON "users_boards"."board_id_b" = "boards"."id_b" AND "users_boards"."user_id_u" = $1 WHERE id_b = $2`)).
-		WithArgs(1, 0).
+		ExpectQuery(regexp.QuoteMeta(`SELECT "users"."id_u","users"."username","users"."password","users"."img_avatar" FROM "users" JOIN "users_boards" ON "users_boards"."user_id_u" = "users"."id_u" AND "users_boards"."board_id_b" IN (NULL) WHERE id_u = $1`)).
+		WithArgs(1).
 		WillReturnRows(rows)
 
 	item, err := repoTask.IsAccessToTask(1, 1)
@@ -459,8 +464,8 @@ func TestIsAccessTask(t *testing.T) {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
 	}
-	if !reflect.DeepEqual(item, true) {
-		t.Errorf("results not match, want %v, have %v", expect[0], true)
+	if !reflect.DeepEqual(item, false) {
+		t.Errorf("results not match, want %v, have %v", item, expect)
 		return
 	}
 

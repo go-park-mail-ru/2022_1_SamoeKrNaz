@@ -94,15 +94,15 @@ func (mr *MockListUseCaseMockRecorder) GetSingleList(listId, userId interface{})
 }
 
 // RefactorList mocks base method.
-func (m *MockListUseCase) RefactorList(list models.List, userId, boardId uint) error {
+func (m *MockListUseCase) RefactorList(list models.List, userId, listId uint) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RefactorList", list, userId, boardId)
+	ret := m.ctrl.Call(m, "RefactorList", list, userId, listId)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RefactorList indicates an expected call of RefactorList.
-func (mr *MockListUseCaseMockRecorder) RefactorList(list, userId, boardId interface{}) *gomock.Call {
+func (mr *MockListUseCaseMockRecorder) RefactorList(list, userId, listId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RefactorList", reflect.TypeOf((*MockListUseCase)(nil).RefactorList), list, userId, boardId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RefactorList", reflect.TypeOf((*MockListUseCase)(nil).RefactorList), list, userId, listId)
 }

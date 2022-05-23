@@ -7,16 +7,11 @@ import (
 	"PLANEXA_backend/user_microservice/server_user_ms/handler"
 	"context"
 	"encoding/json"
-	"github.com/kolesa-team/go-webp/encoder"
-	"github.com/kolesa-team/go-webp/webp"
 	"gorm.io/gorm"
-	"image"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
 	"mime/multipart"
-	"os"
-	"strconv"
 	"strings"
 )
 
@@ -56,40 +51,40 @@ func (userRepository *UserRepositoryImpl) Update(user *models.User) error {
 
 func (userRepository *UserRepositoryImpl) SaveAvatar(user *models.User, header *multipart.FileHeader) error {
 	if user.ImgAvatar != "" {
-		currentData, err := userRepository.GetUserById(user.IdU)
-		if err != nil {
-			return err
-		}
-
-		fileName := strings.Join([]string{filePathAvatars, strconv.Itoa(int(currentData.IdU)), ".webp"}, "")
-		output, err := os.Create(fileName)
-		if err != nil {
-			return err
-		}
-		defer output.Close()
-
-		openFile, err := header.Open()
-		if err != nil {
-			return err
-		}
-
-		img, _, err := image.Decode(openFile)
-		if err != nil {
-			return err
-		}
-
-		options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
-		if err != nil {
-			return err
-		}
-
-		err = webp.Encode(output, img, options)
-		if err != nil {
-			return err
-		}
-
-		currentData.ImgAvatar = fileName
-		return userRepository.db.Save(currentData).Error
+		//currentData, err := userRepository.GetUserById(user.IdU)
+		//if err != nil {
+		//	return err
+		//}
+		//
+		//fileName := strings.Join([]string{filePathAvatars, strconv.Itoa(int(currentData.IdU)), ".webp"}, "")
+		//output, err := os.Create(fileName)
+		//if err != nil {
+		//	return err
+		//}
+		//defer output.Close()
+		//
+		//openFile, err := header.Open()
+		//if err != nil {
+		//	return err
+		//}
+		//
+		//img, _, err := image.Decode(openFile)
+		//if err != nil {
+		//	return err
+		//}
+		//
+		//options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
+		//if err != nil {
+		//	return err
+		//}
+		//
+		//err = webp.Encode(output, img, options)
+		//if err != nil {
+		//	return err
+		//}
+		//
+		//currentData.ImgAvatar = fileName
+		//return userRepository.db.Save(currentData).Error
 	}
 	return nil
 }

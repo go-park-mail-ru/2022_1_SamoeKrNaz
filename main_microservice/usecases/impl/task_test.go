@@ -75,16 +75,18 @@ func TestRefactorTask(t *testing.T) {
 	taskUseCase := MakeTaskUsecase(taskRepo, boardRepo, listRepo, userRepo, checkListRepo, commentRepo)
 
 	task := models.Task{IdT: 12, Title: "title2"}
-
+	taskRepo.EXPECT().GetById(uint(12)).Return(&task, nil)
 	boardRepo.EXPECT().IsAccessToBoard(uint(22), uint(0)).Return(true, nil)
 	taskRepo.EXPECT().Update(task).Return(nil)
 	err := taskUseCase.RefactorTask(task, uint(22))
 	assert.Equal(t, err, nil)
 
+	taskRepo.EXPECT().GetById(uint(12)).Return(&task, nil)
 	boardRepo.EXPECT().IsAccessToBoard(uint(22), uint(0)).Return(false, nil)
 	err = taskUseCase.RefactorTask(task, uint(22))
 	assert.Equal(t, err, customErrors.ErrNoAccess)
 
+	taskRepo.EXPECT().GetById(uint(12)).Return(&task, nil)
 	boardRepo.EXPECT().IsAccessToBoard(uint(22), uint(0)).Return(false, customErrors.ErrTaskNotFound)
 	err = taskUseCase.RefactorTask(task, uint(22))
 	assert.Equal(t, err, customErrors.ErrTaskNotFound)

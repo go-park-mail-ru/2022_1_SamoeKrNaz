@@ -36,11 +36,12 @@ func (m *MockBoardUseCase) EXPECT() *MockBoardUseCaseMockRecorder {
 }
 
 // AppendUserByLink mocks base method.
-func (m *MockBoardUseCase) AppendUserByLink(userId uint, link string) error {
+func (m *MockBoardUseCase) AppendUserByLink(userId uint, link string) (*models.Board, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AppendUserByLink", userId, link)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*models.Board)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // AppendUserByLink indicates an expected call of AppendUserByLink.
