@@ -133,6 +133,29 @@ func easyjson9e1087fdDecodePLANEXABackendModels1(in *jlexer.Lexer, out *User) {
 				}
 				in.Delim(']')
 			}
+		case "Tasks":
+			if in.IsNull() {
+				in.Skip()
+				out.Tasks = nil
+			} else {
+				in.Delim('[')
+				if out.Tasks == nil {
+					if !in.IsDelim(']') {
+						out.Tasks = make([]Task, 0, 0)
+					} else {
+						out.Tasks = []Task{}
+					}
+				} else {
+					out.Tasks = (out.Tasks)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v5 Task
+					(v5).UnmarshalEasyJSON(in)
+					out.Tasks = append(out.Tasks, v5)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
 		case "comments":
 			if in.IsNull() {
 				in.Skip()
@@ -149,9 +172,9 @@ func easyjson9e1087fdDecodePLANEXABackendModels1(in *jlexer.Lexer, out *User) {
 					out.Comments = (out.Comments)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v5 Comment
-					(v5).UnmarshalEasyJSON(in)
-					out.Comments = append(out.Comments, v5)
+					var v6 Comment
+					(v6).UnmarshalEasyJSON(in)
+					out.Comments = append(out.Comments, v6)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -197,11 +220,27 @@ func easyjson9e1087fdEncodePLANEXABackendModels1(out *jwriter.Writer, in User) {
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v6, v7 := range in.Boards {
-				if v6 > 0 {
+			for v7, v8 := range in.Boards {
+				if v7 > 0 {
 					out.RawByte(',')
 				}
-				(v7).MarshalEasyJSON(out)
+				(v8).MarshalEasyJSON(out)
+			}
+			out.RawByte(']')
+		}
+	}
+	{
+		const prefix string = ",\"Tasks\":"
+		out.RawString(prefix)
+		if in.Tasks == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v9, v10 := range in.Tasks {
+				if v9 > 0 {
+					out.RawByte(',')
+				}
+				(v10).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}
@@ -213,11 +252,11 @@ func easyjson9e1087fdEncodePLANEXABackendModels1(out *jwriter.Writer, in User) {
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v8, v9 := range in.Comments {
-				if v8 > 0 {
+			for v11, v12 := range in.Comments {
+				if v11 > 0 {
 					out.RawByte(',')
 				}
-				(v9).MarshalEasyJSON(out)
+				(v12).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}

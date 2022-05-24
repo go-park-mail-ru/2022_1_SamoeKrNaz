@@ -663,3 +663,122 @@ func TestDeleteUserTask(t *testing.T) {
 		return
 	}
 }
+
+func TestGetByLinkTask(t *testing.T) {
+	t.Parallel()
+
+	var elemID uint = 1
+
+	//создание мока
+	repoTask, mock, err := CreateTaskMock()
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+
+	// нормальный результат
+	rows := sqlmock.
+		NewRows([]string{"id_t", "title",
+			"description", "position",
+			"date_created", "id_l", "id_b"})
+
+	expect := []*models.Task{
+		{IdT: elemID, Title: "title", Description: "", Position: 0, DateCreated: "", IdL: 1, IdB: 1},
+	}
+	for _, item := range expect {
+		rows = rows.AddRow(item.IdT, item.Title, item.Description, item.Position, item.DateCreated, item.IdL, item.IdB)
+	}
+
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "tasks" WHERE link = $1`)).
+		WithArgs("abobus").
+		WillReturnRows(rows)
+
+	item, err := repoTask.GetByLink("abobus")
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}
+	if !reflect.DeepEqual(item, expect[0]) {
+		t.Errorf("results not match, want %v, have %v", expect[0], item)
+		return
+	}
+
+	// айдишника не существует
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "tasks" WHERE link = $1`)).
+		WithArgs("abobus").
+		WillReturnError(customErrors.ErrBoardNotFound)
+
+	_, err = repoTask.GetByLink("abobus")
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+}
+
+func TestGetAttachmentsTask(t *testing.T) {
+	t.Parallel()
+
+	var elemID uint = 1
+
+	//создание мока
+	repoTask, mock, err := CreateTaskMock()
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+
+	// нормальный результат
+	rows := sqlmock.
+		NewRows([]string{"id_a", "default_name",
+			"system_name", "id_t"})
+
+	expect := []*models.Attachment{
+		{IdA: elemID, IdT: elemID},
+	}
+	for _, item := range expect {
+		rows = rows.AddRow(item.IdA, item.DefaultName, item.SystemName, item.IdT)
+	}
+
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "attachments" WHERE id_t = $1 ORDER BY id_a`)).
+		WithArgs(elemID).
+		WillReturnRows(rows)
+
+	item, err := repoTask.GetAttachments(elemID)
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}
+	if !reflect.DeepEqual((*item)[0], *expect[0]) {
+		t.Errorf("results not match, want %v, have %v", *expect[0], (*item)[0])
+		return
+	}
+
+	// айдишника не существует
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "attachments" WHERE id_t = $1 ORDER BY id_a`)).
+		WithArgs(elemID).
+		WillReturnError(customErrors.ErrBoardNotFound)
+
+	_, err = repoTask.GetAttachments(elemID)
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+}

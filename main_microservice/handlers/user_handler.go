@@ -71,7 +71,6 @@ func (userHandler *UserHandler) Register(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-
 	userId, token, err := userHandler.usecase.Register(user)
 
 	if err != nil {

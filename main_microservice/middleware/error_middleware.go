@@ -11,7 +11,7 @@ import (
 func CheckError() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
-		if c.Errors != nil {
+		if len(c.Errors) > 0 {
 			err := errors.Unwrap(c.Errors.Last())
 			newErr := new(models.CustomError)
 			newErr.CustomErr = err.Error()

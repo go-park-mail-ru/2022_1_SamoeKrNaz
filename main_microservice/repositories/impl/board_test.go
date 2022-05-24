@@ -628,3 +628,63 @@ func TestDeleteUser(t *testing.T) {
 		return
 	}
 }
+
+func TestGetByLinkBoard(t *testing.T) {
+	t.Parallel()
+
+	var elemID uint = 1
+
+	//создание мока
+	repoBoard, mock, err := CreateBoardMock()
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+
+	// нормальный результат
+	rows := sqlmock.
+		NewRows([]string{"id_b", "title", "description", "img_desk", "data_created", "id_u"})
+
+	expect := []*models.Board{
+		{IdB: elemID, Title: "title", Description: "", ImgDesk: "",
+			DateCreated: "", IdU: elemID},
+	}
+	for _, item := range expect {
+		rows = rows.AddRow(item.IdB, item.Title, item.Description,
+			item.ImgDesk, item.DateCreated, item.IdU)
+	}
+
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "boards" WHERE link = $1`)).
+		WithArgs("abobus").
+		WillReturnRows(rows)
+
+	item, err := repoBoard.GetByLink("abobus")
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}
+	if !reflect.DeepEqual(item, expect[0]) {
+		t.Errorf("results not match, want %v, have %v", expect[0], item)
+		return
+	}
+
+	// айдишника не существует
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "boards" WHERE link = $1`)).
+		WithArgs("abobus").
+		WillReturnError(customErrors.ErrBoardNotFound)
+
+	_, err = repoBoard.GetByLink("abobus")
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+}
