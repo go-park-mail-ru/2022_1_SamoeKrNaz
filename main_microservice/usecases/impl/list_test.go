@@ -88,12 +88,15 @@ func TestRefactorList(t *testing.T) {
 	listUseCase := MakeListUsecase(listRepo, boardRepo)
 
 	list := models.List{Title: "title2", Position: 2}
+	board := models.Board{IdB: 1}
 
+	listRepo.EXPECT().GetBoard(uint(1)).Return(&board, nil)
 	boardRepo.EXPECT().IsAccessToBoard(uint(22), uint(1)).Return(true, nil)
 	listRepo.EXPECT().Update(list).Return(nil)
 	err := listUseCase.RefactorList(list, uint(22), uint(1))
 	assert.Equal(t, err, nil)
 
+	listRepo.EXPECT().GetBoard(uint(1)).Return(&board, nil)
 	boardRepo.EXPECT().IsAccessToBoard(uint(22), uint(1)).Return(false, customErrors.ErrNoAccess)
 	err = listUseCase.RefactorList(list, uint(22), uint(1))
 	assert.Equal(t, err, customErrors.ErrNoAccess)

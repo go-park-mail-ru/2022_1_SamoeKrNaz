@@ -289,18 +289,16 @@ func (taskHandler *TaskHandler) AppendUserToTaskByLink(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	err := taskHandler.usecase.AppendUserToTaskByLink(uint(userId.(uint64)), link)
+	appendedTask, err := taskHandler.usecase.AppendUserToTaskByLink(uint(userId.(uint64)), link)
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
 
-	var isAppended models.Appended
-	isAppended.AppendedInfo = true
-	isAppendedJson, err := isAppended.MarshalJSON()
+	taskJson, err := (*appendedTask).MarshalJSON()
 	if err != nil {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Data(http.StatusOK, "application/json; charset=utf-8", isAppendedJson)
+	c.Data(http.StatusOK, "application/json; charset=utf-8", taskJson)
 }

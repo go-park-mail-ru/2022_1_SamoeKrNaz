@@ -53,7 +53,7 @@ func (checkListUseCase *CheckListUseCaseImpl) GetCheckLists(userId uint, IdT uin
 
 func (checkListUseCase *CheckListUseCaseImpl) CreateCheckList(checkList *models.CheckList, IdT uint, userId uint) (*models.CheckList, error) {
 	checkList.IdT = IdT
-	isAccess, err := checkListUseCase.repTask.IsAccessToTask(userId, checkList.IdT)
+	isAccess, err := checkListUseCase.repTask.IsAccessToTask(userId, IdT)
 	if err != nil {
 		return nil, err
 	} else if !isAccess {

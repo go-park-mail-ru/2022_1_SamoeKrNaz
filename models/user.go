@@ -10,5 +10,6 @@ type User struct {
 	Password  string    `json:"password" gorm:"not null;"`
 	ImgAvatar string    `json:"img_avatar"`
 	Boards    []Board   `gorm:"many2many:users_boards;"`
+	Tasks     []Task    `gorm:"many2many:users_tasks;constraint:OnDelete:CASCADE;"`
 	Comments  []Comment `json:"comments" gorm:"foreignKey:IdU;constraint:OnDelete:CASCADE;"`
 }

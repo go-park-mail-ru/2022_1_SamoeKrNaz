@@ -4,6 +4,7 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/models"
+	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -69,23 +70,33 @@ func (taskRepository *TaskRepositoryImpl) Update(task models.Task) error {
 	if currentData.Position != task.Position && currentData.IdL == task.IdL {
 		// если список переместили вниз
 		if currentData.Position > task.Position {
+			// допустим, что был список 1 2 3 4
+			// решили, что четвертый список будет после первого
+			// 1 4 2 3
+			// значит, нужно все индексы после текущей позиции увеличить на 1
 			err := taskRepository.db.Model(&models.Task{}).
-				Where("id_b = ? AND position BETWEEN ? AND ?", currentData.IdL, task.Position, currentData.Position-1).
+				Where("id_l = ? AND position BETWEEN ? AND ?", currentData.IdL, task.Position, currentData.Position-1).
 				UpdateColumn("position", gorm.Expr("position + 1")).Error
 			if err != nil {
 				return err
 			}
+			currentData.Position = task.Position
 		} else { // если список переместили вверх
+			// допустим, что был список 1 2 3 4
+			// решили, что второй список будет после четвертого
+			// 1 3 4 2
+			// значит, нужно все индексы  с предыдущей позиции уменьшить на 1
 			err := taskRepository.db.Model(&models.Task{}).
-				Where("id_b = ? AND position BETWEEN ? AND ?", currentData.IdL, currentData.Position+1, task.Position).
+				Where("id_l = ? AND position BETWEEN ? AND ?", currentData.IdL, currentData.Position+1, task.Position).
 				UpdateColumn("position", gorm.Expr("position - 1")).Error
 			if err != nil {
 				return err
 			}
+			currentData.Position = task.Position
 		}
-		currentData.Position = task.Position
 	}
-	if currentData.Position != task.Position && currentData.IdL != task.IdL && task.IdL != 0 {
+	if currentData.IdL != task.IdL && task.IdL != 0 {
+		fmt.Println("второе условие")
 		// если мы переместили таску из одного списка в другой и поменяли список
 		// то нужно в старом списке поменять позиции после текущей таски
 		err := taskRepository.db.Model(&models.Task{}).
@@ -94,21 +105,14 @@ func (taskRepository *TaskRepositoryImpl) Update(task models.Task) error {
 		if err != nil {
 			return err
 		}
-		// в новом списке поменять позицию
-		if currentData.Position > task.Position {
-			err := taskRepository.db.Model(&models.Task{}).
-				Where("id_b = ? AND position BETWEEN ? AND ?", task.IdL, task.Position, currentData.Position-1).
-				UpdateColumn("position", gorm.Expr("position + 1")).Error
-			if err != nil {
-				return err
-			}
-		} else { // если список переместили вверх
-			err := taskRepository.db.Model(&models.Task{}).
-				Where("id_b = ? AND position BETWEEN ? AND ?", task.IdL, currentData.Position+1, task.Position).
-				UpdateColumn("position", gorm.Expr("position - 1")).Error
-			if err != nil {
-				return err
-			}
+		// в новом списке поменять позицию, то не будем учитывать позицию в прошлом листе: новый лист - новые позиции
+		// будем менять в том случае, если в новом листе после этой позиции есть таски
+		// иначе просто сохраняем с новым индексом
+		err = taskRepository.db.Model(&models.Task{}).
+			Where("id_l = ? AND position >= ?", task.IdL, task.Position).
+			UpdateColumn("position", gorm.Expr("position + 1")).Error
+		if err != nil {
+			return err
 		}
 		currentData.Position = task.Position
 		currentData.IdL = task.IdL
@@ -158,11 +162,22 @@ func (taskRepository *TaskRepositoryImpl) IsAccessToTask(IdU uint, IdT uint) (bo
 	if err != nil {
 		return false, err
 	}
-	board := new(models.Board)
-	err = taskRepository.db.Model(&models.User{IdU: IdU}).Where("id_b = ?", task.IdB).Association("Boards").Find(board)
+	user := new(models.User)
+	err = taskRepository.db.Model(&models.Board{IdB: task.IdB}).Where("id_u = ?", IdU).Association("Users").Find(user)
 	if err != nil {
 		return false, err
-	} else if board == nil {
+	} else if user.IdU == 0 {
+		return false, nil
+	}
+	return true, nil
+}
+
+func (taskRepository *TaskRepositoryImpl) IsAppendedToTask(IdU uint, IdT uint) (bool, error) {
+	user := new(models.User)
+	err := taskRepository.db.Model(&models.Task{IdT: IdT}).Where("id_u = ?", IdU).Association("Users").Find(user)
+	if err != nil {
+		return false, err
+	} else if user.IdU == 0 {
 		return false, nil
 	}
 	return true, nil

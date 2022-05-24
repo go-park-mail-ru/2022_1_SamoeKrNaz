@@ -277,3 +277,49 @@ func TestRefactorProfile(t *testing.T) {
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusConflict, writer.Code)
 }
+
+func TestGetUsersLike(t *testing.T) {
+	t.Parallel()
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+	userUseCase := mock_usecases.NewMockUserUseCase(controller)
+	userHandler := MakeUserHandler(userUseCase)
+
+	router := gin.Default()
+	router.Use(middleware.CheckError())
+	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
+
+	cookie := &http.Cookie{
+		Name:  "token",
+		Value: "sess1",
+	}
+
+	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+
+	mainRoutes := router.Group(routes.HomeRoute)
+	{
+		mainRoutes.POST(routes.ProfileRoute+"/like", authMiddleware.CheckAuth, userHandler.GetUsersLike)
+	}
+
+	var users []models.User
+	user := models.User{Username: "user1"}
+	jsonUser, _ := json.Marshal(user)
+	body := bytes.NewReader(jsonUser)
+
+	//good
+	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
+	userUseCase.EXPECT().GetUsersLike(user.Username).Return(&users, nil)
+	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.ProfileRoute+"/like", body)
+	request.AddCookie(cookie)
+	writer := httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+	assert.Equal(t, http.StatusOK, writer.Code)
+
+	//bad
+	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
+	request, _ = http.NewRequest("POST", routes.HomeRoute+routes.ProfileRoute+"/like", body)
+	request.AddCookie(cookie)
+	writer = httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+	assert.Equal(t, http.StatusUnauthorized, writer.Code)
+}

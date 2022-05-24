@@ -50,11 +50,12 @@ func (mr *MockTaskUseCaseMockRecorder) AppendUserToTask(userId, appendedUserId, 
 }
 
 // AppendUserToTaskByLink mocks base method.
-func (m *MockTaskUseCase) AppendUserToTaskByLink(userId uint, link string) error {
+func (m *MockTaskUseCase) AppendUserToTaskByLink(userId uint, link string) (*models.Task, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AppendUserToTaskByLink", userId, link)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*models.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // AppendUserToTaskByLink indicates an expected call of AppendUserToTaskByLink.

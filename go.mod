@@ -10,8 +10,10 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/ivahaev/russian-time v0.0.0-20150617104445-2cf0588a2348
 	github.com/kolesa-team/go-webp v1.0.1
+	github.com/mailru/easyjson v0.7.7
 	github.com/microcosm-cc/bluemonday v1.0.18
 	github.com/penglongli/gin-metrics v0.1.10
+	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.12.1
 	github.com/spf13/viper v1.11.0
 	github.com/stretchr/testify v1.7.1
@@ -51,7 +53,6 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
-	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
@@ -61,7 +62,6 @@ require (
 	github.com/onsi/gomega v1.19.0 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.0-beta.8 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.32.1 // indirect

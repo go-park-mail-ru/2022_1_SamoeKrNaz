@@ -88,7 +88,7 @@ func (commentUseCase *CommentUseCaseImpl) CreateComment(comment *models.Comment,
 }
 
 func (commentUseCase *CommentUseCaseImpl) RefactorComment(comment *models.Comment, userId uint) error {
-	isAccess, err := commentUseCase.repComment.IsAccessToComment(userId, comment.IdCm)
+	isAccess, err := commentUseCase.repComment.IsAccessToComment(comment.IdCm, userId)
 	if err != nil {
 		return err
 	} else if !isAccess {

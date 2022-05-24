@@ -300,3 +300,133 @@ func TestGetImportantTask(t *testing.T) {
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
+
+func TestAppendUserToTask(t *testing.T) {
+	t.Parallel()
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+	taskUseCase := mock_usecases.NewMockTaskUseCase(controller)
+	taskHandler := MakeTaskHandler(taskUseCase)
+
+	router := gin.Default()
+	router.Use(middleware.CheckError())
+
+	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
+
+	cookie := &http.Cookie{
+		Name:  "token",
+		Value: "sess1",
+	}
+
+	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+
+	mainRoutes := router.Group(routes.HomeRoute)
+	{
+		mainRoutes.POST(routes.BoardRoute+"/:id/:idU", authMiddleware.CheckAuth, taskHandler.AppendUserToTask)
+	}
+
+	var user models.User
+
+	//good
+	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
+	taskUseCase.EXPECT().AppendUserToTask(uint(22), uint(15), uint(11)).Return(user, nil)
+	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.BoardRoute+"/11/15", nil)
+	request.AddCookie(cookie)
+	writer := httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+	assert.Equal(t, http.StatusOK, writer.Code)
+
+	//bad
+	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
+	request, _ = http.NewRequest("POST", routes.HomeRoute+routes.BoardRoute+"/11/15", nil)
+	request.AddCookie(cookie)
+	writer = httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+	assert.Equal(t, http.StatusUnauthorized, writer.Code)
+}
+
+func TestAppendUserToTaskLinkBoard(t *testing.T) {
+	t.Parallel()
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+	taskUseCase := mock_usecases.NewMockTaskUseCase(controller)
+	taskHandler := MakeTaskHandler(taskUseCase)
+
+	router := gin.Default()
+	router.Use(middleware.CheckError())
+
+	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
+
+	cookie := &http.Cookie{
+		Name:  "token",
+		Value: "sess1",
+	}
+
+	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+
+	mainRoutes := router.Group(routes.HomeRoute)
+	{
+		mainRoutes.POST(routes.TaskRoute+"/append/:link", authMiddleware.CheckAuth, taskHandler.AppendUserToTaskByLink)
+	}
+
+	var task models.Task
+
+	//good
+	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
+	taskUseCase.EXPECT().AppendUserToTaskByLink(uint(22), "link").Return(&task, nil)
+	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.TaskRoute+"/append/link", nil)
+	request.AddCookie(cookie)
+	writer := httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+	assert.Equal(t, http.StatusOK, writer.Code)
+
+	//bad
+	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
+	request, _ = http.NewRequest("POST", routes.HomeRoute+routes.TaskRoute+"/append/link", nil)
+	request.AddCookie(cookie)
+	writer = httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+	assert.Equal(t, http.StatusUnauthorized, writer.Code)
+}
+
+func TestDeleteUserFromTask(t *testing.T) {
+	t.Parallel()
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+	taskUseCase := mock_usecases.NewMockTaskUseCase(controller)
+	taskHandler := MakeTaskHandler(taskUseCase)
+
+	router := gin.Default()
+	router.Use(middleware.CheckError())
+
+	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
+
+	cookie := &http.Cookie{
+		Name:  "token",
+		Value: "sess1",
+	}
+
+	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+
+	mainRoutes := router.Group(routes.HomeRoute)
+	{
+		mainRoutes.DELETE(routes.TaskRoute+"/:id/:idU", authMiddleware.CheckAuth, taskHandler.DeleteUserFromTask)
+	}
+
+	//good
+	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
+	taskUseCase.EXPECT().DeleteUserFromTask(uint(22), uint(15), uint(11)).Return(nil)
+	request, _ := http.NewRequest("DELETE", routes.HomeRoute+routes.TaskRoute+"/11/15", nil)
+	request.AddCookie(cookie)
+	writer := httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+	assert.Equal(t, http.StatusOK, writer.Code)
+
+	//bad
+	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
+	request, _ = http.NewRequest("DELETE", routes.HomeRoute+routes.TaskRoute+"/11/15", nil)
+	request.AddCookie(cookie)
+	writer = httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+	assert.Equal(t, http.StatusUnauthorized, writer.Code)
+}

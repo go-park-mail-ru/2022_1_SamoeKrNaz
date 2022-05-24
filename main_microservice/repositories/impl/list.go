@@ -32,7 +32,7 @@ func (listRepository *ListRepositoryImpl) Update(list models.List) error {
 	if err != nil {
 		return err
 	}
-	if currentData.Title != list.Title {
+	if currentData.Title != list.Title && list.Title != "" {
 		currentData.Title = list.Title
 	}
 	if currentData.Position != list.Position && list.Position != 0 {
@@ -83,12 +83,12 @@ func (listRepository *ListRepositoryImpl) Delete(IdL uint) error {
 
 func (listRepository *ListRepositoryImpl) GetTasks(IdL uint) (*[]models.Task, error) {
 	tasks := new([]models.Task)
-	result := listRepository.db.Where("id_l = ?", IdL).Order("id_t").Find(tasks)
+	result := listRepository.db.Where("id_l = ?", IdL).Order("position").Find(tasks)
 	return tasks, result.Error
 }
 
 func (listRepository *ListRepositoryImpl) GetById(IdL uint) (*models.List, error) {
-	// указатель на структуру, которую вернем
+	//указатель на структуру, которую вернем
 	list := new(models.List)
 	result := listRepository.db.Find(list, IdL)
 	// если выборка в 0 строк, то такого листа нет

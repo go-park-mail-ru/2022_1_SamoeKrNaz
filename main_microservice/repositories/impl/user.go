@@ -7,7 +7,6 @@ import (
 	"PLANEXA_backend/user_microservice/server_user_ms/handler"
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/kolesa-team/go-webp/encoder"
 	"github.com/kolesa-team/go-webp/webp"
 	"gorm.io/gorm"
@@ -104,7 +103,6 @@ func (userRepository *UserRepositoryImpl) IsAbleToLogin(username string, passwor
 		if strings.Contains(err.Error(), customErrors.ErrBadInputData.Error()) {
 			err = customErrors.ErrBadInputData
 		}
-		fmt.Println(err)
 		return false, err
 	}
 	return isAble.Dummy, err
@@ -131,7 +129,6 @@ func (userRepository *UserRepositoryImpl) GetUserByLogin(username string) (*mode
 
 func (userRepository *UserRepositoryImpl) GetUserById(IdU uint) (*models.User, error) {
 	user, err := userRepository.client.GetUserById(userRepository.ctx, &handler.IdUser{IDU: uint64(IdU)})
-	fmt.Println("repo main", user)
 	if err != nil {
 		return nil, err
 	}

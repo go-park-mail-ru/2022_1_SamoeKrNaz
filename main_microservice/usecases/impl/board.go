@@ -237,20 +237,20 @@ func (boardUseCase *BoardUseCaseImpl) DeleteUserFromBoard(userId uint, deletedUs
 	return err
 }
 
-func (boardUseCase *BoardUseCaseImpl) AppendUserByLink(userId uint, link string) error {
+func (boardUseCase *BoardUseCaseImpl) AppendUserByLink(userId uint, link string) (*models.Board, error) {
 	board, err := boardUseCase.repBoard.GetByLink(link)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	isAccess, err := boardUseCase.repBoard.IsAccessToBoard(userId, board.IdB)
 	if isAccess {
-		return customErrors.ErrAlreadyAppended
+		return nil, customErrors.ErrAlreadyAppended
 	} else if err != nil {
-		return err
+		return nil, err
 	}
 	err = boardUseCase.repBoard.AppendUser(board.IdB, userId)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return board, err
 }

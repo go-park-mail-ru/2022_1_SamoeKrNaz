@@ -251,3 +251,133 @@ func TestDeleteBoard(t *testing.T) {
 	router.ServeHTTP(writer, request)
 	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
+
+func TestAppendUserToBoard(t *testing.T) {
+	t.Parallel()
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+	boardUseCase := mock_usecases.NewMockBoardUseCase(controller)
+	boardHandler := MakeBoardHandler(boardUseCase)
+
+	router := gin.Default()
+	router.Use(middleware.CheckError())
+
+	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
+
+	cookie := &http.Cookie{
+		Name:  "token",
+		Value: "sess1",
+	}
+
+	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+
+	mainRoutes := router.Group(routes.HomeRoute)
+	{
+		mainRoutes.POST(routes.BoardRoute+"/:id/:idU", authMiddleware.CheckAuth, boardHandler.AppendUserToBoard)
+	}
+
+	var user models.User
+
+	//good
+	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
+	boardUseCase.EXPECT().AppendUserToBoard(uint(22), uint(15), uint(11)).Return(user, nil)
+	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.BoardRoute+"/11/15", nil)
+	request.AddCookie(cookie)
+	writer := httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+	assert.Equal(t, http.StatusOK, writer.Code)
+
+	//bad
+	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
+	request, _ = http.NewRequest("POST", routes.HomeRoute+routes.BoardRoute+"/11/15", nil)
+	request.AddCookie(cookie)
+	writer = httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+	assert.Equal(t, http.StatusUnauthorized, writer.Code)
+}
+
+func TestAppendUserToBoardLinkBoard(t *testing.T) {
+	t.Parallel()
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+	boardUseCase := mock_usecases.NewMockBoardUseCase(controller)
+	boardHandler := MakeBoardHandler(boardUseCase)
+
+	router := gin.Default()
+	router.Use(middleware.CheckError())
+
+	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
+
+	cookie := &http.Cookie{
+		Name:  "token",
+		Value: "sess1",
+	}
+
+	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+
+	mainRoutes := router.Group(routes.HomeRoute)
+	{
+		mainRoutes.POST(routes.BoardRoute+"/append/:link", authMiddleware.CheckAuth, boardHandler.AppendUserToBoardByLink)
+	}
+
+	var board models.Board
+
+	//good
+	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
+	boardUseCase.EXPECT().AppendUserByLink(uint(22), "link").Return(&board, nil)
+	request, _ := http.NewRequest("POST", routes.HomeRoute+routes.BoardRoute+"/append/link", nil)
+	request.AddCookie(cookie)
+	writer := httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+	assert.Equal(t, http.StatusOK, writer.Code)
+
+	//bad
+	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
+	request, _ = http.NewRequest("POST", routes.HomeRoute+routes.BoardRoute+"/append/link", nil)
+	request.AddCookie(cookie)
+	writer = httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+	assert.Equal(t, http.StatusUnauthorized, writer.Code)
+}
+
+func TestDeleteUserToBoard(t *testing.T) {
+	t.Parallel()
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+	boardUseCase := mock_usecases.NewMockBoardUseCase(controller)
+	boardHandler := MakeBoardHandler(boardUseCase)
+
+	router := gin.Default()
+	router.Use(middleware.CheckError())
+
+	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
+
+	cookie := &http.Cookie{
+		Name:  "token",
+		Value: "sess1",
+	}
+
+	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+
+	mainRoutes := router.Group(routes.HomeRoute)
+	{
+		mainRoutes.DELETE(routes.BoardRoute+"/:id/:idU", authMiddleware.CheckAuth, boardHandler.DeleteUserToBoard)
+	}
+
+	//good
+	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(22), nil)
+	boardUseCase.EXPECT().DeleteUserFromBoard(uint(22), uint(15), uint(11)).Return(nil)
+	request, _ := http.NewRequest("DELETE", routes.HomeRoute+routes.BoardRoute+"/11/15", nil)
+	request.AddCookie(cookie)
+	writer := httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+	assert.Equal(t, http.StatusOK, writer.Code)
+
+	//bad
+	sessionRepo.EXPECT().GetSession(cookie.Value).Return(uint64(0), customErrors.ErrUnauthorized)
+	request, _ = http.NewRequest("DELETE", routes.HomeRoute+routes.BoardRoute+"/11/15", nil)
+	request.AddCookie(cookie)
+	writer = httptest.NewRecorder()
+	router.ServeHTTP(writer, request)
+	assert.Equal(t, http.StatusUnauthorized, writer.Code)
+}

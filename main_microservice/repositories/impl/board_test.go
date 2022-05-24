@@ -90,69 +90,71 @@ func TestSelectByIdBoard(t *testing.T) {
 	}
 }
 
-//func TestCreateBoard(t *testing.T) {
-//	t.Parallel()
-//
-//	repoBoard, mock, err := CreateBoardMock()
-//	if err != nil {
-//		t.Errorf("unexpected err: %s", err)
-//	}
-//
-//	// нормальный результат
-//
-//	board := models.Board{IdB: 1, Title: "title", Description: "", ImgDesk: "", DateCreated: ""}
-//
-//	mock.ExpectBegin()
-//	mock.
-//		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "boards" ("title","description","img_desk","date_created","id_u","id_b") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id_b"`)).
-//		WithArgs(
-//			board.Title,
-//			board.Description,
-//			board.ImgDesk,
-//			board.DateCreated,
-//			board.IdU,
-//			board.IdB).
-//		WillReturnRows(sqlmock.NewRows([]string{"1"}))
-//	mock.ExpectCommit()
-//
-//	id, err := repoBoard.Create(&board)
-//	if err != nil {
-//		t.Errorf("unexpected err: %s", err)
-//		return
-//	}
-//	if id != 1 {
-//		t.Errorf("bad id: want %v, have %v", id, 1)
-//		return
-//	}
-//
-//	if err := mock.ExpectationsWereMet(); err != nil {
-//		t.Errorf("there were unfulfilled expectations: %s", err)
-//	}
-//
-//	// ошибка
-//
-//	mock.ExpectBegin()
-//	mock.
-//		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "boards" ("title","description","img_desk","date_created","id_u","id_b") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id_b"`)).
-//		WithArgs(
-//			board.Title,
-//			board.Description,
-//			board.ImgDesk,
-//			board.DateCreated,
-//			board.IdU,
-//			board.IdB).
-//		WillReturnError(fmt.Errorf("bad_result"))
-//	mock.ExpectRollback()
-//
-//	_, err = repoBoard.Create(&board)
-//	if err == nil {
-//		t.Errorf("expected error, got nil")
-//		return
-//	}
-//	if err := mock.ExpectationsWereMet(); err != nil {
-//		t.Errorf("there were unfulfilled expectations: %s", err)
-//	}
-//}
+func TestCreateBoard(t *testing.T) {
+	t.Parallel()
+
+	repoBoard, mock, err := CreateBoardMock()
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+
+	// нормальный результат
+
+	board := models.Board{IdB: 1, Title: "title", Description: "", ImgDesk: "", DateCreated: ""}
+
+	mock.ExpectBegin()
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "boards" ("title","description","img_desk","date_created","id_u","link","id_b") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id_b"`)).
+		WithArgs(
+			board.Title,
+			board.Description,
+			board.ImgDesk,
+			board.DateCreated,
+			board.IdU,
+			board.Link,
+			board.IdB).
+		WillReturnRows(sqlmock.NewRows([]string{"1"}))
+	mock.ExpectCommit()
+
+	id, err := repoBoard.Create(&board)
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+	if id != 1 {
+		t.Errorf("bad id: want %v, have %v", id, 1)
+		return
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+
+	// ошибка
+
+	mock.ExpectBegin()
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`INSERT INTO "boards" ("title","description","img_desk","date_created","id_u","link","id_b") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id_b"`)).
+		WithArgs(
+			board.Title,
+			board.Description,
+			board.ImgDesk,
+			board.DateCreated,
+			board.IdU,
+			board.Link,
+			board.IdB).
+		WillReturnError(fmt.Errorf("bad_result"))
+	mock.ExpectRollback()
+
+	_, err = repoBoard.Create(&board)
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
 
 func TestDeleteBoard(t *testing.T) {
 	t.Parallel()
@@ -474,7 +476,7 @@ func TestIsAccess(t *testing.T) {
 	}
 
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`SELECT "boards"."id_b","boards"."title","boards"."description","boards"."img_desk","boards"."date_created","boards"."id_u","boards"."link" FROM "boards" JOIN "users_boards" ON "users_boards"."board_id_b" = "boards"."id_b" AND "users_boards"."user_id_u" = $1 WHERE id_b = $2`)).
+		ExpectQuery(regexp.QuoteMeta(`SELECT "users"."id_u","users"."username","users"."password","users"."img_avatar" FROM "users" JOIN "users_boards" ON "users_boards"."user_id_u" = "users"."id_u" AND "users_boards"."board_id_b" = $1 WHERE id_u = $2`)).
 		WithArgs(1, 1).
 		WillReturnRows(rows)
 
@@ -494,11 +496,11 @@ func TestIsAccess(t *testing.T) {
 
 	// айдишника не существует
 	mock.
-		ExpectQuery(regexp.QuoteMeta(`SELECT "boards"."id_b","boards"."title","boards"."description","boards"."img_desk","boards"."date_created","boards"."id_u","boards"."link" FROM "boards" JOIN "users_boards" ON "users_boards"."board_id_b" = "boards"."id_b" AND "users_boards"."user_id_u" = $1 WHERE id_b = $2`)).
-		WithArgs(1, 2).
+		ExpectQuery(regexp.QuoteMeta(`SELECT "users"."id_u","users"."username","users"."password","users"."img_avatar" FROM "users" JOIN "users_boards" ON "users_boards"."user_id_u" = "users"."id_u" AND "users_boards"."board_id_b" = $1 WHERE id_u = $2`)).
+		WithArgs(1, 1).
 		WillReturnError(customErrors.ErrBoardNotFound)
 
-	_, err = repoBoard.IsAccessToBoard(1, 2)
+	_, err = repoBoard.IsAccessToBoard(1, 1)
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
@@ -617,6 +619,66 @@ func TestDeleteUser(t *testing.T) {
 		WillReturnError(customErrors.ErrUserNotFound)
 
 	err = repoBoard.DeleteUser(1, 2)
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+}
+
+func TestGetByLinkBoard(t *testing.T) {
+	t.Parallel()
+
+	var elemID uint = 1
+
+	//создание мока
+	repoBoard, mock, err := CreateBoardMock()
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+
+	// нормальный результат
+	rows := sqlmock.
+		NewRows([]string{"id_b", "title", "description", "img_desk", "data_created", "id_u"})
+
+	expect := []*models.Board{
+		{IdB: elemID, Title: "title", Description: "", ImgDesk: "",
+			DateCreated: "", IdU: elemID},
+	}
+	for _, item := range expect {
+		rows = rows.AddRow(item.IdB, item.Title, item.Description,
+			item.ImgDesk, item.DateCreated, item.IdU)
+	}
+
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "boards" WHERE link = $1`)).
+		WithArgs("abobus").
+		WillReturnRows(rows)
+
+	item, err := repoBoard.GetByLink("abobus")
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}
+	if !reflect.DeepEqual(item, expect[0]) {
+		t.Errorf("results not match, want %v, have %v", expect[0], item)
+		return
+	}
+
+	// айдишника не существует
+	mock.
+		ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "boards" WHERE link = $1`)).
+		WithArgs("abobus").
+		WillReturnError(customErrors.ErrBoardNotFound)
+
+	_, err = repoBoard.GetByLink("abobus")
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return

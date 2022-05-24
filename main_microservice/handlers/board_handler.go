@@ -287,18 +287,16 @@ func (boardHandler *BoardHandler) AppendUserToBoardByLink(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	err := boardHandler.usecase.AppendUserByLink(uint(userId.(uint64)), link)
+	appendedBoard, err := boardHandler.usecase.AppendUserByLink(uint(userId.(uint64)), link)
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
 
-	var isAppended models.Appended
-	isAppended.AppendedInfo = true
-	isAppendedJson, err := isAppended.MarshalJSON()
+	boardJson, err := appendedBoard.MarshalJSON()
 	if err != nil {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Data(http.StatusOK, "application/json; charset=utf-8", isAppendedJson)
+	c.Data(http.StatusOK, "application/json; charset=utf-8", boardJson)
 }

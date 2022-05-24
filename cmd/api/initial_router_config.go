@@ -68,7 +68,7 @@ func initDB(conf Config) (*gorm.DB, error) {
 		return nil, err
 	}
 	err = db.AutoMigrate(&models.User{}, &models.Board{}, &models.List{},
-		&models.Task{}, &models.CheckList{}, &models.CheckListItem{}, &models.Comment{})
+		&models.Task{}, &models.CheckList{}, &models.CheckListItem{}, &models.Comment{}, &models.Attachment{})
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func initRouter() (*gin.Engine, error) {
 	router := gin.Default()
 
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000", "http://planexa.netlify.app", "http://89.208.199.114:3000", "http://89.208.199.114:8080"}
+	config.AllowOrigins = []string{"http://localhost:3000", "https://planexa.ru", "http://planexa.netlify.app", "http://89.208.199.114:3000", "http://89.208.199.114:8080"}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowCredentials = true
 	router.Use(cors.New(config))
@@ -159,7 +159,7 @@ func initRouter() (*gin.Engine, error) {
 			boardRoutes.GET("/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.GetLists)
 			boardRoutes.POST("/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.CreateList)
 			boardRoutes.POST("/:id"+routes.ListRoute+"/:idL"+routes.TaskRoute, authMiddleware.CheckAuth, taskHandler.CreateTask)
-			boardRoutes.GET("/append/:link", authMiddleware.CheckAuth, boardHandler.AppendUserToBoardByLink)
+			boardRoutes.POST("/append/:link", authMiddleware.CheckAuth, boardHandler.AppendUserToBoardByLink)
 		}
 		listRoutes := router.Group(routes.ListRoute)
 		{
@@ -180,8 +180,8 @@ func initRouter() (*gin.Engine, error) {
 			taskRoutes.POST("/:id"+routes.CheckListRoute, authMiddleware.CheckAuth, checkListHandler.CreateCheckList)
 			taskRoutes.GET("/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.GetComments)
 			taskRoutes.POST("/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.CreateComment)
-			taskRoutes.POST("/:id"+routes.AttachmentRoute, authMiddleware.CheckAuth, attachmentHandler.CreateAttachment)
-			taskRoutes.GET("/append/:link", authMiddleware.CheckAuth, taskHandler.AppendUserToTaskByLink)
+			taskRoutes.PUT("/:id"+routes.AttachmentRoute, authMiddleware.CheckAuth, attachmentHandler.CreateAttachment)
+			taskRoutes.POST("/append/:link", authMiddleware.CheckAuth, taskHandler.AppendUserToTaskByLink)
 		}
 		checkListRoutes := router.Group(routes.CheckListRoute)
 		{

@@ -9,6 +9,7 @@ import (
 	"io"
 	"mime/multipart"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -27,7 +28,7 @@ func (attachmentRepository AttachmentRepositoryImpl) Create(header *multipart.Fi
 	attachment.IdT = IdT
 	fileName := strings.Join([]string{filePathAttach, uuid.NewString()}, "")
 	attachment.SystemName = fileName
-	attachment.DefaultName = header.Filename
+	attachment.DefaultName = filepath.Base(header.Filename)
 
 	output, err := os.Create(fileName)
 	if err != nil {
