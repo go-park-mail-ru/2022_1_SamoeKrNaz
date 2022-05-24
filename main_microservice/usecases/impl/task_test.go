@@ -39,27 +39,27 @@ func TestGetTasks(t *testing.T) {
 	assert.Equal(t, err, customErrors.ErrNoAccess)
 }
 
-//func TestCreateTask(t *testing.T) {
-//	t.Parallel()
-//	controller := gomock.NewController(t)
-//	defer controller.Finish()
-//
-//	boardRepo := mock_repositories.NewMockBoardRepository(controller)
-//	listRepo := mock_repositories.NewMockListRepository(controller)
-//	taskRepo := mock_repositories.NewMockTaskRepository(controller)
-//	userRepo := mock_repositories.NewMockUserRepository(controller)
-//	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
-//	commentRepo := mock_repositories.NewMockCommentRepository(controller)
-//	taskUseCase := MakeTaskUsecase(taskRepo, boardRepo, listRepo, userRepo, checkListRepo, commentRepo)
-//
-//	task := models.Task{IdT: 0, Title: "title2"}
-//
-//	boardRepo.EXPECT().IsAccessToBoard(uint(22), uint(0)).Return(true, nil)
-//	taskRepo.EXPECT().Create(gomock.Any(), uint(0), uint(0)).Return(uint(0), nil)
-//	taskRepo.EXPECT().GetById(uint(0)).Return(&task, nil)
-//	_, err := taskUseCase.CreateTask(task, uint(0), uint(0), uint(22))
-//	assert.Equal(t, nil, err)
-//}
+func TestCreateTask(t *testing.T) {
+	t.Parallel()
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	userRepo := mock_repositories.NewMockUserRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
+	taskUseCase := MakeTaskUsecase(taskRepo, boardRepo, listRepo, userRepo, checkListRepo, commentRepo)
+
+	task := models.Task{IdT: 0, Title: "title2"}
+
+	boardRepo.EXPECT().IsAccessToBoard(uint(22), uint(0)).Return(true, nil)
+	taskRepo.EXPECT().Create(gomock.Any(), uint(0), uint(0)).Return(uint(0), nil)
+	taskRepo.EXPECT().GetById(uint(0)).Return(&task, nil)
+	_, err := taskUseCase.CreateTask(task, uint(0), uint(0), uint(22))
+	assert.Equal(t, nil, err)
+}
 
 func TestRefactorTask(t *testing.T) {
 	t.Parallel()
@@ -202,4 +202,25 @@ func TestDeleteUser(t *testing.T) {
 	taskRepo.EXPECT().IsAccessToTask(uint(22), uint(0)).Return(false, nil)
 	err = taskUseCase.DeleteUserFromTask(uint(22), uint(22), uint(0))
 	assert.Equal(t, err, customErrors.ErrNoAccess)
+}
+
+func TestAppendUserByLinkTask(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	boardRepo := mock_repositories.NewMockBoardRepository(controller)
+	listRepo := mock_repositories.NewMockListRepository(controller)
+	taskRepo := mock_repositories.NewMockTaskRepository(controller)
+	userRepo := mock_repositories.NewMockUserRepository(controller)
+	checkListRepo := mock_repositories.NewMockCheckListRepository(controller)
+	commentRepo := mock_repositories.NewMockCommentRepository(controller)
+	taskUseCase := MakeTaskUsecase(taskRepo, boardRepo, listRepo, userRepo, checkListRepo, commentRepo)
+
+	task := models.Task{IdT: 52, Title: "title2", Description: "desc2", IdB: 22, IdU: 11}
+
+	taskRepo.EXPECT().GetByLink("link").Return(&task, nil)
+	boardRepo.EXPECT().IsAccessToBoard(uint(11), uint(22)).Return(true, nil)
+	taskRepo.EXPECT().IsAppendedToTask(uint(11), uint(52)).Return(true, nil)
+	_, err := taskUseCase.AppendUserToTaskByLink(uint(11), "link")
+	assert.Equal(t, customErrors.ErrAlreadyAppended, err)
 }
