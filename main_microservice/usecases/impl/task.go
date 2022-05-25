@@ -70,8 +70,8 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 	if err != nil {
 		return models.Task{}, err
 	}
-	for _, user := range *appendedUsers {
-		user.Password = ""
+	for b := range *appendedUsers {
+		(*appendedUsers)[b].Password = ""
 	}
 	checkLists, err := taskUseCase.repTask.GetCheckLists(taskId)
 	if err != nil {
