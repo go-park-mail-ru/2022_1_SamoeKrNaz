@@ -155,6 +155,7 @@ func initRouter() (*gin.Engine, error) {
 			boardRoutes.GET("/:id", authMiddleware.CheckAuth, boardHandler.GetSingleBoard)
 			boardRoutes.DELETE("/:id", authMiddleware.CheckAuth, boardHandler.DeleteBoard)
 			boardRoutes.POST("/:id/:idU", authMiddleware.CheckAuth, boardHandler.AppendUserToBoard)
+			boardRoutes.DELETE("/:id/:idU", authMiddleware.CheckAuth, boardHandler.DeleteUserToBoard)
 			boardRoutes.PUT("/:id/upload", authMiddleware.CheckAuth, boardHandler.SaveImage)
 			boardRoutes.GET("/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.GetLists)
 			boardRoutes.POST("/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.CreateList)
