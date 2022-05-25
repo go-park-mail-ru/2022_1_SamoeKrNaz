@@ -87,6 +87,7 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 	comments, err := taskUseCase.repComment.GetComments(taskId)
 	for i, comment := range *comments {
 		userComment, err := taskUseCase.repUser.GetUserById(comment.IdU)
+		userComment.Password = ""
 		if err != nil {
 			return models.Task{}, err
 		}
