@@ -5,6 +5,3 @@ userContainer: '2022_1_samoekrnaz_user_microservice_1:8083'
 
 metricsPath: '/metrics'
 metricsPort: ':8084'
-postgresUser: 'Planexa'
-postgresPassword: 'WEB21Planexa'
-postgresDbName: 'DB_Planexa'

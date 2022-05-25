@@ -7,6 +7,3 @@ sessionContainer: '2022_1_samoekrnaz_session_1:8081'
 userContainer: '2022_1_samoekrnaz_user_microservice_1:8083'
 
 metricsPath: '/metrics'
-postgresUser: 'Planexa'
-postgresPassword: 'WEB21Planexa'
-postgresDbName: 'DB_Planexa'
