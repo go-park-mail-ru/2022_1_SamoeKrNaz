@@ -134,6 +134,9 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 		}
 		for j, task := range *tasks {
 			appendedUsers, err := boardUseCase.repTask.GetTaskUser(task.IdT)
+			for g := range *appendedUsers {
+				(*appendedUsers)[g].Password = ""
+			}
 			if err != nil {
 				return models.Board{}, err
 			}
@@ -155,6 +158,7 @@ func (boardUseCase *BoardUseCaseImpl) GetBoard(boardId, userId uint) (models.Boa
 			}
 			for i, comment := range *comments {
 				userComment, err := boardUseCase.repUser.GetUserById(comment.IdU)
+				userComment.Password = ""
 				if err != nil {
 					return models.Board{}, err
 				}
@@ -220,6 +224,7 @@ func (boardUseCase *BoardUseCaseImpl) AppendUserToBoard(userId uint, appendedUse
 	if err != nil {
 		return models.User{}, err
 	}
+	user.Password = ""
 	return *user, err
 }
 
