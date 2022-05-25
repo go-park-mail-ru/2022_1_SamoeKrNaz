@@ -221,10 +221,10 @@ func (boardUseCase *BoardUseCaseImpl) AppendUserToBoard(userId uint, appendedUse
 		return models.User{}, err
 	}
 	user, err := boardUseCase.repUser.GetUserById(appendedUserId)
-	user.Password = ""
 	if err != nil {
 		return models.User{}, err
 	}
+	user.Password = ""
 	return *user, err
 }
 
