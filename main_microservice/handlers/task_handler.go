@@ -94,6 +94,9 @@ func (taskHandler *TaskHandler) GetSingleTask(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("IdU", userId)
+	c.Set("eventType", "UpdateTask")
+	c.Set("IdT", task.IdT)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", taskJson)
 }
 
@@ -137,6 +140,9 @@ func (taskHandler *TaskHandler) CreateTask(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("IdU", userId)
+	c.Set("eventType", "UpdateBoard")
+	c.Set("IdB", boardId)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", taskJson)
 }
 
@@ -173,6 +179,9 @@ func (taskHandler *TaskHandler) RefactorTask(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("IdU", userId)
+	c.Set("eventType", "UpdateTask")
+	c.Set("IdT", taskId)
 	c.Data(http.StatusCreated, "application/json; charset=utf-8", isUpdatedJson)
 }
 
@@ -203,6 +212,9 @@ func (taskHandler *TaskHandler) DeleteTask(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("IdU", userId)
+	c.Set("eventType", "DeleteTask")
+	c.Set("IdT", taskId)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }
 
@@ -238,6 +250,9 @@ func (taskHandler *TaskHandler) AppendUserToTask(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("IdU", userId)
+	c.Set("eventType", "UpdateTask")
+	c.Set("IdT", taskId)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", userJson)
 }
 
@@ -275,6 +290,9 @@ func (taskHandler *TaskHandler) DeleteUserFromTask(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("IdU", userId)
+	c.Set("eventType", "UpdateTask")
+	c.Set("IdT", taskId)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }
 
@@ -300,5 +318,8 @@ func (taskHandler *TaskHandler) AppendUserToTaskByLink(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("IdU", userId)
+	c.Set("eventType", "UpdateTask")
+	c.Set("IdT", appendedTask.IdT)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", taskJson)
 }

@@ -10,14 +10,14 @@ import (
 )
 
 type Middleware struct {
-	redisRep repositories.SessionRepository
-	boardRep repositories.BoardRepository
+	sessionRepo repositories.SessionRepository
+	boardRepo   repositories.BoardRepository
 
 	ws wsplanexa.WebSocketPool
 }
 
-func CreateMiddleware(redisRep repositories.SessionRepository, boardRep repositories.BoardRepository) *Middleware {
-	return &Middleware{redisRep: redisRep, boardRep: boardRep}
+func CreateMiddleware(sessionRepo repositories.SessionRepository, boardRepo repositories.BoardRepository) *Middleware {
+	return &Middleware{sessionRepo: sessionRepo, boardRepo: boardRepo}
 }
 
 func (mw *Middleware) CheckAuth(c *gin.Context) {
@@ -26,7 +26,7 @@ func (mw *Middleware) CheckAuth(c *gin.Context) {
 		return
 	}
 	// Получаю сессии из БД
-	userId, err := mw.redisRep.GetSession(token)
+	userId, err := mw.sessionRepo.GetSession(token)
 	if err != nil {
 		return
 	}
@@ -34,6 +34,7 @@ func (mw *Middleware) CheckAuth(c *gin.Context) {
 }
 
 func (mw *Middleware) SendToWebSocket(c *gin.Context) {
+	c.Next()
 	status := c.Writer.Status()
 	if status != http.StatusOK {
 		_ = c.Error(customErrors.ErrBadInputData)
@@ -59,7 +60,7 @@ func (mw *Middleware) SendToWebSocket(c *gin.Context) {
 			return
 		}
 		event.IdB = uint(currentIdB.(uint64))
-	} else if event.EventType == "UpdateTask" {
+	} else if event.EventType == "UpdateTask" || event.EventType == "DeleteTask" {
 		currentIdT, check := c.Get("IdT")
 		if !check {
 			_ = c.Error(customErrors.ErrBadInputData)
@@ -69,13 +70,13 @@ func (mw *Middleware) SendToWebSocket(c *gin.Context) {
 	} else {
 		return
 	}
-	boardsUsers, err := mw.boardRep.GetBoardUser(event.IdB)
+	boardsUsers, err := mw.boardRepo.GetBoardUser(event.IdB)
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
 	for _, user := range boardsUsers {
-		if user.IdU == userId {
+		if user.IdU == uint(userId.(uint64)) {
 			continue
 		}
 		eventJson, err := event.MarshalJSON()

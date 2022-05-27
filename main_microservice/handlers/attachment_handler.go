@@ -48,6 +48,9 @@ func (attachmentHandler *AttachmentHandler) CreateAttachment(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("IdU", userId)
+	c.Set("eventType", "UpdateTask")
+	c.Set("IdT", taskId)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", attachmentJson)
 }
 
@@ -100,6 +103,12 @@ func (attachmentHandler *AttachmentHandler) DeleteAttachment(c *gin.Context) {
 		return
 	}
 
+	getAttachment, err := attachmentHandler.usecase.GetById(uint(attachemntId), uint(userId.(uint64)))
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
 	var isDeleted models.Deleted
 	isDeleted.DeletedInfo = true
 	isDeletedJson, err := isDeleted.MarshalJSON()
@@ -107,5 +116,8 @@ func (attachmentHandler *AttachmentHandler) DeleteAttachment(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("IdU", userId)
+	c.Set("eventType", "UpdateTask")
+	c.Set("IdT", getAttachment.IdT)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }

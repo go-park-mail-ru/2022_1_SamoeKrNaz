@@ -32,6 +32,7 @@ func CreatePool() wsplanexa.WebSocketPool {
 }
 
 func (pool *Pool) Start(c *gin.Context) {
+
 	ws, err := pool.upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		_ = c.Error(err)

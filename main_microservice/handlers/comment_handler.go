@@ -112,6 +112,9 @@ func (commentHandler *CommentHandler) CreateComment(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("IdU", userId)
+	c.Set("eventType", "UpdateTask")
+	c.Set("IdT", taskId)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", commentJson)
 }
 
@@ -141,6 +144,12 @@ func (commentHandler *CommentHandler) RefactorComment(c *gin.Context) {
 		return
 	}
 
+	getComment, err := commentHandler.usecase.GetSingleComment(uint(userId.(uint64)), uint(commentId))
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
 	var isUpdated models.Updated
 	isUpdated.UpdatedInfo = true
 	isUpdatedJson, err := isUpdated.MarshalJSON()
@@ -148,6 +157,9 @@ func (commentHandler *CommentHandler) RefactorComment(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("IdU", userId)
+	c.Set("eventType", "UpdateTask")
+	c.Set("IdT", getComment.IdT)
 	c.Data(http.StatusCreated, "application/json; charset=utf-8", isUpdatedJson)
 }
 
@@ -170,6 +182,12 @@ func (commentHandler *CommentHandler) DeleteComment(c *gin.Context) {
 		return
 	}
 
+	getComment, err := commentHandler.usecase.GetSingleComment(uint(userId.(uint64)), uint(commentId))
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
 	var isDeleted models.Deleted
 	isDeleted.DeletedInfo = true
 	isDeletedJson, err := isDeleted.MarshalJSON()
@@ -177,5 +195,8 @@ func (commentHandler *CommentHandler) DeleteComment(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("IdU", userId)
+	c.Set("eventType", "UpdateTask")
+	c.Set("IdT", getComment.IdT)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }

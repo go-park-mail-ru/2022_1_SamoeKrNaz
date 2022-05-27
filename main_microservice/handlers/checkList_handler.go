@@ -111,7 +111,9 @@ func (checkListHandler *CheckListHandler) CreateCheckList(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-
+	c.Set("IdU", userId)
+	c.Set("eventType", "UpdateTask")
+	c.Set("IdT", taskId)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", checkListJson)
 }
 
@@ -141,6 +143,12 @@ func (checkListHandler *CheckListHandler) RefactorCheckList(c *gin.Context) {
 		return
 	}
 
+	task, err := checkListHandler.usecase.GetSingleCheckList(uint(userId.(uint64)), checkList.IdCl)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
 	var isUpdated models.Updated
 	isUpdated.UpdatedInfo = true
 	isUpdatedJson, err := isUpdated.MarshalJSON()
@@ -148,6 +156,9 @@ func (checkListHandler *CheckListHandler) RefactorCheckList(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("IdU", userId)
+	c.Set("eventType", "UpdateTask")
+	c.Set("IdT", task.IdT)
 	c.Data(http.StatusCreated, "application/json; charset=utf-8", isUpdatedJson)
 }
 
@@ -170,6 +181,12 @@ func (checkListHandler *CheckListHandler) DeleteCheckList(c *gin.Context) {
 		return
 	}
 
+	task, err := checkListHandler.usecase.GetSingleCheckList(uint(userId.(uint64)), uint(checkListId))
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
 	var isDeleted models.Deleted
 	isDeleted.DeletedInfo = true
 	isDeletedJson, err := isDeleted.MarshalJSON()
@@ -177,5 +194,8 @@ func (checkListHandler *CheckListHandler) DeleteCheckList(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("IdU", userId)
+	c.Set("eventType", "UpdateTask")
+	c.Set("IdT", task.IdT)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }
