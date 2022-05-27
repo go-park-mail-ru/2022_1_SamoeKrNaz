@@ -33,6 +33,9 @@ var (
 	ErrNoAccess = errors.New("user doesn't have access")
 
 	ErrAlreadyAppended = errors.New("user has already been added")
+
+	ErrWebSocketExist    = errors.New("websocket has already been created")
+	ErrWebSocketNotFound = errors.New("websocket not found")
 )
 
 var errorToCode = map[error]int{
@@ -63,6 +66,9 @@ var errorToCode = map[error]int{
 	ErrAlreadyAppended: http.StatusConflict,
 
 	ErrNoAccess: http.StatusForbidden,
+
+	ErrWebSocketExist:    http.StatusConflict,
+	ErrWebSocketNotFound: http.StatusNotFound,
 }
 
 func ConvertErrorToCode(err error) (code int) {

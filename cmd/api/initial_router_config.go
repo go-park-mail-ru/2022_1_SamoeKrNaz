@@ -7,6 +7,7 @@ import (
 	"PLANEXA_backend/main_microservice/middleware"
 	repositories_impl "PLANEXA_backend/main_microservice/repositories/impl"
 	usecases_impl "PLANEXA_backend/main_microservice/usecases/impl"
+	"PLANEXA_backend/main_microservice/websocket/impl"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/routes"
 	handler_user "PLANEXA_backend/user_microservice/server_user_ms/handler"
@@ -136,7 +137,9 @@ func initRouter() (*gin.Engine, error) {
 	commentRepository := repositories_impl.MakeCommentRepository(db)
 	attachmentRepository := repositories_impl.MakeAttachmentRepository(db)
 
-	authMiddleware := middleware.CreateMiddleware(sessService)
+	authMiddleware := middleware.CreateMiddleware(sessService, boardRepository)
+
+	webSocketPool := wsplanexa_impl.CreatePool()
 
 	userHandler := handlers_impl.MakeUserHandler(usecases_impl.MakeUserUsecase(userService, sessService))
 	taskHandler := handlers_impl.MakeTaskHandler(usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
@@ -218,6 +221,7 @@ func initRouter() (*gin.Engine, error) {
 		mainRoutes.PUT(routes.ProfileRoute+"/upload", authMiddleware.CheckAuth, userHandler.SaveAvatar)
 		mainRoutes.PUT(routes.ProfileRoute, authMiddleware.CheckAuth, userHandler.RefactorProfile)
 		mainRoutes.POST(routes.ProfileRoute+"/like", authMiddleware.CheckAuth, userHandler.GetUsersLike)
+		mainRoutes.GET(routes.WebSocketRoute, authMiddleware.CheckAuth, webSocketPool.Start)
 	}
 	return router, nil
 }
