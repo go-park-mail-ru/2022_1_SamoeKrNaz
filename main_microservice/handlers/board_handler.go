@@ -129,7 +129,7 @@ func (boardHandler *BoardHandler) RefactorBoard(c *gin.Context) {
 		return
 	}
 	c.Set("eventType", "UpdateBoard")
-	c.Set("IdB", boardId)
+	c.Set("IdB", uint(boardId))
 	c.Data(http.StatusCreated, "application/json; charset=utf-8", isUpdatedJson)
 }
 
