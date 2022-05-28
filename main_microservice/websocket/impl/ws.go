@@ -4,6 +4,7 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	wsplanexa "PLANEXA_backend/main_microservice/websocket"
 	"PLANEXA_backend/models"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"net/http"
@@ -32,33 +33,29 @@ func CreatePool() wsplanexa.WebSocketPool {
 }
 
 func (pool *Pool) Start(c *gin.Context) {
-
 	ws, err := pool.upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
-	defer func(ws *websocket.Conn) {
-		err := ws.Close()
-		if err != nil {
-			_ = c.Error(err)
-			return
-		}
-	}(ws)
-	userId, check := c.Get("IdU")
+	fmt.Println("upgrader success")
+	defer ws.Close()
+	userId, check := c.Get("Auth")
 	if !check {
-		_ = c.Error(customErrors.ErrBadInputData)
+		fmt.Println("error in get auth")
 		return
 	}
+	fmt.Println("get userId success")
 	err = pool.Add(uint(userId.(uint64)), ws)
 	if err != nil {
-		_ = c.Error(err)
+		fmt.Println("error in add")
 		return
 	}
+	fmt.Println("add with no err")
 	defer func() {
 		err := pool.Delete(uint(userId.(uint64)), ws)
 		if err != nil {
-			_ = c.Error(err)
+			fmt.Println("error in delete")
 			return
 		}
 	}()
@@ -66,18 +63,19 @@ func (pool *Pool) Start(c *gin.Context) {
 	for errorRead == nil {
 		_, _, errorRead = ws.ReadMessage()
 		if errorRead != nil {
-			_ = c.Error(err)
+			fmt.Println("error in errorRead")
 			return
 		}
 	}
-	var isAppended models.Appended
-	isAppended.AppendedInfo = true
-	isAppendedJson, err := isAppended.MarshalJSON()
+	var isDeleted models.Deleted
+	isDeleted.DeletedInfo = true
+	isDeletedJson, err := isDeleted.MarshalJSON()
 	if err != nil {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Data(http.StatusOK, "application/json; charset=utf-8", isAppendedJson)
+	fmt.Println("socket start end")
+	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }
 
 func (pool *Pool) Add(IdU uint, ws *websocket.Conn) error {
@@ -89,6 +87,7 @@ func (pool *Pool) Add(IdU uint, ws *websocket.Conn) error {
 		}
 	}
 	pool.socketPool[IdU] = append(pool.socketPool[IdU], ws)
+	fmt.Println("socket add")
 	return nil
 }
 
@@ -102,17 +101,23 @@ func (pool *Pool) Delete(IdU uint, ws *websocket.Conn) error {
 			return nil
 		}
 	}
+	fmt.Println("socket delete")
 	return customErrors.ErrWebSocketNotFound
 }
 
-func (pool *Pool) Send(IdU uint, data []byte) error {
+func (pool *Pool) Send(IdU uint, data []byte) {
+	fmt.Println("socket ready to send")
 	pool.mutex.Lock()
+	fmt.Println("socket ready to send")
 	defer pool.mutex.Unlock()
+	fmt.Println("socket ready to send")
 	for _, item := range pool.socketPool[IdU] {
+		fmt.Println("data: ", data)
 		err := item.WriteMessage(websocket.TextMessage, data)
+		fmt.Println("socket send in for")
 		if err != nil {
-			return err
+			fmt.Println(err)
 		}
 	}
-	return nil
+	fmt.Println("socket send")
 }

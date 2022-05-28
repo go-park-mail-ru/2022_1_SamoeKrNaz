@@ -22,6 +22,7 @@ func TestGetAttachment(t *testing.T) {
 	defer controller.Finish()
 	attachmentUseCase := mock_usecases.NewMockAttachmentUseCase(controller)
 	attachmentHandler := MakeAttachmentHandler(attachmentUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -33,7 +34,7 @@ func TestGetAttachment(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -69,6 +70,7 @@ func TestDeleteAttachment(t *testing.T) {
 	defer controller.Finish()
 	attachmentUseCase := mock_usecases.NewMockAttachmentUseCase(controller)
 	attachmentHandler := MakeAttachmentHandler(attachmentUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -80,7 +82,7 @@ func TestDeleteAttachment(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{

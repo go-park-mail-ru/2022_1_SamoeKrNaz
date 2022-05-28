@@ -23,6 +23,7 @@ func TestGetTasks(t *testing.T) {
 	defer controller.Finish()
 	taskUseCase := mock_usecases.NewMockTaskUseCase(controller)
 	taskHandler := MakeTaskHandler(taskUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -34,7 +35,7 @@ func TestGetTasks(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -69,6 +70,7 @@ func TestGetTask(t *testing.T) {
 	defer controller.Finish()
 	taskUseCase := mock_usecases.NewMockTaskUseCase(controller)
 	taskHandler := MakeTaskHandler(taskUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -80,7 +82,7 @@ func TestGetTask(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -116,6 +118,7 @@ func TestCreateTask(t *testing.T) {
 	defer controller.Finish()
 	taskUseCase := mock_usecases.NewMockTaskUseCase(controller)
 	taskHandler := MakeTaskHandler(taskUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -127,7 +130,7 @@ func TestCreateTask(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -169,6 +172,7 @@ func TestRefactorTask(t *testing.T) {
 	defer controller.Finish()
 	taskUseCase := mock_usecases.NewMockTaskUseCase(controller)
 	taskHandler := MakeTaskHandler(taskUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -180,7 +184,7 @@ func TestRefactorTask(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -218,6 +222,7 @@ func TestDeleteTask(t *testing.T) {
 	defer controller.Finish()
 	taskUseCase := mock_usecases.NewMockTaskUseCase(controller)
 	taskHandler := MakeTaskHandler(taskUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -229,7 +234,7 @@ func TestDeleteTask(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -260,6 +265,7 @@ func TestGetImportantTask(t *testing.T) {
 	defer controller.Finish()
 	taskUseCase := mock_usecases.NewMockTaskUseCase(controller)
 	taskHandler := MakeTaskHandler(taskUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -271,7 +277,7 @@ func TestGetImportantTask(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -307,6 +313,7 @@ func TestAppendUserToTask(t *testing.T) {
 	defer controller.Finish()
 	taskUseCase := mock_usecases.NewMockTaskUseCase(controller)
 	taskHandler := MakeTaskHandler(taskUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -318,7 +325,7 @@ func TestAppendUserToTask(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -351,6 +358,7 @@ func TestAppendUserToTaskLinkBoard(t *testing.T) {
 	defer controller.Finish()
 	taskUseCase := mock_usecases.NewMockTaskUseCase(controller)
 	taskHandler := MakeTaskHandler(taskUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -362,7 +370,7 @@ func TestAppendUserToTaskLinkBoard(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -395,6 +403,7 @@ func TestDeleteUserFromTask(t *testing.T) {
 	defer controller.Finish()
 	taskUseCase := mock_usecases.NewMockTaskUseCase(controller)
 	taskHandler := MakeTaskHandler(taskUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -406,7 +415,7 @@ func TestDeleteUserFromTask(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{

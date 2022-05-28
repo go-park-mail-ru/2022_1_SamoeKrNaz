@@ -107,9 +107,8 @@ func (listHandler *ListHandler) CreateList(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Set("IdU", userId)
 	c.Set("eventType", "UpdateBoard")
-	c.Set("IdB", boardId)
+	c.Set("IdB", uint(boardId))
 	c.Data(http.StatusOK, "application/json; charset=utf-8", listJson)
 }
 
@@ -139,7 +138,7 @@ func (listHandler *ListHandler) RefactorList(c *gin.Context) {
 		return
 	}
 
-	boardId, err := listHandler.usecase.GetSingleList(list.IdL, uint(userId.(uint64)))
+	getList, err := listHandler.usecase.GetSingleList(list.IdL, uint(userId.(uint64)))
 	if err != nil {
 		_ = c.Error(err)
 		return
@@ -152,9 +151,8 @@ func (listHandler *ListHandler) RefactorList(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Set("IdU", userId)
 	c.Set("eventType", "UpdateBoard")
-	c.Set("IdB", boardId)
+	c.Set("IdB", getList.IdB)
 	c.Data(http.StatusCreated, "application/json; charset=utf-8", isUpdatedJson)
 }
 
@@ -172,13 +170,13 @@ func (listHandler *ListHandler) DeleteList(c *gin.Context) {
 
 	//вызываю юзкейс
 
-	err = listHandler.usecase.DeleteList(uint(listId), uint(userId.(uint64)))
+	getList, err := listHandler.usecase.GetSingleList(uint(listId), uint(userId.(uint64)))
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
 
-	boardId, err := listHandler.usecase.GetSingleList(uint(listId), uint(userId.(uint64)))
+	err = listHandler.usecase.DeleteList(uint(listId), uint(userId.(uint64)))
 	if err != nil {
 		_ = c.Error(err)
 		return
@@ -191,8 +189,7 @@ func (listHandler *ListHandler) DeleteList(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Set("IdU", userId)
 	c.Set("eventType", "UpdateBoard")
-	c.Set("IdB", boardId)
+	c.Set("IdB", getList.IdB)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }

@@ -11,11 +11,12 @@ import (
 )
 
 type CommentHandler struct {
-	usecase usecases.CommentUseCase
+	usecase     usecases.CommentUseCase
+	taskUsecase usecases.TaskUseCase
 }
 
-func MakeCommentHandler(usecase_ usecases.CommentUseCase) *CommentHandler {
-	return &CommentHandler{usecase: usecase_}
+func MakeCommentHandler(usecase_ usecases.CommentUseCase, taskUsecase_ usecases.TaskUseCase) *CommentHandler {
+	return &CommentHandler{usecase: usecase_, taskUsecase: taskUsecase_}
 }
 
 func (commentHandler *CommentHandler) GetComments(c *gin.Context) {
@@ -104,6 +105,12 @@ func (commentHandler *CommentHandler) CreateComment(c *gin.Context) {
 		return
 	}
 
+	task, err := commentHandler.taskUsecase.GetSingleTask(uint(taskId), uint(userId.(uint64)))
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
 	newComment := new(models.Comment)
 	*newComment = *createdComment
 
@@ -112,9 +119,9 @@ func (commentHandler *CommentHandler) CreateComment(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Set("IdU", userId)
+	c.Set("IdB", task.IdB)
 	c.Set("eventType", "UpdateTask")
-	c.Set("IdT", taskId)
+	c.Set("IdT", task.IdT)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", commentJson)
 }
 
@@ -150,6 +157,12 @@ func (commentHandler *CommentHandler) RefactorComment(c *gin.Context) {
 		return
 	}
 
+	task, err := commentHandler.taskUsecase.GetSingleTask(getComment.IdT, uint(userId.(uint64)))
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
 	var isUpdated models.Updated
 	isUpdated.UpdatedInfo = true
 	isUpdatedJson, err := isUpdated.MarshalJSON()
@@ -157,9 +170,9 @@ func (commentHandler *CommentHandler) RefactorComment(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Set("IdU", userId)
+	c.Set("IdB", task.IdB)
 	c.Set("eventType", "UpdateTask")
-	c.Set("IdT", getComment.IdT)
+	c.Set("IdT", task.IdT)
 	c.Data(http.StatusCreated, "application/json; charset=utf-8", isUpdatedJson)
 }
 
@@ -176,13 +189,19 @@ func (commentHandler *CommentHandler) DeleteComment(c *gin.Context) {
 		return
 	}
 
+	getComment, err := commentHandler.usecase.GetSingleComment(uint(userId.(uint64)), uint(commentId))
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
 	err = commentHandler.usecase.DeleteComment(uint(commentId), uint(userId.(uint64)))
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
 
-	getComment, err := commentHandler.usecase.GetSingleComment(uint(userId.(uint64)), uint(commentId))
+	task, err := commentHandler.taskUsecase.GetSingleTask(getComment.IdT, uint(userId.(uint64)))
 	if err != nil {
 		_ = c.Error(err)
 		return
@@ -195,8 +214,8 @@ func (commentHandler *CommentHandler) DeleteComment(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Set("IdU", userId)
+	c.Set("IdB", task.IdB)
 	c.Set("eventType", "UpdateTask")
-	c.Set("IdT", getComment.IdT)
+	c.Set("IdT", task.IdT)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }

@@ -128,7 +128,6 @@ func (boardHandler *BoardHandler) RefactorBoard(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Set("IdU", userId)
 	c.Set("eventType", "UpdateBoard")
 	c.Set("IdB", boardId)
 	c.Data(http.StatusCreated, "application/json; charset=utf-8", isUpdatedJson)
@@ -161,9 +160,8 @@ func (boardHandler *BoardHandler) DeleteBoard(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Set("IdU", userId)
 	c.Set("eventType", "UpdateBoard")
-	c.Set("IdB", boardId)
+	c.Set("IdB", uint(boardId))
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }
 
@@ -243,9 +241,8 @@ func (boardHandler *BoardHandler) AppendUserToBoard(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Set("IdU", userId)
 	c.Set("eventType", "UpdateBoard")
-	c.Set("IdB", boardId)
+	c.Set("IdB", uint(boardId))
 	c.Data(http.StatusOK, "application/json; charset=utf-8", userJson)
 }
 
@@ -282,9 +279,8 @@ func (boardHandler *BoardHandler) DeleteUserToBoard(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Set("IdU", userId)
 	c.Set("eventType", "UpdateBoard")
-	c.Set("IdB", boardId)
+	c.Set("IdB", uint(boardId))
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }
 
@@ -310,7 +306,6 @@ func (boardHandler *BoardHandler) AppendUserToBoardByLink(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Set("IdU", userId)
 	c.Set("eventType", "UpdateBoard")
 	c.Set("IdB", appendedBoard.IdB)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", boardJson)

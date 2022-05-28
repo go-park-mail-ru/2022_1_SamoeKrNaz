@@ -10,11 +10,12 @@ import (
 )
 
 type AttachmentHandler struct {
-	usecase usecases.AttachmentUseCase
+	usecase     usecases.AttachmentUseCase
+	taskUsecase usecases.TaskUseCase
 }
 
-func MakeAttachmentHandler(usecase_ usecases.AttachmentUseCase) *AttachmentHandler {
-	return &AttachmentHandler{usecase: usecase_}
+func MakeAttachmentHandler(usecase_ usecases.AttachmentUseCase, taskUsecase_ usecases.TaskUseCase) *AttachmentHandler {
+	return &AttachmentHandler{usecase: usecase_, taskUsecase: taskUsecase_}
 }
 
 func (attachmentHandler *AttachmentHandler) CreateAttachment(c *gin.Context) {
@@ -37,6 +38,12 @@ func (attachmentHandler *AttachmentHandler) CreateAttachment(c *gin.Context) {
 	}
 
 	attachment, err := attachmentHandler.usecase.CreateAttachment(header, uint(taskId), uint(userId.(uint64)))
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	task, err := attachmentHandler.taskUsecase.GetSingleTask(uint(taskId), uint(userId.(uint64)))
 
 	if err != nil {
 		_ = c.Error(err)
@@ -48,9 +55,9 @@ func (attachmentHandler *AttachmentHandler) CreateAttachment(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Set("IdU", userId)
+	c.Set("IdB", task.IdB)
 	c.Set("eventType", "UpdateTask")
-	c.Set("IdT", taskId)
+	c.Set("IdT", task.IdT)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", attachmentJson)
 }
 
@@ -97,13 +104,19 @@ func (attachmentHandler *AttachmentHandler) DeleteAttachment(c *gin.Context) {
 
 	//вызываю юзкейс
 
+	getAttachment, err := attachmentHandler.usecase.GetById(uint(attachemntId), uint(userId.(uint64)))
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
 	err = attachmentHandler.usecase.DeleteAttachment(uint(attachemntId), uint(userId.(uint64)))
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
 
-	getAttachment, err := attachmentHandler.usecase.GetById(uint(attachemntId), uint(userId.(uint64)))
+	task, err := attachmentHandler.taskUsecase.GetSingleTask(getAttachment.IdT, uint(userId.(uint64)))
 	if err != nil {
 		_ = c.Error(err)
 		return
@@ -116,8 +129,8 @@ func (attachmentHandler *AttachmentHandler) DeleteAttachment(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Set("IdU", userId)
+	c.Set("IdB", task.IdB)
 	c.Set("eventType", "UpdateTask")
-	c.Set("IdT", getAttachment.IdT)
+	c.Set("IdT", task.IdT)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }

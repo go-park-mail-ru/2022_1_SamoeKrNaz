@@ -91,8 +91,6 @@ func initRouter() (*gin.Engine, error) {
 	config.AllowOrigins = []string{"http://localhost:3000", "https://planexa.ru", "http://planexa.netlify.app", "http://89.208.199.114:3000", "http://89.208.199.114:8080"}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowCredentials = true
-	router.Use(cors.New(config))
-	router.Use(middleware.CheckError())
 
 	db, err := initDB(conf)
 	if err != nil {
@@ -137,18 +135,23 @@ func initRouter() (*gin.Engine, error) {
 	commentRepository := repositories_impl.MakeCommentRepository(db)
 	attachmentRepository := repositories_impl.MakeAttachmentRepository(db)
 
-	authMiddleware := middleware.CreateMiddleware(sessService, boardRepository)
-
 	webSocketPool := wsplanexa_impl.CreatePool()
+
+	authMiddleware := middleware.CreateMiddleware(sessService, boardRepository, webSocketPool)
+
+	router.Use(cors.New(config))
+
+	router.GET(routes.HomeRoute+routes.WebSocketRoute, authMiddleware.CheckAuth, webSocketPool.Start)
+	router.Use(middleware.CheckError())
 
 	userHandler := handlers_impl.MakeUserHandler(usecases_impl.MakeUserUsecase(userService, sessService))
 	taskHandler := handlers_impl.MakeTaskHandler(usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
 	boardHandler := handlers_impl.MakeBoardHandler(usecases_impl.MakeBoardUsecase(boardRepository, listRepository, taskRepository, checkListRepository, userService, commentRepository))
 	listHandler := handlers_impl.MakeListHandler(usecases_impl.MakeListUsecase(listRepository, boardRepository))
-	checkListHandler := handlers_impl.MakeCheckListHandler(usecases_impl.MakeCheckListUsecase(checkListRepository, taskRepository))
-	checkListItemHandler := handlers_impl.MakeCheckListItemHandler(usecases_impl.MakeCheckListItemUsecase(checkListItemRepository, checkListRepository, taskRepository))
-	commentHandler := handlers_impl.MakeCommentHandler(usecases_impl.MakeCommentUsecase(commentRepository, taskRepository, userService))
-	attachmentHandler := handlers_impl.MakeAttachmentHandler(usecases_impl.MakeAttachmentUseCase(attachmentRepository, taskRepository))
+	checkListHandler := handlers_impl.MakeCheckListHandler(usecases_impl.MakeCheckListUsecase(checkListRepository, taskRepository), usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
+	checkListItemHandler := handlers_impl.MakeCheckListItemHandler(usecases_impl.MakeCheckListItemUsecase(checkListItemRepository, checkListRepository, taskRepository), usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
+	commentHandler := handlers_impl.MakeCommentHandler(usecases_impl.MakeCommentUsecase(commentRepository, taskRepository, userService), usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
+	attachmentHandler := handlers_impl.MakeAttachmentHandler(usecases_impl.MakeAttachmentUseCase(attachmentRepository, taskRepository), usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
 		boardRoutes := router.Group(routes.BoardRoute)
@@ -175,7 +178,7 @@ func initRouter() (*gin.Engine, error) {
 		taskRoutes := router.Group(routes.TaskRoute)
 		{
 			taskRoutes.GET("", authMiddleware.CheckAuth, taskHandler.GetImportantTasks)
-			taskRoutes.GET("/:id", authMiddleware.CheckAuth, taskHandler.GetSingleTask, authMiddleware.SendToWebSocket)
+			taskRoutes.GET("/:id", authMiddleware.CheckAuth, taskHandler.GetSingleTask)
 			taskRoutes.PUT("/:id", authMiddleware.CheckAuth, taskHandler.RefactorTask, authMiddleware.SendToWebSocket)
 			taskRoutes.DELETE("/:id", authMiddleware.CheckAuth, taskHandler.DeleteTask, authMiddleware.SendToWebSocket)
 			taskRoutes.POST("/:id/:idU", authMiddleware.CheckAuth, taskHandler.AppendUserToTask, authMiddleware.SendToWebSocket)
@@ -221,7 +224,6 @@ func initRouter() (*gin.Engine, error) {
 		mainRoutes.PUT(routes.ProfileRoute+"/upload", authMiddleware.CheckAuth, userHandler.SaveAvatar)
 		mainRoutes.PUT(routes.ProfileRoute, authMiddleware.CheckAuth, userHandler.RefactorProfile)
 		mainRoutes.POST(routes.ProfileRoute+"/like", authMiddleware.CheckAuth, userHandler.GetUsersLike)
-		mainRoutes.GET(routes.WebSocketRoute, authMiddleware.CheckAuth, webSocketPool.Start)
 	}
 	return router, nil
 }

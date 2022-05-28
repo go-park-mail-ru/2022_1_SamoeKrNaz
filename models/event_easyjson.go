@@ -38,6 +38,10 @@ func easyjsonF642ad3eDecodePLANEXABackendModels(in *jlexer.Lexer, out *Event) {
 		switch key {
 		case "event_type":
 			out.EventType = string(in.String())
+		case "id_b":
+			out.IdB = uint(in.Uint())
+		case "id_t":
+			out.IdT = uint(in.Uint())
 		default:
 			in.SkipRecursive()
 		}
@@ -56,6 +60,16 @@ func easyjsonF642ad3eEncodePLANEXABackendModels(out *jwriter.Writer, in Event) {
 		const prefix string = ",\"event_type\":"
 		out.RawString(prefix[1:])
 		out.String(string(in.EventType))
+	}
+	{
+		const prefix string = ",\"id_b\":"
+		out.RawString(prefix)
+		out.Uint(uint(in.IdB))
+	}
+	{
+		const prefix string = ",\"id_t\":"
+		out.RawString(prefix)
+		out.Uint(uint(in.IdT))
 	}
 	out.RawByte('}')
 }
