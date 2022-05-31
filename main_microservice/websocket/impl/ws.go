@@ -35,7 +35,7 @@ func CreatePool() wsplanexa.WebSocketPool {
 func (pool *Pool) Start(c *gin.Context) {
 	ws, err := pool.upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		_ = c.Error(err)
+		fmt.Println("error in upgrade")
 		return
 	}
 	defer ws.Close()
@@ -68,7 +68,7 @@ func (pool *Pool) Start(c *gin.Context) {
 	isDeleted.DeletedInfo = true
 	isDeletedJson, err := isDeleted.MarshalJSON()
 	if err != nil {
-		_ = c.Error(customErrors.ErrBadInputData)
+		fmt.Println("error in marshalljson")
 		return
 	}
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
