@@ -280,6 +280,7 @@ func (taskHandler *TaskHandler) AppendUserToTask(c *gin.Context) {
 	c.Set("IdB", newTask.IdB)
 	c.Set("eventType", "UpdateTask")
 	c.Set("IdT", newTask.IdT)
+	c.Set("Notification", "AppendUserToTask")
 	c.Data(http.StatusOK, "application/json; charset=utf-8", userJson)
 }
 
@@ -335,6 +336,7 @@ func (taskHandler *TaskHandler) DeleteUserFromTask(c *gin.Context) {
 	c.Set("IdB", newTask.IdB)
 	c.Set("eventType", "UpdateTask")
 	c.Set("IdT", newTask.IdT)
+	c.Set("Notification", "DeleteUserFromTask")
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }
 
@@ -363,5 +365,6 @@ func (taskHandler *TaskHandler) AppendUserToTaskByLink(c *gin.Context) {
 	c.Set("IdB", appendedTask.IdB)
 	c.Set("eventType", "UpdateTask")
 	c.Set("IdT", appendedTask.IdT)
+	c.Set("Notification", "AppendUserToTask")
 	c.Data(http.StatusOK, "application/json; charset=utf-8", taskJson)
 }

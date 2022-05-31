@@ -253,6 +253,7 @@ func (boardHandler *BoardHandler) AppendUserToBoard(c *gin.Context) {
 	}
 	c.Set("eventType", "UpdateBoard")
 	c.Set("IdB", uint(boardId))
+	c.Set("Notification", "InviteUser")
 	c.Data(http.StatusOK, "application/json; charset=utf-8", IsAppendedJson)
 }
 
@@ -301,6 +302,7 @@ func (boardHandler *BoardHandler) DeleteUserToBoard(c *gin.Context) {
 	}
 	c.Set("eventType", "UpdateBoard")
 	c.Set("IdB", uint(boardId))
+	c.Set("Notification", "DeleteUserFromTask")
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }
 
@@ -338,5 +340,6 @@ func (boardHandler *BoardHandler) AppendUserToBoardByLink(c *gin.Context) {
 	}
 	c.Set("eventType", "UpdateBoard")
 	c.Set("IdB", appendedBoard.IdB)
+	c.Set("Notification", "AppendUserToBoard")
 	c.Data(http.StatusOK, "application/json; charset=utf-8", boardJson)
 }

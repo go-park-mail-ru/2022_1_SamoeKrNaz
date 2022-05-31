@@ -41,16 +41,16 @@ func (mw *Middleware) SendNotification(c *gin.Context) {
 		return
 	}
 
-	currentEvent, check := c.Get("eventType")
+	currentNotification, check := c.Get("Notification")
 	if !check {
 		fmt.Println("error in get eventType")
 		return
 	}
 
 	event := &models.Event{
-		EventType: currentEvent.(string),
+		EventType: currentNotification.(string),
 	}
-
+	// если пользователь присоединился к доске, то надо выслать всем челиксам на доске
 	if event.EventType == "AppendUserToBoard" {
 		currentIdB, check := c.Get("IdB")
 		if !check {
@@ -71,6 +71,19 @@ func (mw *Middleware) SendNotification(c *gin.Context) {
 			}
 			mw.ws.Send(user.IdU, eventJson)
 		}
+		// в остальных случаях просто высылаем адресату
+	} else {
+		toSend, check := c.Get("ToSend")
+		if !check {
+			fmt.Println("error in get tosend")
+			return
+		}
+		eventJson, err := event.MarshalJSON()
+		if err != nil {
+			fmt.Println("error in marshalljson")
+			return
+		}
+		mw.ws.Send(toSend.(uint), eventJson)
 	}
 }
 
