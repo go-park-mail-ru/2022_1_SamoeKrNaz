@@ -11,11 +11,12 @@ import (
 )
 
 type TaskHandler struct {
-	usecase usecases.TaskUseCase
+	usecase             usecases.TaskUseCase
+	notificationUsecase usecases.NotificationUseCase
 }
 
-func MakeTaskHandler(usecase_ usecases.TaskUseCase) *TaskHandler {
-	return &TaskHandler{usecase: usecase_}
+func MakeTaskHandler(usecase_ usecases.TaskUseCase, notificationUsecase_ usecases.NotificationUseCase) *TaskHandler {
+	return &TaskHandler{usecase: usecase_, notificationUsecase: notificationUsecase_}
 }
 
 func (taskHandler *TaskHandler) GetTasks(c *gin.Context) {
@@ -256,6 +257,16 @@ func (taskHandler *TaskHandler) AppendUserToTask(c *gin.Context) {
 		return
 	}
 
+	notification := models.Notification{IdU: uint(appendedUserId),
+		NotificationType: "AppendUserToTask", Task: models.Task{IdT: uint(taskId)},
+		UserWho: models.User{IdU: uint(userId.(uint64))}}
+
+	err = taskHandler.notificationUsecase.Create(&notification)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
 	newTask, err := taskHandler.usecase.GetSingleTask(uint(taskId), uint(userId.(uint64)))
 	if err != nil {
 		_ = c.Error(err)
@@ -289,6 +300,15 @@ func (taskHandler *TaskHandler) DeleteUserFromTask(c *gin.Context) {
 	deletedUserId, err := strconv.ParseUint(c.Param("idU"), 10, 32)
 	if err != nil {
 		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+
+	notification := models.Notification{IdU: uint(deletedUserId),
+		NotificationType: "DeleteUserFromTask", Task: models.Task{IdT: uint(taskId)}}
+
+	err = taskHandler.notificationUsecase.Create(&notification)
+	if err != nil {
+		_ = c.Error(err)
 		return
 	}
 

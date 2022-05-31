@@ -14,4 +14,5 @@ var (
 	ProfileRoute       = "/profile"
 	AttachmentRoute    = "/attachment"
 	WebSocketRoute     = "/ws"
+	NotificationRoute  = "/notification"
 )

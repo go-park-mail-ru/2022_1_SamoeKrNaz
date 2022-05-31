@@ -11,11 +11,12 @@ import (
 )
 
 type BoardHandler struct {
-	usecase usecases.BoardUseCase
+	usecase             usecases.BoardUseCase
+	notificationUsecase usecases.NotificationUseCase
 }
 
-func MakeBoardHandler(usecase_ usecases.BoardUseCase) *BoardHandler {
-	return &BoardHandler{usecase: usecase_}
+func MakeBoardHandler(usecase_ usecases.BoardUseCase, notificationUsecase_ usecases.NotificationUseCase) *BoardHandler {
+	return &BoardHandler{usecase: usecase_, notificationUsecase: notificationUsecase_}
 }
 
 func (boardHandler *BoardHandler) GetBoards(c *gin.Context) {
@@ -229,21 +230,27 @@ func (boardHandler *BoardHandler) AppendUserToBoard(c *gin.Context) {
 	}
 
 	//вызываю юзкейс
+	//вместо явного добавления на доску просто будем присылать уведомление, в котором будет ссылка на доску
+	notification := models.Notification{IdU: uint(appendedUserId),
+		NotificationType: "InviteUser", Board: models.Board{IdB: uint(boardId)},
+		UserWho: models.User{IdU: uint(userId.(uint64))}}
 
-	appendedUser, err := boardHandler.usecase.AppendUserToBoard(uint(userId.(uint64)), uint(appendedUserId), uint(boardId))
+	err = boardHandler.notificationUsecase.Create(&notification)
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
 
-	userJson, err := appendedUser.MarshalJSON()
+	var IsAppended models.Appended
+	IsAppended.AppendedInfo = true
+	IsAppendedJson, err := IsAppended.MarshalJSON()
 	if err != nil {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
 	c.Set("eventType", "UpdateBoard")
 	c.Set("IdB", uint(boardId))
-	c.Data(http.StatusOK, "application/json; charset=utf-8", userJson)
+	c.Data(http.StatusOK, "application/json; charset=utf-8", IsAppendedJson)
 }
 
 func (boardHandler *BoardHandler) DeleteUserToBoard(c *gin.Context) {
@@ -267,6 +274,16 @@ func (boardHandler *BoardHandler) DeleteUserToBoard(c *gin.Context) {
 	//вызываю юзкейс
 
 	err = boardHandler.usecase.DeleteUserFromBoard(uint(userId.(uint64)), uint(deletedUserId), uint(boardId))
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	//теперь высылаем уведомление, что вас удалили
+	notification := models.Notification{IdU: uint(deletedUserId),
+		NotificationType: "DeleteUserFromBoard", Board: models.Board{IdB: uint(boardId)}}
+
+	err = boardHandler.notificationUsecase.Create(&notification)
 	if err != nil {
 		_ = c.Error(err)
 		return
@@ -296,6 +313,16 @@ func (boardHandler *BoardHandler) AppendUserToBoardByLink(c *gin.Context) {
 	//вызываю юзкейс
 
 	appendedBoard, err := boardHandler.usecase.AppendUserByLink(uint(userId.(uint64)), link)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	//для всех, кто есть в этой доске, надо отправить уведомление
+	notification := models.Notification{
+		NotificationType: "AppendUserToBoard", Board: models.Board{IdB: appendedBoard.IdB}}
+
+	err = boardHandler.notificationUsecase.CreateBoardNotification(&notification)
 	if err != nil {
 		_ = c.Error(err)
 		return

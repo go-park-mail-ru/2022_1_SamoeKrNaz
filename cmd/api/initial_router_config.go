@@ -69,7 +69,7 @@ func initDB(conf Config) (*gorm.DB, error) {
 		return nil, err
 	}
 	err = db.AutoMigrate(&models.User{}, &models.Board{}, &models.List{},
-		&models.Task{}, &models.CheckList{}, &models.CheckListItem{}, &models.Comment{}, &models.Attachment{})
+		&models.Task{}, &models.CheckList{}, &models.CheckListItem{}, &models.Comment{}, &models.Attachment{}, &models.Notification{})
 	if err != nil {
 		return nil, err
 	}
@@ -134,6 +134,7 @@ func initRouter() (*gin.Engine, error) {
 	checkListItemRepository := repositories_impl.MakeCheckListItemRepository(db)
 	commentRepository := repositories_impl.MakeCommentRepository(db)
 	attachmentRepository := repositories_impl.MakeAttachmentRepository(db)
+	notificationRepository := repositories_impl.MakeNotificationRepository(db)
 
 	webSocketPool := wsplanexa_impl.CreatePool()
 
@@ -145,13 +146,14 @@ func initRouter() (*gin.Engine, error) {
 	router.Use(middleware.CheckError())
 
 	userHandler := handlers_impl.MakeUserHandler(usecases_impl.MakeUserUsecase(userService, sessService))
-	taskHandler := handlers_impl.MakeTaskHandler(usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
-	boardHandler := handlers_impl.MakeBoardHandler(usecases_impl.MakeBoardUsecase(boardRepository, listRepository, taskRepository, checkListRepository, userService, commentRepository))
+	taskHandler := handlers_impl.MakeTaskHandler(usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository), usecases_impl.MakeNotificationUseCase(notificationRepository, boardRepository, taskRepository, userService))
+	boardHandler := handlers_impl.MakeBoardHandler(usecases_impl.MakeBoardUsecase(boardRepository, listRepository, taskRepository, checkListRepository, userService, commentRepository), usecases_impl.MakeNotificationUseCase(notificationRepository, boardRepository, taskRepository, userService))
 	listHandler := handlers_impl.MakeListHandler(usecases_impl.MakeListUsecase(listRepository, boardRepository))
 	checkListHandler := handlers_impl.MakeCheckListHandler(usecases_impl.MakeCheckListUsecase(checkListRepository, taskRepository), usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
 	checkListItemHandler := handlers_impl.MakeCheckListItemHandler(usecases_impl.MakeCheckListItemUsecase(checkListItemRepository, checkListRepository, taskRepository), usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
 	commentHandler := handlers_impl.MakeCommentHandler(usecases_impl.MakeCommentUsecase(commentRepository, taskRepository, userService), usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
 	attachmentHandler := handlers_impl.MakeAttachmentHandler(usecases_impl.MakeAttachmentUseCase(attachmentRepository, taskRepository), usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
+	notificationHandler := handlers_impl.MakeNotificationHandler(usecases_impl.MakeNotificationUseCase(notificationRepository, boardRepository, taskRepository, userService))
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
 		boardRoutes := router.Group(routes.BoardRoute)
@@ -214,6 +216,11 @@ func initRouter() (*gin.Engine, error) {
 		{
 			attachmentRoutes.GET("/:id", authMiddleware.CheckAuth, attachmentHandler.GetSingleAttachment)
 			attachmentRoutes.DELETE("/:id", authMiddleware.CheckAuth, attachmentHandler.DeleteAttachment, authMiddleware.SendToWebSocket)
+		}
+		notificationRoutes := router.Group(routes.NotificationRoute)
+		{
+			notificationRoutes.GET("", authMiddleware.CheckAuth, notificationHandler.GetNotifications)
+			notificationRoutes.POST("", authMiddleware.CheckAuth, notificationHandler.ReadNotifications)
 		}
 		mainRoutes.POST(routes.LoginRoute, userHandler.Login)
 		mainRoutes.GET("/get"+routes.BoardRoute+"s", authMiddleware.CheckAuth, boardHandler.GetBoards)
