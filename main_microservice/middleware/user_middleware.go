@@ -42,18 +42,15 @@ func (mw *Middleware) SendToWebSocket(c *gin.Context) {
 	}
 
 	currentEvent, check := c.Get("eventType")
-	fmt.Println(currentEvent)
 	if !check {
 		fmt.Println("error in get eventType")
 		return
 	}
-	fmt.Println("get eventtype success")
 	event := &models.Event{
 		EventType: currentEvent.(string),
 	}
 
 	userId, check := c.Get("Auth")
-	fmt.Println("get auth in mw")
 	if !check {
 		fmt.Println("error in get auth")
 		return
