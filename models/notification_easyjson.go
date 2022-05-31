@@ -114,6 +114,12 @@ func easyjson9806e1DecodePLANEXABackendModels1(in *jlexer.Lexer, out *Notificati
 			}
 		case "is_read":
 			out.IsRead = bool(in.Bool())
+		case "idb":
+			out.IdB = uint(in.Uint())
+		case "idt":
+			out.IdT = uint(in.Uint())
+		case "id_wh":
+			out.IdWh = uint(in.Uint())
 		case "board":
 			(out.Board).UnmarshalEasyJSON(in)
 		case "task":
@@ -158,6 +164,21 @@ func easyjson9806e1EncodePLANEXABackendModels1(out *jwriter.Writer, in Notificat
 		const prefix string = ",\"is_read\":"
 		out.RawString(prefix)
 		out.Bool(bool(in.IsRead))
+	}
+	{
+		const prefix string = ",\"idb\":"
+		out.RawString(prefix)
+		out.Uint(uint(in.IdB))
+	}
+	{
+		const prefix string = ",\"idt\":"
+		out.RawString(prefix)
+		out.Uint(uint(in.IdT))
+	}
+	{
+		const prefix string = ",\"id_wh\":"
+		out.RawString(prefix)
+		out.Uint(uint(in.IdWh))
 	}
 	{
 		const prefix string = ",\"board\":"

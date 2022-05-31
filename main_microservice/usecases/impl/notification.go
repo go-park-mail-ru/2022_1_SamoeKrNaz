@@ -4,6 +4,7 @@ import (
 	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/main_microservice/usecases"
 	"PLANEXA_backend/models"
+	"fmt"
 	rtime "github.com/ivahaev/russian-time"
 	"strconv"
 	"time"
@@ -28,28 +29,29 @@ func (notificationUsecase NotificationUseCaseImpl) Create(notification *models.N
 		return err
 	}
 	notification.Date = strconv.Itoa(time.Now().In(moscow).Day()) + " " + rtime.Now().Month().StringInCase() + " " + strconv.Itoa(time.Now().In(moscow).Year()) + ", " + time.Now().In(moscow).Format("15:04")
-	if notification.Board.IdB != 0 {
-		currentBoard, err := notificationUsecase.repBoard.GetById(notification.Board.IdB)
+	if notification.IdB != 0 {
+		currentBoard, err := notificationUsecase.repBoard.GetById(notification.IdB)
 		if err != nil {
 			return err
 		}
 		notification.Board = *currentBoard
 	}
-	if notification.Task.IdT != 0 {
-		currentTask, err := notificationUsecase.repTask.GetById(notification.Task.IdT)
+	if notification.IdT != 0 {
+		currentTask, err := notificationUsecase.repTask.GetById(notification.IdT)
 		if err != nil {
 			return err
 		}
 		notification.Task = *currentTask
 	}
 	notification.DateToOrder = time.Now()
-	if notification.UserWho.IdU != 0 {
-		currentUser, err := notificationUsecase.repUser.GetUserById(notification.UserWho.IdU)
+	if notification.IdWh != 0 {
+		currentUser, err := notificationUsecase.repUser.GetUserById(notification.IdWh)
 		if err != nil {
 			return err
 		}
 		notification.UserWho = *currentUser
 	}
+	fmt.Println(notification)
 	err = notificationUsecase.repNotification.Create(notification)
 	if err != nil {
 		return err
@@ -63,13 +65,13 @@ func (notificationUsecase NotificationUseCaseImpl) CreateBoardNotification(notif
 		return err
 	}
 	notification.Date = strconv.Itoa(time.Now().In(moscow).Day()) + " " + rtime.Now().Month().StringInCase() + " " + strconv.Itoa(time.Now().In(moscow).Year()) + ", " + time.Now().In(moscow).Format("15:04")
-	currentBoard, err := notificationUsecase.repBoard.GetById(notification.Board.IdB)
+	currentBoard, err := notificationUsecase.repBoard.GetById(notification.IdB)
 	if err != nil {
 		return err
 	}
 	notification.DateToOrder = time.Now()
 	notification.Board = *currentBoard
-	userFromBoard, err := notificationUsecase.repBoard.GetBoardUser(notification.Board.IdB)
+	userFromBoard, err := notificationUsecase.repBoard.GetBoardUser(notification.IdB)
 	if err != nil {
 		return err
 	}
@@ -89,6 +91,31 @@ func (notificationUsecase NotificationUseCaseImpl) GetUsersNotifications(IdU uin
 	if err != nil {
 		return nil, err
 	}
+	for i := range *notifications {
+		if (*notifications)[i].IdB != 0 {
+			currentBoard, err := notificationUsecase.repBoard.GetById((*notifications)[i].IdB)
+			if err != nil {
+				return nil, err
+			}
+			(*notifications)[i].Board = *currentBoard
+		}
+		if (*notifications)[i].IdT != 0 {
+			currentTask, err := notificationUsecase.repTask.GetById((*notifications)[i].IdT)
+			if err != nil {
+				return nil, err
+			}
+			(*notifications)[i].Task = *currentTask
+		}
+		if (*notifications)[i].IdWh != 0 {
+			currentUser, err := notificationUsecase.repUser.GetUserById((*notifications)[i].IdWh)
+			if err != nil {
+				return nil, err
+			}
+			(*notifications)[i].UserWho = *currentUser
+		}
+		fmt.Println((*notifications)[i])
+	}
+	fmt.Println(notifications)
 	return (*models.Notifications)(notifications), nil
 }
 

@@ -4,6 +4,7 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/main_microservice/usecases"
 	"PLANEXA_backend/models"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/mailru/easyjson"
 	"net/http"
@@ -232,8 +233,10 @@ func (boardHandler *BoardHandler) AppendUserToBoard(c *gin.Context) {
 	//вызываю юзкейс
 	//вместо явного добавления на доску просто будем присылать уведомление, в котором будет ссылка на доску
 	notification := models.Notification{IdU: uint(appendedUserId),
-		NotificationType: "InviteUser", Board: models.Board{IdB: uint(boardId)},
-		UserWho: models.User{IdU: uint(userId.(uint64))}}
+		NotificationType: "InviteUser", IdB: uint(boardId),
+		IdWh: uint(userId.(uint64))}
+
+	fmt.Println("handler:", notification)
 
 	err = boardHandler.notificationUsecase.Create(&notification)
 	if err != nil {
@@ -281,7 +284,7 @@ func (boardHandler *BoardHandler) DeleteUserToBoard(c *gin.Context) {
 
 	//теперь высылаем уведомление, что вас удалили
 	notification := models.Notification{IdU: uint(deletedUserId),
-		NotificationType: "DeleteUserFromBoard", Board: models.Board{IdB: uint(boardId)}}
+		NotificationType: "DeleteUserFromBoard", IdB: uint(boardId)}
 
 	err = boardHandler.notificationUsecase.Create(&notification)
 	if err != nil {
@@ -320,7 +323,7 @@ func (boardHandler *BoardHandler) AppendUserToBoardByLink(c *gin.Context) {
 
 	//для всех, кто есть в этой доске, надо отправить уведомление
 	notification := models.Notification{
-		NotificationType: "AppendUserToBoard", Board: models.Board{IdB: appendedBoard.IdB}}
+		NotificationType: "AppendUserToBoard", IdB: appendedBoard.IdB}
 
 	err = boardHandler.notificationUsecase.CreateBoardNotification(&notification)
 	if err != nil {

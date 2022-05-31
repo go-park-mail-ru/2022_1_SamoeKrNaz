@@ -258,8 +258,7 @@ func (taskHandler *TaskHandler) AppendUserToTask(c *gin.Context) {
 	}
 
 	notification := models.Notification{IdU: uint(appendedUserId),
-		NotificationType: "AppendUserToTask", Task: models.Task{IdT: uint(taskId)},
-		UserWho: models.User{IdU: uint(userId.(uint64))}}
+		NotificationType: "AppendUserToTask", IdT: uint(taskId), IdWh: uint(userId.(uint64))}
 
 	err = taskHandler.notificationUsecase.Create(&notification)
 	if err != nil {
@@ -304,7 +303,7 @@ func (taskHandler *TaskHandler) DeleteUserFromTask(c *gin.Context) {
 	}
 
 	notification := models.Notification{IdU: uint(deletedUserId),
-		NotificationType: "DeleteUserFromTask", Task: models.Task{IdT: uint(taskId)}}
+		NotificationType: "DeleteUserFromTask", IdT: uint(taskId)}
 
 	err = taskHandler.notificationUsecase.Create(&notification)
 	if err != nil {

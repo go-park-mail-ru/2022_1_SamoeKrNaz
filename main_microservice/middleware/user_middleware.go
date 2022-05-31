@@ -33,6 +33,47 @@ func (mw *Middleware) CheckAuth(c *gin.Context) {
 	c.Set("Auth", userId)
 }
 
+func (mw *Middleware) SendNotification(c *gin.Context) {
+	c.Next()
+	status := c.Writer.Status()
+	if status != http.StatusOK && status != http.StatusCreated {
+		fmt.Println("error in httpstatus")
+		return
+	}
+
+	currentEvent, check := c.Get("eventType")
+	if !check {
+		fmt.Println("error in get eventType")
+		return
+	}
+
+	event := &models.Event{
+		EventType: currentEvent.(string),
+	}
+
+	if event.EventType == "AppendUserToBoard" {
+		currentIdB, check := c.Get("IdB")
+		if !check {
+			fmt.Println("error in get idb")
+			return
+		}
+		event.IdB = currentIdB.(uint)
+		boardsUsers, err := mw.boardRepo.GetBoardUser(event.IdB)
+		if err != nil {
+			fmt.Println("error in getboarduser")
+			return
+		}
+		for _, user := range boardsUsers {
+			eventJson, err := event.MarshalJSON()
+			if err != nil {
+				fmt.Println("error in marshalljson")
+				return
+			}
+			mw.ws.Send(user.IdU, eventJson)
+		}
+	}
+}
+
 func (mw *Middleware) SendToWebSocket(c *gin.Context) {
 	c.Next()
 	status := c.Writer.Status()
@@ -71,14 +112,14 @@ func (mw *Middleware) SendToWebSocket(c *gin.Context) {
 		}
 		event.IdT = currentIdT.(uint)
 	}
+
 	boardsUsers, err := mw.boardRepo.GetBoardUser(event.IdB)
-	fmt.Println(boardsUsers)
+
 	if err != nil {
 		fmt.Println("error in getboarduser")
 		return
 	}
 	for _, user := range boardsUsers {
-		fmt.Println(user)
 		if user.IdU == uint(userId.(uint64)) {
 			continue
 		}
