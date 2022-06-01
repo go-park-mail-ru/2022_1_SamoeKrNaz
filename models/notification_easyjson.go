@@ -123,9 +123,9 @@ func easyjson9806e1DecodePLANEXABackendModels1(in *jlexer.Lexer, out *Notificati
 		case "board":
 			(out.Board).UnmarshalEasyJSON(in)
 		case "task":
-			(out.Task).UnmarshalEasyJSON(in)
+			easyjson9806e1DecodePLANEXABackendModels2(in, &out.Task)
 		case "user_who":
-			(out.UserWho).UnmarshalEasyJSON(in)
+			easyjson9806e1DecodePLANEXABackendModels3(in, &out.UserWho)
 		default:
 			in.SkipRecursive()
 		}
@@ -188,12 +188,12 @@ func easyjson9806e1EncodePLANEXABackendModels1(out *jwriter.Writer, in Notificat
 	{
 		const prefix string = ",\"task\":"
 		out.RawString(prefix)
-		(in.Task).MarshalEasyJSON(out)
+		easyjson9806e1EncodePLANEXABackendModels2(out, in.Task)
 	}
 	{
 		const prefix string = ",\"user_who\":"
 		out.RawString(prefix)
-		(in.UserWho).MarshalEasyJSON(out)
+		easyjson9806e1EncodePLANEXABackendModels3(out, in.UserWho)
 	}
 	out.RawByte('}')
 }
@@ -220,4 +220,468 @@ func (v *Notification) UnmarshalJSON(data []byte) error {
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Notification) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson9806e1DecodePLANEXABackendModels1(l, v)
+}
+func easyjson9806e1DecodePLANEXABackendModels3(in *jlexer.Lexer, out *User) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "idu":
+			out.IdU = uint(in.Uint())
+		case "username":
+			out.Username = string(in.String())
+		case "password":
+			out.Password = string(in.String())
+		case "img_avatar":
+			out.ImgAvatar = string(in.String())
+		case "Boards":
+			if in.IsNull() {
+				in.Skip()
+				out.Boards = nil
+			} else {
+				in.Delim('[')
+				if out.Boards == nil {
+					if !in.IsDelim(']') {
+						out.Boards = make([]Board, 0, 0)
+					} else {
+						out.Boards = []Board{}
+					}
+				} else {
+					out.Boards = (out.Boards)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v4 Board
+					(v4).UnmarshalEasyJSON(in)
+					out.Boards = append(out.Boards, v4)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		case "Tasks":
+			if in.IsNull() {
+				in.Skip()
+				out.Tasks = nil
+			} else {
+				in.Delim('[')
+				if out.Tasks == nil {
+					if !in.IsDelim(']') {
+						out.Tasks = make([]Task, 0, 0)
+					} else {
+						out.Tasks = []Task{}
+					}
+				} else {
+					out.Tasks = (out.Tasks)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v5 Task
+					easyjson9806e1DecodePLANEXABackendModels2(in, &v5)
+					out.Tasks = append(out.Tasks, v5)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		case "comments":
+			if in.IsNull() {
+				in.Skip()
+				out.Comments = nil
+			} else {
+				in.Delim('[')
+				if out.Comments == nil {
+					if !in.IsDelim(']') {
+						out.Comments = make([]Comment, 0, 0)
+					} else {
+						out.Comments = []Comment{}
+					}
+				} else {
+					out.Comments = (out.Comments)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v6 Comment
+					(v6).UnmarshalEasyJSON(in)
+					out.Comments = append(out.Comments, v6)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson9806e1EncodePLANEXABackendModels3(out *jwriter.Writer, in User) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"idu\":"
+		out.RawString(prefix[1:])
+		out.Uint(uint(in.IdU))
+	}
+	{
+		const prefix string = ",\"username\":"
+		out.RawString(prefix)
+		out.String(string(in.Username))
+	}
+	{
+		const prefix string = ",\"password\":"
+		out.RawString(prefix)
+		out.String(string(in.Password))
+	}
+	{
+		const prefix string = ",\"img_avatar\":"
+		out.RawString(prefix)
+		out.String(string(in.ImgAvatar))
+	}
+	{
+		const prefix string = ",\"Boards\":"
+		out.RawString(prefix)
+		if in.Boards == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v7, v8 := range in.Boards {
+				if v7 > 0 {
+					out.RawByte(',')
+				}
+				(v8).MarshalEasyJSON(out)
+			}
+			out.RawByte(']')
+		}
+	}
+	{
+		const prefix string = ",\"Tasks\":"
+		out.RawString(prefix)
+		if in.Tasks == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v9, v10 := range in.Tasks {
+				if v9 > 0 {
+					out.RawByte(',')
+				}
+				easyjson9806e1EncodePLANEXABackendModels2(out, v10)
+			}
+			out.RawByte(']')
+		}
+	}
+	{
+		const prefix string = ",\"comments\":"
+		out.RawString(prefix)
+		if in.Comments == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v11, v12 := range in.Comments {
+				if v11 > 0 {
+					out.RawByte(',')
+				}
+				(v12).MarshalEasyJSON(out)
+			}
+			out.RawByte(']')
+		}
+	}
+	out.RawByte('}')
+}
+func easyjson9806e1DecodePLANEXABackendModels2(in *jlexer.Lexer, out *Task) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "idt":
+			out.IdT = uint(in.Uint())
+		case "title":
+			out.Title = string(in.String())
+		case "description":
+			out.Description = string(in.String())
+		case "position":
+			out.Position = uint(in.Uint())
+		case "dateCreated":
+			out.DateCreated = string(in.String())
+		case "idl":
+			out.IdL = uint(in.Uint())
+		case "IdB":
+			out.IdB = uint(in.Uint())
+		case "DateToOrder":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.DateToOrder).UnmarshalJSON(data))
+			}
+		case "deadline":
+			out.Deadline = string(in.String())
+		case "IdU":
+			out.IdU = uint(in.Uint())
+		case "is_ready":
+			out.IsReady = bool(in.Bool())
+		case "is_important":
+			out.IsImportant = string(in.String())
+		case "link":
+			out.Link = string(in.String())
+		case "checkList":
+			if in.IsNull() {
+				in.Skip()
+				out.CheckLists = nil
+			} else {
+				in.Delim('[')
+				if out.CheckLists == nil {
+					if !in.IsDelim(']') {
+						out.CheckLists = make([]CheckList, 0, 1)
+					} else {
+						out.CheckLists = []CheckList{}
+					}
+				} else {
+					out.CheckLists = (out.CheckLists)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v13 CheckList
+					(v13).UnmarshalEasyJSON(in)
+					out.CheckLists = append(out.CheckLists, v13)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		case "comment":
+			if in.IsNull() {
+				in.Skip()
+				out.Comments = nil
+			} else {
+				in.Delim('[')
+				if out.Comments == nil {
+					if !in.IsDelim(']') {
+						out.Comments = make([]Comment, 0, 0)
+					} else {
+						out.Comments = []Comment{}
+					}
+				} else {
+					out.Comments = (out.Comments)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v14 Comment
+					(v14).UnmarshalEasyJSON(in)
+					out.Comments = append(out.Comments, v14)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		case "append_users":
+			if in.IsNull() {
+				in.Skip()
+				out.Users = nil
+			} else {
+				in.Delim('[')
+				if out.Users == nil {
+					if !in.IsDelim(']') {
+						out.Users = make([]User, 0, 0)
+					} else {
+						out.Users = []User{}
+					}
+				} else {
+					out.Users = (out.Users)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v15 User
+					easyjson9806e1DecodePLANEXABackendModels3(in, &v15)
+					out.Users = append(out.Users, v15)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		case "attachments":
+			if in.IsNull() {
+				in.Skip()
+				out.Attachments = nil
+			} else {
+				in.Delim('[')
+				if out.Attachments == nil {
+					if !in.IsDelim(']') {
+						out.Attachments = make([]Attachment, 0, 1)
+					} else {
+						out.Attachments = []Attachment{}
+					}
+				} else {
+					out.Attachments = (out.Attachments)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v16 Attachment
+					(v16).UnmarshalEasyJSON(in)
+					out.Attachments = append(out.Attachments, v16)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson9806e1EncodePLANEXABackendModels2(out *jwriter.Writer, in Task) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"idt\":"
+		out.RawString(prefix[1:])
+		out.Uint(uint(in.IdT))
+	}
+	{
+		const prefix string = ",\"title\":"
+		out.RawString(prefix)
+		out.String(string(in.Title))
+	}
+	{
+		const prefix string = ",\"description\":"
+		out.RawString(prefix)
+		out.String(string(in.Description))
+	}
+	{
+		const prefix string = ",\"position\":"
+		out.RawString(prefix)
+		out.Uint(uint(in.Position))
+	}
+	{
+		const prefix string = ",\"dateCreated\":"
+		out.RawString(prefix)
+		out.String(string(in.DateCreated))
+	}
+	{
+		const prefix string = ",\"idl\":"
+		out.RawString(prefix)
+		out.Uint(uint(in.IdL))
+	}
+	{
+		const prefix string = ",\"IdB\":"
+		out.RawString(prefix)
+		out.Uint(uint(in.IdB))
+	}
+	{
+		const prefix string = ",\"DateToOrder\":"
+		out.RawString(prefix)
+		out.Raw((in.DateToOrder).MarshalJSON())
+	}
+	{
+		const prefix string = ",\"deadline\":"
+		out.RawString(prefix)
+		out.String(string(in.Deadline))
+	}
+	{
+		const prefix string = ",\"IdU\":"
+		out.RawString(prefix)
+		out.Uint(uint(in.IdU))
+	}
+	{
+		const prefix string = ",\"is_ready\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.IsReady))
+	}
+	{
+		const prefix string = ",\"is_important\":"
+		out.RawString(prefix)
+		out.String(string(in.IsImportant))
+	}
+	{
+		const prefix string = ",\"link\":"
+		out.RawString(prefix)
+		out.String(string(in.Link))
+	}
+	{
+		const prefix string = ",\"checkList\":"
+		out.RawString(prefix)
+		if in.CheckLists == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v17, v18 := range in.CheckLists {
+				if v17 > 0 {
+					out.RawByte(',')
+				}
+				(v18).MarshalEasyJSON(out)
+			}
+			out.RawByte(']')
+		}
+	}
+	{
+		const prefix string = ",\"comment\":"
+		out.RawString(prefix)
+		if in.Comments == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v19, v20 := range in.Comments {
+				if v19 > 0 {
+					out.RawByte(',')
+				}
+				(v20).MarshalEasyJSON(out)
+			}
+			out.RawByte(']')
+		}
+	}
+	{
+		const prefix string = ",\"append_users\":"
+		out.RawString(prefix)
+		if in.Users == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v21, v22 := range in.Users {
+				if v21 > 0 {
+					out.RawByte(',')
+				}
+				easyjson9806e1EncodePLANEXABackendModels3(out, v22)
+			}
+			out.RawByte(']')
+		}
+	}
+	{
+		const prefix string = ",\"attachments\":"
+		out.RawString(prefix)
+		if in.Attachments == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v23, v24 := range in.Attachments {
+				if v23 > 0 {
+					out.RawByte(',')
+				}
+				(v24).MarshalEasyJSON(out)
+			}
+			out.RawByte(']')
+		}
+	}
+	out.RawByte('}')
 }

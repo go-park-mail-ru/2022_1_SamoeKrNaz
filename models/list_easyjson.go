@@ -238,7 +238,7 @@ func easyjsonEf7cfe30DecodePLANEXABackendModels2(in *jlexer.Lexer, out *Task) {
 			out.Position = uint(in.Uint())
 		case "dateCreated":
 			out.DateCreated = string(in.String())
-		case "IdL":
+		case "idl":
 			out.IdL = uint(in.Uint())
 		case "IdB":
 			out.IdB = uint(in.Uint())
@@ -253,7 +253,7 @@ func easyjsonEf7cfe30DecodePLANEXABackendModels2(in *jlexer.Lexer, out *Task) {
 		case "is_ready":
 			out.IsReady = bool(in.Bool())
 		case "is_important":
-			out.IsImportant = bool(in.Bool())
+			out.IsImportant = string(in.String())
 		case "link":
 			out.Link = string(in.String())
 		case "checkList":
@@ -388,7 +388,7 @@ func easyjsonEf7cfe30EncodePLANEXABackendModels2(out *jwriter.Writer, in Task) {
 		out.String(string(in.DateCreated))
 	}
 	{
-		const prefix string = ",\"IdL\":"
+		const prefix string = ",\"idl\":"
 		out.RawString(prefix)
 		out.Uint(uint(in.IdL))
 	}
@@ -420,7 +420,7 @@ func easyjsonEf7cfe30EncodePLANEXABackendModels2(out *jwriter.Writer, in Task) {
 	{
 		const prefix string = ",\"is_important\":"
 		out.RawString(prefix)
-		out.Bool(bool(in.IsImportant))
+		out.String(string(in.IsImportant))
 	}
 	{
 		const prefix string = ",\"link\":"
@@ -543,6 +543,29 @@ func easyjsonEf7cfe30DecodePLANEXABackendModels3(in *jlexer.Lexer, out *User) {
 				}
 				in.Delim(']')
 			}
+		case "Tasks":
+			if in.IsNull() {
+				in.Skip()
+				out.Tasks = nil
+			} else {
+				in.Delim('[')
+				if out.Tasks == nil {
+					if !in.IsDelim(']') {
+						out.Tasks = make([]Task, 0, 0)
+					} else {
+						out.Tasks = []Task{}
+					}
+				} else {
+					out.Tasks = (out.Tasks)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v20 Task
+					easyjsonEf7cfe30DecodePLANEXABackendModels2(in, &v20)
+					out.Tasks = append(out.Tasks, v20)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
 		case "comments":
 			if in.IsNull() {
 				in.Skip()
@@ -559,9 +582,9 @@ func easyjsonEf7cfe30DecodePLANEXABackendModels3(in *jlexer.Lexer, out *User) {
 					out.Comments = (out.Comments)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v20 Comment
-					(v20).UnmarshalEasyJSON(in)
-					out.Comments = append(out.Comments, v20)
+					var v21 Comment
+					(v21).UnmarshalEasyJSON(in)
+					out.Comments = append(out.Comments, v21)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -607,11 +630,27 @@ func easyjsonEf7cfe30EncodePLANEXABackendModels3(out *jwriter.Writer, in User) {
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v21, v22 := range in.Boards {
-				if v21 > 0 {
+			for v22, v23 := range in.Boards {
+				if v22 > 0 {
 					out.RawByte(',')
 				}
-				(v22).MarshalEasyJSON(out)
+				(v23).MarshalEasyJSON(out)
+			}
+			out.RawByte(']')
+		}
+	}
+	{
+		const prefix string = ",\"Tasks\":"
+		out.RawString(prefix)
+		if in.Tasks == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v24, v25 := range in.Tasks {
+				if v24 > 0 {
+					out.RawByte(',')
+				}
+				easyjsonEf7cfe30EncodePLANEXABackendModels2(out, v25)
 			}
 			out.RawByte(']')
 		}
@@ -623,11 +662,11 @@ func easyjsonEf7cfe30EncodePLANEXABackendModels3(out *jwriter.Writer, in User) {
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v23, v24 := range in.Comments {
-				if v23 > 0 {
+			for v26, v27 := range in.Comments {
+				if v26 > 0 {
 					out.RawByte(',')
 				}
-				(v24).MarshalEasyJSON(out)
+				(v27).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}

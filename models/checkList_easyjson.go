@@ -125,7 +125,7 @@ func easyjson6d88e0beDecodePLANEXABackendModels1(in *jlexer.Lexer, out *CheckLis
 				}
 				for !in.IsDelim(']') {
 					var v4 CheckListItem
-					(v4).UnmarshalEasyJSON(in)
+					easyjson6d88e0beDecodePLANEXABackendModels2(in, &v4)
 					out.CheckListItems = append(out.CheckListItems, v4)
 					in.WantComma()
 				}
@@ -171,7 +171,7 @@ func easyjson6d88e0beEncodePLANEXABackendModels1(out *jwriter.Writer, in CheckLi
 				if v5 > 0 {
 					out.RawByte(',')
 				}
-				(v6).MarshalEasyJSON(out)
+				easyjson6d88e0beEncodePLANEXABackendModels2(out, v6)
 			}
 			out.RawByte(']')
 		}
@@ -201,4 +201,74 @@ func (v *CheckList) UnmarshalJSON(data []byte) error {
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *CheckList) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson6d88e0beDecodePLANEXABackendModels1(l, v)
+}
+func easyjson6d88e0beDecodePLANEXABackendModels2(in *jlexer.Lexer, out *CheckListItem) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "id_clit":
+			out.IdClIt = uint(in.Uint())
+		case "title":
+			out.Description = string(in.String())
+		case "id_cl":
+			out.IdCl = uint(in.Uint())
+		case "id_t":
+			out.IdT = uint(in.Uint())
+		case "isready":
+			out.IsReady = bool(in.Bool())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson6d88e0beEncodePLANEXABackendModels2(out *jwriter.Writer, in CheckListItem) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id_clit\":"
+		out.RawString(prefix[1:])
+		out.Uint(uint(in.IdClIt))
+	}
+	{
+		const prefix string = ",\"title\":"
+		out.RawString(prefix)
+		out.String(string(in.Description))
+	}
+	{
+		const prefix string = ",\"id_cl\":"
+		out.RawString(prefix)
+		out.Uint(uint(in.IdCl))
+	}
+	{
+		const prefix string = ",\"id_t\":"
+		out.RawString(prefix)
+		out.Uint(uint(in.IdT))
+	}
+	{
+		const prefix string = ",\"isready\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.IsReady))
+	}
+	out.RawByte('}')
 }

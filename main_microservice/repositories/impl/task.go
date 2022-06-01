@@ -64,7 +64,7 @@ func (taskRepository *TaskRepositoryImpl) Update(task models.Task) error {
 	if currentData.Deadline != task.Deadline && task.Deadline != "" {
 		currentData.Deadline = task.Deadline
 	}
-	if currentData.IsImportant != task.IsImportant && task.IsImportant != false {
+	if currentData.IsImportant != task.IsImportant && task.IsImportant != "" {
 		currentData.IsImportant = task.IsImportant
 	}
 	if currentData.Position != task.Position && currentData.IdL == task.IdL {

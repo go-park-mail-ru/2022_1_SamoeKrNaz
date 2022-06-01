@@ -18,7 +18,7 @@ type Task struct {
 	Deadline    string       `json:"deadline"`
 	IdU         uint         `gorm:"not null;"`
 	IsReady     bool         `json:"is_ready" gorm:"not null;"`
-	IsImportant bool         `json:"is_important" gorm:"not null;"`
+	IsImportant string       `json:"is_important" gorm:"not null;"`
 	Link        string       `json:"link" gorm:"not null;"`
 	CheckLists  []CheckList  `json:"checkList" gorm:"foreignKey:IdT;constraint:OnDelete:CASCADE;"`
 	Comments    []Comment    `json:"comment" gorm:"foreignKey:IdT;constraint:OnDelete:CASCADE;"`
