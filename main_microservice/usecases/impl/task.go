@@ -113,7 +113,7 @@ func (taskUseCase *TaskUseCaseImpl) CreateTask(task models.Task, idB uint, idL u
 	task.DateToOrder = time.Now()
 	task.Link = uuid.NewString()
 	task.IsReady = false
-	task.IsImportant = false
+	task.IsImportant = "false"
 	if err != nil {
 		return nil, err
 	} else if !isAccess {
