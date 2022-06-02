@@ -6,6 +6,7 @@ import (
 	"PLANEXA_backend/models"
 	"fmt"
 	"gorm.io/gorm"
+	"math/rand"
 )
 
 type TaskRepositoryImpl struct {
@@ -37,6 +38,7 @@ func (taskRepository *TaskRepositoryImpl) Create(task *models.Task, IdL uint, Id
 		return 0, err
 	}
 	task.Position = uint(currentPosition) + 1
+	task.IconPattern = uint(rand.Intn(5-1) + 1)
 	err = taskRepository.db.Create(task).Error
 	return task.IdT, err
 }
