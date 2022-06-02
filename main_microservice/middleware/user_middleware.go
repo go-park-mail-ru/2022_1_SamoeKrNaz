@@ -43,7 +43,7 @@ func (mw *Middleware) SendNotification(c *gin.Context) {
 
 	currentNotification, check := c.Get("Notification")
 	if !check {
-		fmt.Println("error in get eventType")
+		fmt.Println("error in get notification")
 		return
 	}
 

@@ -4,7 +4,6 @@ import (
 	"PLANEXA_backend/main_microservice/repositories"
 	"PLANEXA_backend/main_microservice/usecases"
 	"PLANEXA_backend/models"
-	"fmt"
 	rtime "github.com/ivahaev/russian-time"
 	"strconv"
 	"time"
@@ -51,7 +50,6 @@ func (notificationUsecase NotificationUseCaseImpl) Create(notification *models.N
 		}
 		notification.UserWho = *currentUser
 	}
-	fmt.Println(notification)
 	err = notificationUsecase.repNotification.Create(notification)
 	if err != nil {
 		return err
@@ -75,7 +73,7 @@ func (notificationUsecase NotificationUseCaseImpl) CreateBoardNotification(notif
 	if err != nil {
 		return err
 	}
-	currentUser, err := notificationUsecase.repUser.GetUserById(notification.IdU)
+	currentUser, err := notificationUsecase.repUser.GetUserById(notification.IdWh)
 	if err != nil {
 		return err
 	}
@@ -121,9 +119,7 @@ func (notificationUsecase NotificationUseCaseImpl) GetUsersNotifications(IdU uin
 			}
 			(*notifications)[i].UserWho = *currentUser
 		}
-		fmt.Println((*notifications)[i])
 	}
-	fmt.Println(notifications)
 	return (*models.Notifications)(notifications), nil
 }
 

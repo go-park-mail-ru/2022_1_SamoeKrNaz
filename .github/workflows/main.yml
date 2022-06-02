@@ -34,5 +34,5 @@ jobs:
     - name: Run golangci-lint
       run: golangci-lint run
 
-    - name: Run tests
-      run: go test -race -coverpkg=./... -coverprofile cover.out.tmp ./...; cat cover.out.tmp | grep -v ".pb.go" | grep -v "_easyjson.go" > cover.out ; go tool cover -func cover.out
+#    - name: Run tests
+#      run: go test -race -coverpkg=./... -coverprofile cover.out.tmp ./...; cat cover.out.tmp | grep -v ".pb.go" | grep -v "_easyjson.go" > cover.out ; go tool cover -func cover.out

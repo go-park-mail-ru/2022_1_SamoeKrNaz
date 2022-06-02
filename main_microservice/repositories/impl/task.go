@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"math/rand"
+	"time"
 )
 
 type TaskRepositoryImpl struct {
@@ -32,13 +33,14 @@ func (taskRepository *TaskRepositoryImpl) AppendUser(IdT uint, IdU uint) error {
 func (taskRepository *TaskRepositoryImpl) Create(task *models.Task, IdL uint, IdB uint) (uint, error) {
 	task.IdL = IdL
 	task.IdB = IdB
+	rand.Seed(time.Now().UnixNano())
 	var currentPosition int64
 	err := taskRepository.db.Model(&models.Task{}).Where("id_l = ?", task.IdL).Count(&currentPosition).Error
 	if err != nil {
 		return 0, err
 	}
 	task.Position = uint(currentPosition) + 1
-	task.IconPattern = uint(rand.Intn(5-1) + 1)
+	task.IconPattern = uint(rand.Intn(5) + 1)
 	err = taskRepository.db.Create(task).Error
 	return task.IdT, err
 }

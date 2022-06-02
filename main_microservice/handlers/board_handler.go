@@ -318,7 +318,6 @@ func (boardHandler *BoardHandler) AppendUserToBoardByLink(c *gin.Context) {
 	link := c.Param("link")
 
 	//вызываю юзкейс
-
 	appendedBoard, err := boardHandler.usecase.AppendUserByLink(uint(userId.(uint64)), link)
 	if err != nil {
 		_ = c.Error(err)

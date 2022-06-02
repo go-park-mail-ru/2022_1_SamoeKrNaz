@@ -29,9 +29,9 @@ func (boardRepository *BoardRepositoryImpl) Create(board *models.Board) (uint, e
 	return board.IdB, err
 }
 
-func (boardRepository *BoardRepositoryImpl) AppendUser(boardId uint, userId uint) error {
+func (boardRepository *BoardRepositoryImpl) AppendUser(boardId uint, IdU uint) error {
 	user := new(models.User)
-	result := boardRepository.db.Find(user, userId)
+	result := boardRepository.db.Find(user, IdU)
 	if result.RowsAffected == 0 {
 		return customErrors.ErrUserNotFound
 	} else if result.Error != nil {
