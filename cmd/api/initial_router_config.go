@@ -190,7 +190,7 @@ func initRouter() (*gin.Engine, error) {
 			taskRoutes.GET("/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.GetComments)
 			taskRoutes.POST("/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.CreateComment, authMiddleware.SendToWebSocket)
 			taskRoutes.PUT("/:id"+routes.AttachmentRoute, authMiddleware.CheckAuth, attachmentHandler.CreateAttachment, authMiddleware.SendToWebSocket)
-			taskRoutes.POST("/append/:link", authMiddleware.CheckAuth, taskHandler.AppendUserToTaskByLink, authMiddleware.SendToWebSocket, authMiddleware.SendNotification)
+			taskRoutes.POST("/append/:link", authMiddleware.CheckAuth, taskHandler.AppendUserToTaskByLink, authMiddleware.SendToWebSocket)
 		}
 		checkListRoutes := router.Group(routes.CheckListRoute)
 		{

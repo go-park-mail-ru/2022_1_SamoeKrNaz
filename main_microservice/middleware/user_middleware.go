@@ -50,13 +50,23 @@ func (mw *Middleware) SendNotification(c *gin.Context) {
 	event := &models.Event{
 		EventType: currentNotification.(string),
 	}
-	// если пользователь присоединился к доске, то надо выслать всем челиксам на доске
-	if event.EventType == "AppendUserToBoard" {
-		currentIdB, check := c.Get("IdB")
+
+	currentIdB, check := c.Get("IdB")
+	if !check {
+		fmt.Println("error in get idb")
+		return
+	}
+	event.IdB = currentIdB.(uint)
+	if event.EventType == "AppendUserToTask" || event.EventType == "DeleteUserFromTask" {
+		currentIdT, check := c.Get("IdT")
 		if !check {
-			fmt.Println("error in get idb")
+			fmt.Println("error in get idt")
 			return
 		}
+		event.IdT = currentIdT.(uint)
+	}
+	// если пользователь присоединился к доске, то надо выслать всем челиксам на доске
+	if event.EventType == "AppendUserToBoard" {
 		event.IdB = currentIdB.(uint)
 		boardsUsers, err := mw.boardRepo.GetBoardUser(event.IdB)
 		if err != nil {
