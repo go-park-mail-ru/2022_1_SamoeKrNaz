@@ -65,6 +65,13 @@ func (mw *Middleware) SendNotification(c *gin.Context) {
 		}
 		event.IdT = currentIdT.(uint)
 	}
+
+	toSend, check := c.Get("ToSend")
+	if !check {
+		fmt.Println("error in get tosend")
+		return
+	}
+
 	// если пользователь присоединился к доске, то надо выслать всем челиксам на доске
 	if event.EventType == "AppendUserToBoard" {
 		event.IdB = currentIdB.(uint)
@@ -75,6 +82,9 @@ func (mw *Middleware) SendNotification(c *gin.Context) {
 		}
 		for _, user := range boardsUsers {
 			eventJson, err := event.MarshalJSON()
+			if user.IdU == toSend.(uint) {
+				continue
+			}
 			if err != nil {
 				fmt.Println("error in marshalljson")
 				return
@@ -83,11 +93,6 @@ func (mw *Middleware) SendNotification(c *gin.Context) {
 		}
 		// в остальных случаях просто высылаем адресату
 	} else {
-		toSend, check := c.Get("ToSend")
-		if !check {
-			fmt.Println("error in get tosend")
-			return
-		}
 		eventJson, err := event.MarshalJSON()
 		if err != nil {
 			fmt.Println("error in marshalljson")

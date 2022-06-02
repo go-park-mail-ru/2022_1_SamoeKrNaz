@@ -326,7 +326,7 @@ func (boardHandler *BoardHandler) AppendUserToBoardByLink(c *gin.Context) {
 	}
 
 	//для всех, кто есть в этой доске, надо отправить уведомление
-	notification := models.Notification{
+	notification := models.Notification{IdWh: uint(userId.(uint64)),
 		NotificationType: "AppendUserToBoard", IdB: appendedBoard.IdB}
 
 	err = boardHandler.notificationUsecase.CreateBoardNotification(&notification)
@@ -343,5 +343,6 @@ func (boardHandler *BoardHandler) AppendUserToBoardByLink(c *gin.Context) {
 	c.Set("eventType", "UpdateBoard")
 	c.Set("IdB", appendedBoard.IdB)
 	c.Set("Notification", "AppendUserToBoard")
+	c.Set("ToSend", uint(userId.(uint64)))
 	c.Data(http.StatusOK, "application/json; charset=utf-8", boardJson)
 }

@@ -75,8 +75,16 @@ func (notificationUsecase NotificationUseCaseImpl) CreateBoardNotification(notif
 	if err != nil {
 		return err
 	}
+	currentUser, err := notificationUsecase.repUser.GetUserById(notification.IdU)
+	if err != nil {
+		return err
+	}
+	notification.UserWho = *currentUser
 	//каждому нужно создать уведомление, что был добавлен пользователь
 	for _, user := range userFromBoard {
+		if user.IdU == notification.IdWh {
+			continue
+		}
 		notification.IdU = user.IdU
 		err := notificationUsecase.repNotification.Create(notification)
 		if err != nil {
