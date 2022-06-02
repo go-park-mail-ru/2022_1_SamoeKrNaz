@@ -25,8 +25,8 @@ jobs:
       - name: Github secrets
         run: echo postgresUser:' '\'${{ secrets.POSTGRES_USER }}\' >> cmd/api/config.yml; echo postgresPassword:' '\'${{ secrets.POSTGRES_PASSWORD }}\' >> cmd/api/config.yml; echo postgresDbName:' '\'${{ secrets.POSTGRES_DB_NAME }}\' >> cmd/api/config.yml; echo postgresUser:' '\'${{ secrets.POSTGRES_USER }}\' >> user_microservice/server_user_ms/config.yml; echo postgresPassword:' '\'${{ secrets.POSTGRES_PASSWORD }}\' >> user_microservice/server_user_ms/config.yml; echo postgresDbName:' '\'${{ secrets.POSTGRES_DB_NAME }}\' >> user_microservice/server_user_ms/config.yml; touch .env; echo POSTGRES_DB=${{ secrets.POSTGRES_DB_NAME }} >> .env; echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env; echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env;
 
-      - name: Run go vet
-        run: go vet ./...
+#      - name: Run go vet
+#        run: go vet ./...
 
       - name: Install golangci-lint
         run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.45.2
