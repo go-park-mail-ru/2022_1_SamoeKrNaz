@@ -61,3 +61,26 @@ func (notificationHandler *NotificationHandler) ReadNotifications(c *gin.Context
 	}
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isOkayJson)
 }
+
+func (notificationHandler *NotificationHandler) DeleteNotifications(c *gin.Context) {
+	userId, check := c.Get("Auth")
+	if !check {
+		_ = c.Error(customErrors.ErrUnauthorized)
+		return
+	}
+
+	//Получаю доски от БД
+	err := notificationHandler.usecase.DeleteNotifications(uint(userId.(uint64)))
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+	var isOkay models.Is_okayIn
+	isOkay.Is_okayInfo = true
+	isOkayJson, err := isOkay.MarshalJSON()
+	if err != nil {
+		_ = c.Error(customErrors.ErrBadInputData)
+		return
+	}
+	c.Data(http.StatusOK, "application/json; charset=utf-8", isOkayJson)
+}

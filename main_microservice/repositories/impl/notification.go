@@ -34,3 +34,11 @@ func (notificationRepository *NotificationRepositoryImpl) ReadNotifications(IdU 
 		UpdateColumn("is_read", gorm.Expr("true")).Error
 	return err
 }
+
+func (notificationRepository *NotificationRepositoryImpl) DeleteNotifications(IdU uint) error {
+	err := notificationRepository.db.Where("id_u = ?", IdU).Delete(&models.Notification{}).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}

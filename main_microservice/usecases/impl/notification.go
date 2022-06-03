@@ -130,3 +130,11 @@ func (notificationUsecase NotificationUseCaseImpl) ReadNotifications(IdU uint) e
 	}
 	return nil
 }
+
+func (notificationUsecase NotificationUseCaseImpl) DeleteNotifications(IdU uint) error {
+	err := notificationUsecase.repNotification.DeleteNotifications(IdU)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -9,4 +9,5 @@ type NotificationUseCase interface {
 	GetUsersNotifications(IdU uint) (*models.Notifications, error)
 	CreateBoardNotification(notification *models.Notification) error
 	ReadNotifications(IdU uint) error
+	DeleteNotifications(IdU uint) error
 }

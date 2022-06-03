@@ -221,6 +221,7 @@ func initRouter() (*gin.Engine, error) {
 		{
 			notificationRoutes.GET("", authMiddleware.CheckAuth, notificationHandler.GetNotifications)
 			notificationRoutes.POST("", authMiddleware.CheckAuth, notificationHandler.ReadNotifications)
+			notificationRoutes.DELETE("", authMiddleware.CheckAuth, notificationHandler.DeleteNotifications)
 		}
 		mainRoutes.POST(routes.LoginRoute, userHandler.Login)
 		mainRoutes.GET("/get"+routes.BoardRoute+"s", authMiddleware.CheckAuth, boardHandler.GetBoards)
