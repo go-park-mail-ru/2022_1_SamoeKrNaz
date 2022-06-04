@@ -216,15 +216,14 @@ func (taskRepository *TaskRepositoryImpl) IsAppendedToTask(IdU uint, IdT uint) (
 }
 
 func (taskRepository *TaskRepositoryImpl) GetImportantTasks(IdU uint) (*[]models.Task, error) {
-	importantTasks := new([]models.ImportantTask)
-	err := taskRepository.db.Where("id_u = ?", IdU).Order("date_to_order").Find(importantTasks).Error
+	tasks := new([]models.Task)
+	err := taskRepository.db.Where("id_u = ?", IdU).Order("date_to_order").Find(tasks).Error
 	if err != nil {
 		return nil, err
 	}
-	tasks := new([]models.Task)
-	for i := range *importantTasks {
+	for i := range *tasks {
 		currentImportant := new([]models.Task)
-		err = taskRepository.db.Where("id_t = ?", (*importantTasks)[i].IdT).Find(currentImportant).Error
+		err = taskRepository.db.Where("id_t = ?", (*tasks)[i].IdT).Find(currentImportant).Error
 		if err != nil {
 			return nil, err
 		}
