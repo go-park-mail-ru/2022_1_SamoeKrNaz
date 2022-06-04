@@ -71,9 +71,10 @@ func (taskRepository *TaskRepositoryImpl) Update(task models.Task, IdU uint) err
 	if currentData.Deadline != task.Deadline && task.Deadline != "" {
 		currentData.Deadline = task.Deadline
 	}
+
 	if task.IsImportant != "" {
 		if task.IsImportant == "false" {
-			err := taskRepository.db.Delete(&models.ImportantTask{IdB: currentData.IdB, IdT: currentData.IdT, IdU: IdU}).Error
+			err := taskRepository.db.Where("id_b = ? and id_t = ? and id_u = ?", currentData.IdB, currentData.IdT, IdU).Delete(&models.ImportantTask{}).Error
 			if err != nil {
 				return err
 			}
