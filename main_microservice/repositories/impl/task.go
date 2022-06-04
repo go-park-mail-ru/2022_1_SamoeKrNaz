@@ -232,7 +232,7 @@ func (taskRepository *TaskRepositoryImpl) GetImportantTasks(IdU uint) (*[]models
 			importantTasks = append(importantTasks, (*tasks)[i])
 		}
 	}
-	return tasks, nil
+	return &importantTasks, nil
 }
 
 func (taskRepository *TaskRepositoryImpl) GetTaskUser(IdT uint) (*[]models.User, error) {
