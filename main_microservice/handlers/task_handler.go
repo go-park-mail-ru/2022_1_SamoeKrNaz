@@ -257,13 +257,17 @@ func (taskHandler *TaskHandler) AppendUserToTask(c *gin.Context) {
 		return
 	}
 
-	notification := models.Notification{IdU: uint(appendedUserId),
-		NotificationType: "AppendUserToTask", IdT: uint(taskId), IdWh: uint(userId.(uint64))}
+	if uint(appendedUserId) != uint(userId.(uint64)) {
+		notification := models.Notification{IdU: uint(appendedUserId),
+			NotificationType: "AppendUserToTask", IdT: uint(taskId), IdWh: uint(userId.(uint64))}
 
-	err = taskHandler.notificationUsecase.Create(&notification)
-	if err != nil {
-		_ = c.Error(err)
-		return
+		err = taskHandler.notificationUsecase.Create(&notification)
+		if err != nil {
+			_ = c.Error(err)
+			return
+		}
+		c.Set("ToSend", uint(appendedUserId))
+		c.Set("Notification", "AppendUserToTask")
 	}
 
 	newTask, err := taskHandler.usecase.GetSingleTask(uint(taskId), uint(userId.(uint64)))
@@ -280,8 +284,6 @@ func (taskHandler *TaskHandler) AppendUserToTask(c *gin.Context) {
 	c.Set("IdB", newTask.IdB)
 	c.Set("eventType", "UpdateTask")
 	c.Set("IdT", newTask.IdT)
-	c.Set("ToSend", uint(appendedUserId))
-	c.Set("Notification", "AppendUserToTask")
 	c.Data(http.StatusOK, "application/json; charset=utf-8", userJson)
 }
 
