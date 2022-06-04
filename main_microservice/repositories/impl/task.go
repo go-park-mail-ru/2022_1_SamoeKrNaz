@@ -134,6 +134,10 @@ func (taskRepository *TaskRepositoryImpl) Delete(IdT uint) error {
 	if err != nil {
 		return err
 	}
+	err = taskRepository.db.Where("id_t = ?", IdT).Delete(&models.Notification{}).Error
+	if err != nil {
+		return err
+	}
 	return taskRepository.db.Model(&models.Task{}).
 		Where("position > ? AND id_l = ?", taskToDelete.Position, taskToDelete.IdL).
 		UpdateColumn("position", gorm.Expr("position - 1")).Error

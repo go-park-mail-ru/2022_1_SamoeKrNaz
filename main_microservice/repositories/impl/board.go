@@ -70,6 +70,10 @@ func (boardRepository *BoardRepositoryImpl) Delete(IdB uint) error {
 	if err != nil {
 		return err
 	}
+	err = boardRepository.db.Where("id_b = ?", IdB).Delete(&models.Notification{}).Error
+	if err != nil {
+		return err
+	}
 	return boardRepository.db.Delete(&models.Board{}, IdB).Error
 }
 
