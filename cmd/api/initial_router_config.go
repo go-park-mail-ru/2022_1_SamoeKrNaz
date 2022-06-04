@@ -69,7 +69,8 @@ func initDB(conf Config) (*gorm.DB, error) {
 		return nil, err
 	}
 	err = db.AutoMigrate(&models.User{}, &models.Board{}, &models.List{},
-		&models.Task{}, &models.CheckList{}, &models.CheckListItem{}, &models.Comment{}, &models.Attachment{}, &models.Notification{})
+		&models.Task{}, &models.CheckList{}, &models.CheckListItem{}, &models.Comment{}, &models.Attachment{},
+		&models.Notification{}, &models.ImportantTask{})
 	if err != nil {
 		return nil, err
 	}
