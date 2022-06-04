@@ -41,6 +41,14 @@ func (notificationUsecase NotificationUseCaseImpl) Create(notification *models.N
 			return err
 		}
 		notification.Task = *currentTask
+		if notification.IdB == 0 {
+			currentBoard, err := notificationUsecase.repBoard.GetById(currentTask.IdB)
+			if err != nil {
+				return nil
+			}
+			notification.Board = *currentBoard
+			notification.IdB = (*currentBoard).IdB
+		}
 	}
 	notification.DateToOrder = time.Now()
 	if notification.IdWh != 0 {
