@@ -7,6 +7,7 @@ import (
 	"PLANEXA_backend/main_microservice/middleware"
 	repositories_impl "PLANEXA_backend/main_microservice/repositories/impl"
 	usecases_impl "PLANEXA_backend/main_microservice/usecases/impl"
+	"PLANEXA_backend/main_microservice/websocket/impl"
 	"PLANEXA_backend/models"
 	"PLANEXA_backend/routes"
 	handler_user "PLANEXA_backend/user_microservice/server_user_ms/handler"
@@ -68,7 +69,8 @@ func initDB(conf Config) (*gorm.DB, error) {
 		return nil, err
 	}
 	err = db.AutoMigrate(&models.User{}, &models.Board{}, &models.List{},
-		&models.Task{}, &models.CheckList{}, &models.CheckListItem{}, &models.Comment{}, &models.Attachment{})
+		&models.Task{}, &models.CheckList{}, &models.CheckListItem{}, &models.Comment{}, &models.Attachment{},
+		&models.Notification{}, &models.ImportantTask{})
 	if err != nil {
 		return nil, err
 	}
@@ -90,8 +92,6 @@ func initRouter() (*gin.Engine, error) {
 	config.AllowOrigins = []string{"http://localhost:3000", "https://planexa.ru", "http://planexa.netlify.app", "http://89.208.199.114:3000", "http://89.208.199.114:8080"}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowCredentials = true
-	router.Use(cors.New(config))
-	router.Use(middleware.CheckError())
 
 	db, err := initDB(conf)
 	if err != nil {
@@ -135,79 +135,94 @@ func initRouter() (*gin.Engine, error) {
 	checkListItemRepository := repositories_impl.MakeCheckListItemRepository(db)
 	commentRepository := repositories_impl.MakeCommentRepository(db)
 	attachmentRepository := repositories_impl.MakeAttachmentRepository(db)
+	notificationRepository := repositories_impl.MakeNotificationRepository(db)
 
-	authMiddleware := middleware.CreateMiddleware(sessService)
+	webSocketPool := wsplanexa_impl.CreatePool()
+
+	authMiddleware := middleware.CreateMiddleware(sessService, boardRepository, webSocketPool)
+
+	router.Use(cors.New(config))
+
+	router.GET(routes.HomeRoute+routes.WebSocketRoute, authMiddleware.CheckAuth, webSocketPool.Start)
+	router.Use(middleware.CheckError())
 
 	userHandler := handlers_impl.MakeUserHandler(usecases_impl.MakeUserUsecase(userService, sessService))
-	taskHandler := handlers_impl.MakeTaskHandler(usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
-	boardHandler := handlers_impl.MakeBoardHandler(usecases_impl.MakeBoardUsecase(boardRepository, listRepository, taskRepository, checkListRepository, userService, commentRepository))
+	taskHandler := handlers_impl.MakeTaskHandler(usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository), usecases_impl.MakeNotificationUseCase(notificationRepository, boardRepository, taskRepository, userService))
+	boardHandler := handlers_impl.MakeBoardHandler(usecases_impl.MakeBoardUsecase(boardRepository, listRepository, taskRepository, checkListRepository, userService, commentRepository), usecases_impl.MakeNotificationUseCase(notificationRepository, boardRepository, taskRepository, userService))
 	listHandler := handlers_impl.MakeListHandler(usecases_impl.MakeListUsecase(listRepository, boardRepository))
-	checkListHandler := handlers_impl.MakeCheckListHandler(usecases_impl.MakeCheckListUsecase(checkListRepository, taskRepository))
-	checkListItemHandler := handlers_impl.MakeCheckListItemHandler(usecases_impl.MakeCheckListItemUsecase(checkListItemRepository, checkListRepository, taskRepository))
-	commentHandler := handlers_impl.MakeCommentHandler(usecases_impl.MakeCommentUsecase(commentRepository, taskRepository, userService))
-	attachmentHandler := handlers_impl.MakeAttachmentHandler(usecases_impl.MakeAttachmentUseCase(attachmentRepository, taskRepository))
+	checkListHandler := handlers_impl.MakeCheckListHandler(usecases_impl.MakeCheckListUsecase(checkListRepository, taskRepository), usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
+	checkListItemHandler := handlers_impl.MakeCheckListItemHandler(usecases_impl.MakeCheckListItemUsecase(checkListItemRepository, checkListRepository, taskRepository), usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
+	commentHandler := handlers_impl.MakeCommentHandler(usecases_impl.MakeCommentUsecase(commentRepository, taskRepository, userService), usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
+	attachmentHandler := handlers_impl.MakeAttachmentHandler(usecases_impl.MakeAttachmentUseCase(attachmentRepository, taskRepository), usecases_impl.MakeTaskUsecase(taskRepository, boardRepository, listRepository, userService, checkListRepository, commentRepository))
+	notificationHandler := handlers_impl.MakeNotificationHandler(usecases_impl.MakeNotificationUseCase(notificationRepository, boardRepository, taskRepository, userService))
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
 		boardRoutes := router.Group(routes.BoardRoute)
 		{
 			boardRoutes.POST("", authMiddleware.CheckAuth, boardHandler.CreateBoard)
-			boardRoutes.PUT("/:id", authMiddleware.CheckAuth, boardHandler.RefactorBoard)
+			boardRoutes.PUT("/:id", authMiddleware.CheckAuth, boardHandler.RefactorBoard, authMiddleware.SendToWebSocket)
 			boardRoutes.GET("/:id", authMiddleware.CheckAuth, boardHandler.GetSingleBoard)
-			boardRoutes.DELETE("/:id", authMiddleware.CheckAuth, boardHandler.DeleteBoard)
-			boardRoutes.POST("/:id/:idU", authMiddleware.CheckAuth, boardHandler.AppendUserToBoard)
-			boardRoutes.DELETE("/:id/:idU", authMiddleware.CheckAuth, boardHandler.DeleteUserToBoard)
+			boardRoutes.DELETE("/:id", authMiddleware.CheckAuth, boardHandler.DeleteBoard, authMiddleware.SendToWebSocket)
+			boardRoutes.POST("/:id/:idU", authMiddleware.CheckAuth, boardHandler.AppendUserToBoard, authMiddleware.SendToWebSocket, authMiddleware.SendNotification)
+			boardRoutes.DELETE("/:id/:idU", authMiddleware.CheckAuth, boardHandler.DeleteUserToBoard, authMiddleware.SendToWebSocket, authMiddleware.SendNotification)
 			boardRoutes.PUT("/:id/upload", authMiddleware.CheckAuth, boardHandler.SaveImage)
 			boardRoutes.GET("/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.GetLists)
-			boardRoutes.POST("/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.CreateList)
-			boardRoutes.POST("/:id"+routes.ListRoute+"/:idL"+routes.TaskRoute, authMiddleware.CheckAuth, taskHandler.CreateTask)
-			boardRoutes.POST("/append/:link", authMiddleware.CheckAuth, boardHandler.AppendUserToBoardByLink)
+			boardRoutes.POST("/:id"+routes.ListRoute, authMiddleware.CheckAuth, listHandler.CreateList, authMiddleware.SendToWebSocket)
+			boardRoutes.POST("/:id"+routes.ListRoute+"/:idL"+routes.TaskRoute, authMiddleware.CheckAuth, taskHandler.CreateTask, authMiddleware.SendToWebSocket)
+			boardRoutes.POST("/append/:link", authMiddleware.CheckAuth, boardHandler.AppendUserToBoardByLink, authMiddleware.SendToWebSocket, authMiddleware.SendNotification)
 		}
 		listRoutes := router.Group(routes.ListRoute)
 		{
 			listRoutes.GET("/:id", authMiddleware.CheckAuth, listHandler.GetSingleList)
-			listRoutes.PUT("/:id", authMiddleware.CheckAuth, listHandler.RefactorList)
-			listRoutes.DELETE("/:id", authMiddleware.CheckAuth, listHandler.DeleteList)
+			listRoutes.PUT("/:id", authMiddleware.CheckAuth, listHandler.RefactorList, authMiddleware.SendToWebSocket)
+			listRoutes.DELETE("/:id", authMiddleware.CheckAuth, listHandler.DeleteList, authMiddleware.SendToWebSocket)
 			listRoutes.GET("/:id"+routes.TaskRoute, authMiddleware.CheckAuth, taskHandler.GetTasks)
 		}
 		taskRoutes := router.Group(routes.TaskRoute)
 		{
 			taskRoutes.GET("", authMiddleware.CheckAuth, taskHandler.GetImportantTasks)
 			taskRoutes.GET("/:id", authMiddleware.CheckAuth, taskHandler.GetSingleTask)
-			taskRoutes.PUT("/:id", authMiddleware.CheckAuth, taskHandler.RefactorTask)
-			taskRoutes.DELETE("/:id", authMiddleware.CheckAuth, taskHandler.DeleteTask)
-			taskRoutes.POST("/:id/:idU", authMiddleware.CheckAuth, taskHandler.AppendUserToTask)
-			taskRoutes.DELETE("/:id/:idU", authMiddleware.CheckAuth, taskHandler.DeleteUserFromTask)
+			taskRoutes.PUT("/:id", authMiddleware.CheckAuth, taskHandler.RefactorTask, authMiddleware.SendToWebSocket)
+			taskRoutes.DELETE("/:id", authMiddleware.CheckAuth, taskHandler.DeleteTask, authMiddleware.SendToWebSocket)
+			taskRoutes.POST("/:id/:idU", authMiddleware.CheckAuth, taskHandler.AppendUserToTask, authMiddleware.SendToWebSocket, authMiddleware.SendNotification)
+			taskRoutes.DELETE("/:id/:idU", authMiddleware.CheckAuth, taskHandler.DeleteUserFromTask, authMiddleware.SendToWebSocket, authMiddleware.SendNotification)
 			taskRoutes.GET("/:id"+routes.CheckListRoute, authMiddleware.CheckAuth, checkListHandler.GetCheckLists)
-			taskRoutes.POST("/:id"+routes.CheckListRoute, authMiddleware.CheckAuth, checkListHandler.CreateCheckList)
+			taskRoutes.POST("/:id"+routes.CheckListRoute, authMiddleware.CheckAuth, checkListHandler.CreateCheckList, authMiddleware.SendToWebSocket)
 			taskRoutes.GET("/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.GetComments)
-			taskRoutes.POST("/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.CreateComment)
-			taskRoutes.PUT("/:id"+routes.AttachmentRoute, authMiddleware.CheckAuth, attachmentHandler.CreateAttachment)
-			taskRoutes.POST("/append/:link", authMiddleware.CheckAuth, taskHandler.AppendUserToTaskByLink)
+			taskRoutes.POST("/:id"+routes.CommentRoute, authMiddleware.CheckAuth, commentHandler.CreateComment, authMiddleware.SendToWebSocket)
+			taskRoutes.PUT("/:id"+routes.AttachmentRoute, authMiddleware.CheckAuth, attachmentHandler.CreateAttachment, authMiddleware.SendToWebSocket)
+			taskRoutes.POST("/append/:link", authMiddleware.CheckAuth, taskHandler.AppendUserToTaskByLink, authMiddleware.SendToWebSocket)
 		}
 		checkListRoutes := router.Group(routes.CheckListRoute)
 		{
 			checkListRoutes.GET("/:id", authMiddleware.CheckAuth, checkListHandler.GetSingleCheckList)
-			checkListRoutes.PUT("/:id", authMiddleware.CheckAuth, checkListHandler.RefactorCheckList)
-			checkListRoutes.DELETE("/:id", authMiddleware.CheckAuth, checkListHandler.DeleteCheckList)
+			checkListRoutes.PUT("/:id", authMiddleware.CheckAuth, checkListHandler.RefactorCheckList, authMiddleware.SendToWebSocket)
+			checkListRoutes.DELETE("/:id", authMiddleware.CheckAuth, checkListHandler.DeleteCheckList, authMiddleware.SendToWebSocket)
 			checkListRoutes.GET("/:id"+routes.CheckListItemRoute, authMiddleware.CheckAuth, checkListItemHandler.GetCheckListItems)
-			checkListRoutes.POST("/:id"+routes.CheckListItemRoute, authMiddleware.CheckAuth, checkListItemHandler.CreateCheckListItem)
+			checkListRoutes.POST("/:id"+routes.CheckListItemRoute, authMiddleware.CheckAuth, checkListItemHandler.CreateCheckListItem, authMiddleware.SendToWebSocket)
 		}
 		checkListItemRoutes := router.Group(routes.CheckListItemRoute)
 		{
 			checkListItemRoutes.GET("/:id", authMiddleware.CheckAuth, checkListItemHandler.GetSingleCheckListItem)
-			checkListItemRoutes.PUT("/:id", authMiddleware.CheckAuth, checkListItemHandler.RefactorCheckListItem)
-			checkListItemRoutes.DELETE("/:id", authMiddleware.CheckAuth, checkListItemHandler.DeleteCheckListItem)
+			checkListItemRoutes.PUT("/:id", authMiddleware.CheckAuth, checkListItemHandler.RefactorCheckListItem, authMiddleware.SendToWebSocket)
+			checkListItemRoutes.DELETE("/:id", authMiddleware.CheckAuth, checkListItemHandler.DeleteCheckListItem, authMiddleware.SendToWebSocket)
 		}
 		commentRoutes := router.Group(routes.CommentRoute)
 		{
 			commentRoutes.GET("/:id", authMiddleware.CheckAuth, commentHandler.GetSingleComment)
-			commentRoutes.PUT("/:id", authMiddleware.CheckAuth, commentHandler.RefactorComment)
-			commentRoutes.DELETE("/:id", authMiddleware.CheckAuth, commentHandler.DeleteComment)
+			commentRoutes.PUT("/:id", authMiddleware.CheckAuth, commentHandler.RefactorComment, authMiddleware.SendToWebSocket)
+			commentRoutes.DELETE("/:id", authMiddleware.CheckAuth, commentHandler.DeleteComment, authMiddleware.SendToWebSocket)
 		}
 		attachmentRoutes := router.Group(routes.AttachmentRoute)
 		{
 			attachmentRoutes.GET("/:id", authMiddleware.CheckAuth, attachmentHandler.GetSingleAttachment)
-			attachmentRoutes.DELETE("/:id", authMiddleware.CheckAuth, attachmentHandler.DeleteAttachment)
+			attachmentRoutes.DELETE("/:id", authMiddleware.CheckAuth, attachmentHandler.DeleteAttachment, authMiddleware.SendToWebSocket)
+		}
+		notificationRoutes := router.Group(routes.NotificationRoute)
+		{
+			notificationRoutes.GET("", authMiddleware.CheckAuth, notificationHandler.GetNotifications)
+			notificationRoutes.POST("", authMiddleware.CheckAuth, notificationHandler.ReadNotifications)
+			notificationRoutes.DELETE("", authMiddleware.CheckAuth, notificationHandler.DeleteNotifications)
 		}
 		mainRoutes.POST(routes.LoginRoute, userHandler.Login)
 		mainRoutes.GET("/get"+routes.BoardRoute+"s", authMiddleware.CheckAuth, boardHandler.GetBoards)

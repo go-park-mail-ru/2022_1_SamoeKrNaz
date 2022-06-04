@@ -39,7 +39,7 @@ func (taskUseCase *TaskUseCaseImpl) GetTasks(listId uint, userId uint) ([]models
 	} else if !isAccess {
 		return nil, customErrors.ErrNoAccess
 	}
-	tasks, err := taskUseCase.repTask.GetTasks(listId)
+	tasks, err := taskUseCase.repTask.GetTasks(listId, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -66,6 +66,11 @@ func (taskUseCase *TaskUseCaseImpl) GetSingleTask(taskId uint, userId uint) (mod
 	} else if !isAccess {
 		return models.Task{}, customErrors.ErrNoAccess
 	}
+
+	//проставление важности
+	isImportant := taskUseCase.repTask.GetImportance(taskId, userId)
+	task.IsImportant = isImportant
+
 	appendedUsers, err := taskUseCase.repTask.GetTaskUser(taskId)
 	if err != nil {
 		return models.Task{}, err
@@ -113,7 +118,7 @@ func (taskUseCase *TaskUseCaseImpl) CreateTask(task models.Task, idB uint, idL u
 	task.DateToOrder = time.Now()
 	task.Link = uuid.NewString()
 	task.IsReady = false
-	task.IsImportant = false
+	task.IsImportant = "false"
 	if err != nil {
 		return nil, err
 	} else if !isAccess {
@@ -141,7 +146,7 @@ func (taskUseCase *TaskUseCaseImpl) RefactorTask(task models.Task, userId uint) 
 		return customErrors.ErrNoAccess
 	}
 	// вношу изменения в бд
-	err = taskUseCase.repTask.Update(task)
+	err = taskUseCase.repTask.Update(task, userId)
 	return err
 }
 

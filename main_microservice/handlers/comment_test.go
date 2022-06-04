@@ -23,6 +23,7 @@ func TestGetComments(t *testing.T) {
 	defer controller.Finish()
 	commentUseCase := mock_usecases.NewMockCommentUseCase(controller)
 	commentHandler := MakeCommentHandler(commentUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -34,7 +35,7 @@ func TestGetComments(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -70,6 +71,7 @@ func TestGetComment(t *testing.T) {
 	defer controller.Finish()
 	commentUseCase := mock_usecases.NewMockCommentUseCase(controller)
 	commentHandler := MakeCommentHandler(commentUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -81,7 +83,7 @@ func TestGetComment(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -116,6 +118,7 @@ func TestCreateComment(t *testing.T) {
 	defer controller.Finish()
 	commentUseCase := mock_usecases.NewMockCommentUseCase(controller)
 	commentHandler := MakeCommentHandler(commentUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -127,7 +130,7 @@ func TestCreateComment(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -164,6 +167,7 @@ func TestRefactorComment(t *testing.T) {
 	defer controller.Finish()
 	commentUseCase := mock_usecases.NewMockCommentUseCase(controller)
 	commentHandler := MakeCommentHandler(commentUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -175,7 +179,7 @@ func TestRefactorComment(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -209,6 +213,7 @@ func TestDeleteComment(t *testing.T) {
 	defer controller.Finish()
 	commentUseCase := mock_usecases.NewMockCommentUseCase(controller)
 	commentHandler := MakeCommentHandler(commentUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -220,7 +225,7 @@ func TestDeleteComment(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{

@@ -3,6 +3,8 @@ package handlers
 import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/main_microservice/middleware"
+	"PLANEXA_backend/main_microservice/repositories"
+	repositories_impl "PLANEXA_backend/main_microservice/repositories/impl"
 	"PLANEXA_backend/main_microservice/repositories/mocks"
 	"PLANEXA_backend/main_microservice/usecases/mocks"
 	"PLANEXA_backend/models"
@@ -12,10 +14,30 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/DATA-DOG/go-sqlmock.v1"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
+
+func CreateBoardMock() (repositories.BoardRepository, sqlmock.Sqlmock, error) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	openGorm, err := gorm.Open(postgres.New(postgres.Config{Conn: db}))
+
+	if err != nil {
+		db.Close()
+		return nil, nil, err
+	}
+
+	repoBoard := repositories_impl.MakeBoardRepository(openGorm)
+	return repoBoard, mock, err
+}
 
 func TestGetBoards(t *testing.T) {
 	t.Parallel()
@@ -23,6 +45,7 @@ func TestGetBoards(t *testing.T) {
 	defer controller.Finish()
 	boardUseCase := mock_usecases.NewMockBoardUseCase(controller)
 	boardHandler := MakeBoardHandler(boardUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -34,7 +57,7 @@ func TestGetBoards(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -69,6 +92,7 @@ func TestGetBoard(t *testing.T) {
 	defer controller.Finish()
 	boardUseCase := mock_usecases.NewMockBoardUseCase(controller)
 	boardHandler := MakeBoardHandler(boardUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -80,7 +104,7 @@ func TestGetBoard(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -116,6 +140,7 @@ func TestCreateBoard(t *testing.T) {
 	defer controller.Finish()
 	boardUseCase := mock_usecases.NewMockBoardUseCase(controller)
 	boardHandler := MakeBoardHandler(boardUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -127,7 +152,7 @@ func TestCreateBoard(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -167,6 +192,7 @@ func TestRefactorBoard(t *testing.T) {
 	defer controller.Finish()
 	boardUseCase := mock_usecases.NewMockBoardUseCase(controller)
 	boardHandler := MakeBoardHandler(boardUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -178,7 +204,7 @@ func TestRefactorBoard(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -216,6 +242,7 @@ func TestDeleteBoard(t *testing.T) {
 	defer controller.Finish()
 	boardUseCase := mock_usecases.NewMockBoardUseCase(controller)
 	boardHandler := MakeBoardHandler(boardUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -227,7 +254,7 @@ func TestDeleteBoard(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -258,6 +285,7 @@ func TestAppendUserToBoard(t *testing.T) {
 	defer controller.Finish()
 	boardUseCase := mock_usecases.NewMockBoardUseCase(controller)
 	boardHandler := MakeBoardHandler(boardUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -269,7 +297,7 @@ func TestAppendUserToBoard(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -302,6 +330,7 @@ func TestAppendUserToBoardLinkBoard(t *testing.T) {
 	defer controller.Finish()
 	boardUseCase := mock_usecases.NewMockBoardUseCase(controller)
 	boardHandler := MakeBoardHandler(boardUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -313,7 +342,7 @@ func TestAppendUserToBoardLinkBoard(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -346,6 +375,7 @@ func TestDeleteUserToBoard(t *testing.T) {
 	defer controller.Finish()
 	boardUseCase := mock_usecases.NewMockBoardUseCase(controller)
 	boardHandler := MakeBoardHandler(boardUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -357,7 +387,7 @@ func TestDeleteUserToBoard(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{

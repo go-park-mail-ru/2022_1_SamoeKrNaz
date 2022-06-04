@@ -13,4 +13,6 @@ var (
 	CommentRoute       = "/comment"
 	ProfileRoute       = "/profile"
 	AttachmentRoute    = "/attachment"
+	WebSocketRoute     = "/ws"
+	NotificationRoute  = "/notification"
 )

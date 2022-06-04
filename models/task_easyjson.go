@@ -127,9 +127,11 @@ func easyjson79a0a577DecodePLANEXABackendModels1(in *jlexer.Lexer, out *Task) {
 		case "is_ready":
 			out.IsReady = bool(in.Bool())
 		case "is_important":
-			out.IsImportant = bool(in.Bool())
+			out.IsImportant = string(in.String())
 		case "link":
 			out.Link = string(in.String())
+		case "icon_pattern":
+			out.IconPattern = uint(in.Uint())
 		case "checkList":
 			if in.IsNull() {
 				in.Skip()
@@ -294,12 +296,17 @@ func easyjson79a0a577EncodePLANEXABackendModels1(out *jwriter.Writer, in Task) {
 	{
 		const prefix string = ",\"is_important\":"
 		out.RawString(prefix)
-		out.Bool(bool(in.IsImportant))
+		out.String(string(in.IsImportant))
 	}
 	{
 		const prefix string = ",\"link\":"
 		out.RawString(prefix)
 		out.String(string(in.Link))
+	}
+	{
+		const prefix string = ",\"icon_pattern\":"
+		out.RawString(prefix)
+		out.Uint(uint(in.IconPattern))
 	}
 	{
 		const prefix string = ",\"checkList\":"

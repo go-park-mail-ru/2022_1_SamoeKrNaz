@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjsonEf7cfe30DecodePLANEXABackendModels(in *jlexer.Lexer, out *Lists) {
+func easyjson9806e1DecodePLANEXABackendModels(in *jlexer.Lexer, out *Notifications) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		in.Skip()
@@ -26,15 +26,15 @@ func easyjsonEf7cfe30DecodePLANEXABackendModels(in *jlexer.Lexer, out *Lists) {
 		in.Delim('[')
 		if *out == nil {
 			if !in.IsDelim(']') {
-				*out = make(Lists, 0, 1)
+				*out = make(Notifications, 0, 0)
 			} else {
-				*out = Lists{}
+				*out = Notifications{}
 			}
 		} else {
 			*out = (*out)[:0]
 		}
 		for !in.IsDelim(']') {
-			var v1 List
+			var v1 Notification
 			(v1).UnmarshalEasyJSON(in)
 			*out = append(*out, v1)
 			in.WantComma()
@@ -45,7 +45,7 @@ func easyjsonEf7cfe30DecodePLANEXABackendModels(in *jlexer.Lexer, out *Lists) {
 		in.Consumed()
 	}
 }
-func easyjsonEf7cfe30EncodePLANEXABackendModels(out *jwriter.Writer, in Lists) {
+func easyjson9806e1EncodePLANEXABackendModels(out *jwriter.Writer, in Notifications) {
 	if in == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
 		out.RawString("null")
 	} else {
@@ -61,29 +61,29 @@ func easyjsonEf7cfe30EncodePLANEXABackendModels(out *jwriter.Writer, in Lists) {
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v Lists) MarshalJSON() ([]byte, error) {
+func (v Notifications) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonEf7cfe30EncodePLANEXABackendModels(&w, v)
+	easyjson9806e1EncodePLANEXABackendModels(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v Lists) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonEf7cfe30EncodePLANEXABackendModels(w, v)
+func (v Notifications) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson9806e1EncodePLANEXABackendModels(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *Lists) UnmarshalJSON(data []byte) error {
+func (v *Notifications) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonEf7cfe30DecodePLANEXABackendModels(&r, v)
+	easyjson9806e1DecodePLANEXABackendModels(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *Lists) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonEf7cfe30DecodePLANEXABackendModels(l, v)
+func (v *Notifications) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson9806e1DecodePLANEXABackendModels(l, v)
 }
-func easyjsonEf7cfe30DecodePLANEXABackendModels1(in *jlexer.Lexer, out *List) {
+func easyjson9806e1DecodePLANEXABackendModels1(in *jlexer.Lexer, out *Notification) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -102,14 +102,175 @@ func easyjsonEf7cfe30DecodePLANEXABackendModels1(in *jlexer.Lexer, out *List) {
 			continue
 		}
 		switch key {
-		case "idl":
-			out.IdL = uint(in.Uint())
-		case "title":
-			out.Title = string(in.String())
-		case "position":
-			out.Position = uint(in.Uint())
+		case "idu":
+			out.IdU = uint(in.Uint())
+		case "notification_type":
+			out.NotificationType = string(in.String())
+		case "date":
+			out.Date = string(in.String())
+		case "DateToOrder":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.DateToOrder).UnmarshalJSON(data))
+			}
+		case "is_read":
+			out.IsRead = bool(in.Bool())
 		case "idb":
 			out.IdB = uint(in.Uint())
+		case "idt":
+			out.IdT = uint(in.Uint())
+		case "id_wh":
+			out.IdWh = uint(in.Uint())
+		case "board":
+			(out.Board).UnmarshalEasyJSON(in)
+		case "task":
+			easyjson9806e1DecodePLANEXABackendModels2(in, &out.Task)
+		case "user_who":
+			easyjson9806e1DecodePLANEXABackendModels3(in, &out.UserWho)
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson9806e1EncodePLANEXABackendModels1(out *jwriter.Writer, in Notification) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"idu\":"
+		out.RawString(prefix[1:])
+		out.Uint(uint(in.IdU))
+	}
+	{
+		const prefix string = ",\"notification_type\":"
+		out.RawString(prefix)
+		out.String(string(in.NotificationType))
+	}
+	{
+		const prefix string = ",\"date\":"
+		out.RawString(prefix)
+		out.String(string(in.Date))
+	}
+	{
+		const prefix string = ",\"DateToOrder\":"
+		out.RawString(prefix)
+		out.Raw((in.DateToOrder).MarshalJSON())
+	}
+	{
+		const prefix string = ",\"is_read\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.IsRead))
+	}
+	{
+		const prefix string = ",\"idb\":"
+		out.RawString(prefix)
+		out.Uint(uint(in.IdB))
+	}
+	{
+		const prefix string = ",\"idt\":"
+		out.RawString(prefix)
+		out.Uint(uint(in.IdT))
+	}
+	{
+		const prefix string = ",\"id_wh\":"
+		out.RawString(prefix)
+		out.Uint(uint(in.IdWh))
+	}
+	{
+		const prefix string = ",\"board\":"
+		out.RawString(prefix)
+		(in.Board).MarshalEasyJSON(out)
+	}
+	{
+		const prefix string = ",\"task\":"
+		out.RawString(prefix)
+		easyjson9806e1EncodePLANEXABackendModels2(out, in.Task)
+	}
+	{
+		const prefix string = ",\"user_who\":"
+		out.RawString(prefix)
+		easyjson9806e1EncodePLANEXABackendModels3(out, in.UserWho)
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v Notification) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson9806e1EncodePLANEXABackendModels1(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v Notification) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson9806e1EncodePLANEXABackendModels1(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *Notification) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson9806e1DecodePLANEXABackendModels1(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *Notification) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson9806e1DecodePLANEXABackendModels1(l, v)
+}
+func easyjson9806e1DecodePLANEXABackendModels3(in *jlexer.Lexer, out *User) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "idu":
+			out.IdU = uint(in.Uint())
+		case "username":
+			out.Username = string(in.String())
+		case "password":
+			out.Password = string(in.String())
+		case "img_avatar":
+			out.ImgAvatar = string(in.String())
+		case "Boards":
+			if in.IsNull() {
+				in.Skip()
+				out.Boards = nil
+			} else {
+				in.Delim('[')
+				if out.Boards == nil {
+					if !in.IsDelim(']') {
+						out.Boards = make([]Board, 0, 0)
+					} else {
+						out.Boards = []Board{}
+					}
+				} else {
+					out.Boards = (out.Boards)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v4 Board
+					(v4).UnmarshalEasyJSON(in)
+					out.Boards = append(out.Boards, v4)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
 		case "Tasks":
 			if in.IsNull() {
 				in.Skip()
@@ -126,9 +287,32 @@ func easyjsonEf7cfe30DecodePLANEXABackendModels1(in *jlexer.Lexer, out *List) {
 					out.Tasks = (out.Tasks)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v4 Task
-					easyjsonEf7cfe30DecodePLANEXABackendModels2(in, &v4)
-					out.Tasks = append(out.Tasks, v4)
+					var v5 Task
+					easyjson9806e1DecodePLANEXABackendModels2(in, &v5)
+					out.Tasks = append(out.Tasks, v5)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		case "comments":
+			if in.IsNull() {
+				in.Skip()
+				out.Comments = nil
+			} else {
+				in.Delim('[')
+				if out.Comments == nil {
+					if !in.IsDelim(']') {
+						out.Comments = make([]Comment, 0, 0)
+					} else {
+						out.Comments = []Comment{}
+					}
+				} else {
+					out.Comments = (out.Comments)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v6 Comment
+					(v6).UnmarshalEasyJSON(in)
+					out.Comments = append(out.Comments, v6)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -143,29 +327,45 @@ func easyjsonEf7cfe30DecodePLANEXABackendModels1(in *jlexer.Lexer, out *List) {
 		in.Consumed()
 	}
 }
-func easyjsonEf7cfe30EncodePLANEXABackendModels1(out *jwriter.Writer, in List) {
+func easyjson9806e1EncodePLANEXABackendModels3(out *jwriter.Writer, in User) {
 	out.RawByte('{')
 	first := true
 	_ = first
 	{
-		const prefix string = ",\"idl\":"
+		const prefix string = ",\"idu\":"
 		out.RawString(prefix[1:])
-		out.Uint(uint(in.IdL))
+		out.Uint(uint(in.IdU))
 	}
 	{
-		const prefix string = ",\"title\":"
+		const prefix string = ",\"username\":"
 		out.RawString(prefix)
-		out.String(string(in.Title))
+		out.String(string(in.Username))
 	}
 	{
-		const prefix string = ",\"position\":"
+		const prefix string = ",\"password\":"
 		out.RawString(prefix)
-		out.Uint(uint(in.Position))
+		out.String(string(in.Password))
 	}
 	{
-		const prefix string = ",\"idb\":"
+		const prefix string = ",\"img_avatar\":"
 		out.RawString(prefix)
-		out.Uint(uint(in.IdB))
+		out.String(string(in.ImgAvatar))
+	}
+	{
+		const prefix string = ",\"Boards\":"
+		out.RawString(prefix)
+		if in.Boards == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v7, v8 := range in.Boards {
+				if v7 > 0 {
+					out.RawByte(',')
+				}
+				(v8).MarshalEasyJSON(out)
+			}
+			out.RawByte(']')
+		}
 	}
 	{
 		const prefix string = ",\"Tasks\":"
@@ -174,42 +374,34 @@ func easyjsonEf7cfe30EncodePLANEXABackendModels1(out *jwriter.Writer, in List) {
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v5, v6 := range in.Tasks {
-				if v5 > 0 {
+			for v9, v10 := range in.Tasks {
+				if v9 > 0 {
 					out.RawByte(',')
 				}
-				easyjsonEf7cfe30EncodePLANEXABackendModels2(out, v6)
+				easyjson9806e1EncodePLANEXABackendModels2(out, v10)
+			}
+			out.RawByte(']')
+		}
+	}
+	{
+		const prefix string = ",\"comments\":"
+		out.RawString(prefix)
+		if in.Comments == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v11, v12 := range in.Comments {
+				if v11 > 0 {
+					out.RawByte(',')
+				}
+				(v12).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}
 	}
 	out.RawByte('}')
 }
-
-// MarshalJSON supports json.Marshaler interface
-func (v List) MarshalJSON() ([]byte, error) {
-	w := jwriter.Writer{}
-	easyjsonEf7cfe30EncodePLANEXABackendModels1(&w, v)
-	return w.Buffer.BuildBytes(), w.Error
-}
-
-// MarshalEasyJSON supports easyjson.Marshaler interface
-func (v List) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonEf7cfe30EncodePLANEXABackendModels1(w, v)
-}
-
-// UnmarshalJSON supports json.Unmarshaler interface
-func (v *List) UnmarshalJSON(data []byte) error {
-	r := jlexer.Lexer{Data: data}
-	easyjsonEf7cfe30DecodePLANEXABackendModels1(&r, v)
-	return r.Error()
-}
-
-// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *List) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonEf7cfe30DecodePLANEXABackendModels1(l, v)
-}
-func easyjsonEf7cfe30DecodePLANEXABackendModels2(in *jlexer.Lexer, out *Task) {
+func easyjson9806e1DecodePLANEXABackendModels2(in *jlexer.Lexer, out *Task) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -272,9 +464,9 @@ func easyjsonEf7cfe30DecodePLANEXABackendModels2(in *jlexer.Lexer, out *Task) {
 					out.CheckLists = (out.CheckLists)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v7 CheckList
-					(v7).UnmarshalEasyJSON(in)
-					out.CheckLists = append(out.CheckLists, v7)
+					var v13 CheckList
+					(v13).UnmarshalEasyJSON(in)
+					out.CheckLists = append(out.CheckLists, v13)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -295,9 +487,9 @@ func easyjsonEf7cfe30DecodePLANEXABackendModels2(in *jlexer.Lexer, out *Task) {
 					out.Comments = (out.Comments)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v8 Comment
-					(v8).UnmarshalEasyJSON(in)
-					out.Comments = append(out.Comments, v8)
+					var v14 Comment
+					(v14).UnmarshalEasyJSON(in)
+					out.Comments = append(out.Comments, v14)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -318,9 +510,9 @@ func easyjsonEf7cfe30DecodePLANEXABackendModels2(in *jlexer.Lexer, out *Task) {
 					out.Users = (out.Users)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v9 User
-					easyjsonEf7cfe30DecodePLANEXABackendModels3(in, &v9)
-					out.Users = append(out.Users, v9)
+					var v15 User
+					easyjson9806e1DecodePLANEXABackendModels3(in, &v15)
+					out.Users = append(out.Users, v15)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -341,9 +533,9 @@ func easyjsonEf7cfe30DecodePLANEXABackendModels2(in *jlexer.Lexer, out *Task) {
 					out.Attachments = (out.Attachments)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v10 Attachment
-					(v10).UnmarshalEasyJSON(in)
-					out.Attachments = append(out.Attachments, v10)
+					var v16 Attachment
+					(v16).UnmarshalEasyJSON(in)
+					out.Attachments = append(out.Attachments, v16)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -358,7 +550,7 @@ func easyjsonEf7cfe30DecodePLANEXABackendModels2(in *jlexer.Lexer, out *Task) {
 		in.Consumed()
 	}
 }
-func easyjsonEf7cfe30EncodePLANEXABackendModels2(out *jwriter.Writer, in Task) {
+func easyjson9806e1EncodePLANEXABackendModels2(out *jwriter.Writer, in Task) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -434,11 +626,11 @@ func easyjsonEf7cfe30EncodePLANEXABackendModels2(out *jwriter.Writer, in Task) {
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v11, v12 := range in.CheckLists {
-				if v11 > 0 {
+			for v17, v18 := range in.CheckLists {
+				if v17 > 0 {
 					out.RawByte(',')
 				}
-				(v12).MarshalEasyJSON(out)
+				(v18).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}
@@ -450,11 +642,11 @@ func easyjsonEf7cfe30EncodePLANEXABackendModels2(out *jwriter.Writer, in Task) {
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v13, v14 := range in.Comments {
-				if v13 > 0 {
+			for v19, v20 := range in.Comments {
+				if v19 > 0 {
 					out.RawByte(',')
 				}
-				(v14).MarshalEasyJSON(out)
+				(v20).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}
@@ -466,11 +658,11 @@ func easyjsonEf7cfe30EncodePLANEXABackendModels2(out *jwriter.Writer, in Task) {
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v15, v16 := range in.Users {
-				if v15 > 0 {
+			for v21, v22 := range in.Users {
+				if v21 > 0 {
 					out.RawByte(',')
 				}
-				easyjsonEf7cfe30EncodePLANEXABackendModels3(out, v16)
+				easyjson9806e1EncodePLANEXABackendModels3(out, v22)
 			}
 			out.RawByte(']')
 		}
@@ -482,191 +674,11 @@ func easyjsonEf7cfe30EncodePLANEXABackendModels2(out *jwriter.Writer, in Task) {
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v17, v18 := range in.Attachments {
-				if v17 > 0 {
+			for v23, v24 := range in.Attachments {
+				if v23 > 0 {
 					out.RawByte(',')
 				}
-				(v18).MarshalEasyJSON(out)
-			}
-			out.RawByte(']')
-		}
-	}
-	out.RawByte('}')
-}
-func easyjsonEf7cfe30DecodePLANEXABackendModels3(in *jlexer.Lexer, out *User) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "idu":
-			out.IdU = uint(in.Uint())
-		case "username":
-			out.Username = string(in.String())
-		case "password":
-			out.Password = string(in.String())
-		case "img_avatar":
-			out.ImgAvatar = string(in.String())
-		case "Boards":
-			if in.IsNull() {
-				in.Skip()
-				out.Boards = nil
-			} else {
-				in.Delim('[')
-				if out.Boards == nil {
-					if !in.IsDelim(']') {
-						out.Boards = make([]Board, 0, 0)
-					} else {
-						out.Boards = []Board{}
-					}
-				} else {
-					out.Boards = (out.Boards)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v19 Board
-					(v19).UnmarshalEasyJSON(in)
-					out.Boards = append(out.Boards, v19)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
-		case "Tasks":
-			if in.IsNull() {
-				in.Skip()
-				out.Tasks = nil
-			} else {
-				in.Delim('[')
-				if out.Tasks == nil {
-					if !in.IsDelim(']') {
-						out.Tasks = make([]Task, 0, 0)
-					} else {
-						out.Tasks = []Task{}
-					}
-				} else {
-					out.Tasks = (out.Tasks)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v20 Task
-					easyjsonEf7cfe30DecodePLANEXABackendModels2(in, &v20)
-					out.Tasks = append(out.Tasks, v20)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
-		case "comments":
-			if in.IsNull() {
-				in.Skip()
-				out.Comments = nil
-			} else {
-				in.Delim('[')
-				if out.Comments == nil {
-					if !in.IsDelim(']') {
-						out.Comments = make([]Comment, 0, 0)
-					} else {
-						out.Comments = []Comment{}
-					}
-				} else {
-					out.Comments = (out.Comments)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v21 Comment
-					(v21).UnmarshalEasyJSON(in)
-					out.Comments = append(out.Comments, v21)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonEf7cfe30EncodePLANEXABackendModels3(out *jwriter.Writer, in User) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"idu\":"
-		out.RawString(prefix[1:])
-		out.Uint(uint(in.IdU))
-	}
-	{
-		const prefix string = ",\"username\":"
-		out.RawString(prefix)
-		out.String(string(in.Username))
-	}
-	{
-		const prefix string = ",\"password\":"
-		out.RawString(prefix)
-		out.String(string(in.Password))
-	}
-	{
-		const prefix string = ",\"img_avatar\":"
-		out.RawString(prefix)
-		out.String(string(in.ImgAvatar))
-	}
-	{
-		const prefix string = ",\"Boards\":"
-		out.RawString(prefix)
-		if in.Boards == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
-			out.RawByte('[')
-			for v22, v23 := range in.Boards {
-				if v22 > 0 {
-					out.RawByte(',')
-				}
-				(v23).MarshalEasyJSON(out)
-			}
-			out.RawByte(']')
-		}
-	}
-	{
-		const prefix string = ",\"Tasks\":"
-		out.RawString(prefix)
-		if in.Tasks == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
-			out.RawByte('[')
-			for v24, v25 := range in.Tasks {
-				if v24 > 0 {
-					out.RawByte(',')
-				}
-				easyjsonEf7cfe30EncodePLANEXABackendModels2(out, v25)
-			}
-			out.RawByte(']')
-		}
-	}
-	{
-		const prefix string = ",\"comments\":"
-		out.RawString(prefix)
-		if in.Comments == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
-			out.RawByte('[')
-			for v26, v27 := range in.Comments {
-				if v26 > 0 {
-					out.RawByte(',')
-				}
-				(v27).MarshalEasyJSON(out)
+				(v24).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}

@@ -5,8 +5,8 @@ import "PLANEXA_backend/models"
 type TaskRepository interface {
 	AppendUser(IdT uint, IdU uint) error
 	Create(task *models.Task, IdL uint, IdB uint) (uint, error)
-	GetTasks(IdL uint) (*[]models.Task, error)
-	Update(task models.Task) error
+	GetTasks(IdL uint, IdU uint) (*[]models.Task, error)
+	Update(task models.Task, IdU uint) error
 	Delete(IdT uint) error
 	GetById(IdT uint) (*models.Task, error)
 	GetCheckLists(IdT uint) (*[]models.CheckList, error)
@@ -17,4 +17,5 @@ type TaskRepository interface {
 	GetAttachments(IdT uint) (*[]models.Attachment, error)
 	GetByLink(link string) (*models.Task, error)
 	IsAppendedToTask(IdU uint, IdT uint) (bool, error)
+	GetImportance(IdT uint, IdU uint) string
 }

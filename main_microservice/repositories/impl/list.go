@@ -76,6 +76,13 @@ func (listRepository *ListRepositoryImpl) Delete(IdL uint) error {
 	if err != nil {
 		return err
 	}
+	tasks, err := listRepository.GetTasks(IdL)
+	for i := range *tasks {
+		err = listRepository.db.Where("id_t = ?", (*tasks)[i].IdT).Delete(&models.ImportantTask{}).Error
+		if err != nil {
+			return err
+		}
+	}
 	return listRepository.db.Model(&models.List{}).
 		Where("position > ? AND id_b = ?", listToDelete.Position, listToDelete.IdB).
 		UpdateColumn("position", gorm.Expr("position - 1")).Error

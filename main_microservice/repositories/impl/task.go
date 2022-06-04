@@ -6,6 +6,8 @@ import (
 	"PLANEXA_backend/models"
 	"fmt"
 	"gorm.io/gorm"
+	"math/rand"
+	"time"
 )
 
 type TaskRepositoryImpl struct {
@@ -31,23 +33,28 @@ func (taskRepository *TaskRepositoryImpl) AppendUser(IdT uint, IdU uint) error {
 func (taskRepository *TaskRepositoryImpl) Create(task *models.Task, IdL uint, IdB uint) (uint, error) {
 	task.IdL = IdL
 	task.IdB = IdB
+	rand.Seed(time.Now().UnixNano())
 	var currentPosition int64
 	err := taskRepository.db.Model(&models.Task{}).Where("id_l = ?", task.IdL).Count(&currentPosition).Error
 	if err != nil {
 		return 0, err
 	}
 	task.Position = uint(currentPosition) + 1
+	task.IconPattern = uint(rand.Intn(5) + 1)
 	err = taskRepository.db.Create(task).Error
 	return task.IdT, err
 }
 
-func (taskRepository *TaskRepositoryImpl) GetTasks(IdL uint) (*[]models.Task, error) {
+func (taskRepository *TaskRepositoryImpl) GetTasks(IdL uint, IdU uint) (*[]models.Task, error) {
 	tasks := new([]models.Task)
 	result := taskRepository.db.Where("id_l = ?", IdL).Find(tasks)
+	for i := range *tasks {
+		(*tasks)[i].IsImportant = taskRepository.GetImportance((*tasks)[i].IdT, IdU)
+	}
 	return tasks, result.Error
 }
 
-func (taskRepository *TaskRepositoryImpl) Update(task models.Task) error {
+func (taskRepository *TaskRepositoryImpl) Update(task models.Task, IdU uint) error {
 	currentData, err := taskRepository.GetById(task.IdT)
 	if err != nil {
 		return err
@@ -64,8 +71,19 @@ func (taskRepository *TaskRepositoryImpl) Update(task models.Task) error {
 	if currentData.Deadline != task.Deadline && task.Deadline != "" {
 		currentData.Deadline = task.Deadline
 	}
-	if currentData.IsImportant != task.IsImportant {
-		currentData.IsImportant = task.IsImportant
+
+	if task.IsImportant != "" {
+		if task.IsImportant == "false" {
+			err := taskRepository.db.Where("id_b = ? and id_t = ? and id_u = ?", currentData.IdB, currentData.IdT, IdU).Delete(&models.ImportantTask{}).Error
+			if err != nil {
+				return err
+			}
+		} else {
+			err := taskRepository.db.Create(&models.ImportantTask{IdB: currentData.IdB, IdT: currentData.IdT, IdU: IdU}).Error
+			if err != nil {
+				return err
+			}
+		}
 	}
 	if currentData.Position != task.Position && currentData.IdL == task.IdL {
 		// если список переместили вниз
@@ -130,6 +148,14 @@ func (taskRepository *TaskRepositoryImpl) Delete(IdT uint) error {
 	if err != nil {
 		return err
 	}
+	err = taskRepository.db.Where("id_t = ?", IdT).Delete(&models.Notification{}).Error
+	if err != nil {
+		return err
+	}
+	err = taskRepository.db.Where("id_t = ?", IdT).Delete(&models.ImportantTask{}).Error
+	if err != nil {
+		return err
+	}
 	return taskRepository.db.Model(&models.Task{}).
 		Where("position > ? AND id_l = ?", taskToDelete.Position, taskToDelete.IdL).
 		UpdateColumn("position", gorm.Expr("position - 1")).Error
@@ -148,6 +174,17 @@ func (taskRepository *TaskRepositoryImpl) GetById(IdT uint) (*models.Task, error
 	} else {
 		// иначе вернем таску
 		return task, nil
+	}
+}
+
+func (taskRepository *TaskRepositoryImpl) GetImportance(IdT uint, IdU uint) string {
+	importantTask := new(models.ImportantTask)
+	importantResult := taskRepository.db.Where("id_u = ? and id_t = ?", IdU, IdT).Find(importantTask)
+	// если выборка в 0 строк, то такой таски нет
+	if importantResult.RowsAffected == 0 {
+		return "false"
+	} else {
+		return "true"
 	}
 }
 
@@ -185,11 +222,22 @@ func (taskRepository *TaskRepositoryImpl) IsAppendedToTask(IdU uint, IdT uint) (
 
 func (taskRepository *TaskRepositoryImpl) GetImportantTasks(IdU uint) (*[]models.Task, error) {
 	tasks := new([]models.Task)
-	err := taskRepository.db.Where("id_u = ? and is_important = true", IdU).Order("date_to_order").Find(tasks).Error
+	err := taskRepository.db.Order("date_to_order").Find(tasks).Error
 	if err != nil {
 		return nil, err
 	}
-	return tasks, nil
+	var importantTasks []models.Task
+	fmt.Println(tasks)
+	for i := range *tasks {
+		currentImportant := new([]models.ImportantTask)
+		result := taskRepository.db.Where("id_t = ? and id_u = ?", (*tasks)[i].IdT, IdU).Find(currentImportant)
+		fmt.Println(currentImportant)
+		fmt.Println("error!!!:", result.Error)
+		if result.RowsAffected != 0 {
+			importantTasks = append(importantTasks, (*tasks)[i])
+		}
+	}
+	return &importantTasks, nil
 }
 
 func (taskRepository *TaskRepositoryImpl) GetTaskUser(IdT uint) (*[]models.User, error) {

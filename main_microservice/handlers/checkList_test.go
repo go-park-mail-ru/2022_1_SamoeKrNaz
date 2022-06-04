@@ -23,6 +23,7 @@ func TestGetCheckLists(t *testing.T) {
 	defer controller.Finish()
 	checkListUseCase := mock_usecases.NewMockCheckListUseCase(controller)
 	checkListHandler := MakeCheckListHandler(checkListUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -34,7 +35,7 @@ func TestGetCheckLists(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -69,6 +70,7 @@ func TestGetCheckList(t *testing.T) {
 	defer controller.Finish()
 	checkListUseCase := mock_usecases.NewMockCheckListUseCase(controller)
 	checkListHandler := MakeCheckListHandler(checkListUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -80,7 +82,7 @@ func TestGetCheckList(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -116,6 +118,7 @@ func TestCreateCheckList(t *testing.T) {
 	defer controller.Finish()
 	checkListUseCase := mock_usecases.NewMockCheckListUseCase(controller)
 	checkListHandler := MakeCheckListHandler(checkListUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -127,7 +130,7 @@ func TestCreateCheckList(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -164,6 +167,7 @@ func TestRefactorCheckList(t *testing.T) {
 	defer controller.Finish()
 	checkListUseCase := mock_usecases.NewMockCheckListUseCase(controller)
 	checkListHandler := MakeCheckListHandler(checkListUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -175,7 +179,7 @@ func TestRefactorCheckList(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -209,6 +213,7 @@ func TestDeleteCheckList(t *testing.T) {
 	defer controller.Finish()
 	checkListUseCase := mock_usecases.NewMockCheckListUseCase(controller)
 	checkListHandler := MakeCheckListHandler(checkListUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -220,7 +225,7 @@ func TestDeleteCheckList(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{

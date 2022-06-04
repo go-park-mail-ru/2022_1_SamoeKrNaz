@@ -53,6 +53,7 @@ func (userHandler *UserHandler) Login(c *gin.Context) {
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
+		Secure:   true,
 	}
 
 	userJson, err := user.MarshalJSON()
@@ -92,6 +93,7 @@ func (userHandler *UserHandler) Register(c *gin.Context) {
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
+		Secure:   true,
 	}
 
 	userJson, err := user.MarshalJSON()

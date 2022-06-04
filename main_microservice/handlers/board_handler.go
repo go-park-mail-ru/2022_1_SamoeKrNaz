@@ -4,6 +4,7 @@ import (
 	customErrors "PLANEXA_backend/errors"
 	"PLANEXA_backend/main_microservice/usecases"
 	"PLANEXA_backend/models"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/mailru/easyjson"
 	"net/http"
@@ -11,11 +12,12 @@ import (
 )
 
 type BoardHandler struct {
-	usecase usecases.BoardUseCase
+	usecase             usecases.BoardUseCase
+	notificationUsecase usecases.NotificationUseCase
 }
 
-func MakeBoardHandler(usecase_ usecases.BoardUseCase) *BoardHandler {
-	return &BoardHandler{usecase: usecase_}
+func MakeBoardHandler(usecase_ usecases.BoardUseCase, notificationUsecase_ usecases.NotificationUseCase) *BoardHandler {
+	return &BoardHandler{usecase: usecase_, notificationUsecase: notificationUsecase_}
 }
 
 func (boardHandler *BoardHandler) GetBoards(c *gin.Context) {
@@ -128,6 +130,8 @@ func (boardHandler *BoardHandler) RefactorBoard(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("eventType", "UpdateBoard")
+	c.Set("IdB", uint(boardId))
 	c.Data(http.StatusCreated, "application/json; charset=utf-8", isUpdatedJson)
 }
 
@@ -158,6 +162,8 @@ func (boardHandler *BoardHandler) DeleteBoard(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("eventType", "UpdateBoard")
+	c.Set("IdB", uint(boardId))
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }
 
@@ -225,19 +231,31 @@ func (boardHandler *BoardHandler) AppendUserToBoard(c *gin.Context) {
 	}
 
 	//вызываю юзкейс
+	//вместо явного добавления на доску просто будем присылать уведомление, в котором будет ссылка на доску
+	notification := models.Notification{IdU: uint(appendedUserId),
+		NotificationType: "InviteUser", IdB: uint(boardId),
+		IdWh: uint(userId.(uint64))}
 
-	appendedUser, err := boardHandler.usecase.AppendUserToBoard(uint(userId.(uint64)), uint(appendedUserId), uint(boardId))
+	fmt.Println("handler:", notification)
+
+	err = boardHandler.notificationUsecase.Create(&notification)
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
 
-	userJson, err := appendedUser.MarshalJSON()
+	var IsAppended models.Appended
+	IsAppended.AppendedInfo = true
+	IsAppendedJson, err := IsAppended.MarshalJSON()
 	if err != nil {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
-	c.Data(http.StatusOK, "application/json; charset=utf-8", userJson)
+	c.Set("eventType", "UpdateBoard")
+	c.Set("IdB", uint(boardId))
+	c.Set("ToSend", uint(appendedUserId))
+	c.Set("Notification", "InviteUser")
+	c.Data(http.StatusOK, "application/json; charset=utf-8", IsAppendedJson)
 }
 
 func (boardHandler *BoardHandler) DeleteUserToBoard(c *gin.Context) {
@@ -266,6 +284,16 @@ func (boardHandler *BoardHandler) DeleteUserToBoard(c *gin.Context) {
 		return
 	}
 
+	//теперь высылаем уведомление, что вас удалили
+	notification := models.Notification{IdU: uint(deletedUserId),
+		NotificationType: "DeleteUserFromBoard", IdB: uint(boardId)}
+
+	err = boardHandler.notificationUsecase.Create(&notification)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
 	var isDeleted models.Deleted
 	isDeleted.DeletedInfo = true
 	isDeletedJson, err := isDeleted.MarshalJSON()
@@ -273,6 +301,10 @@ func (boardHandler *BoardHandler) DeleteUserToBoard(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("eventType", "UpdateBoard")
+	c.Set("IdB", uint(boardId))
+	c.Set("ToSend", uint(deletedUserId))
+	c.Set("Notification", "DeleteUserFromBoard")
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }
 
@@ -286,8 +318,17 @@ func (boardHandler *BoardHandler) AppendUserToBoardByLink(c *gin.Context) {
 	link := c.Param("link")
 
 	//вызываю юзкейс
-
 	appendedBoard, err := boardHandler.usecase.AppendUserByLink(uint(userId.(uint64)), link)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	//для всех, кто есть в этой доске, надо отправить уведомление
+	notification := models.Notification{IdWh: uint(userId.(uint64)),
+		NotificationType: "AppendUserToBoard", IdB: appendedBoard.IdB}
+
+	err = boardHandler.notificationUsecase.CreateBoardNotification(&notification)
 	if err != nil {
 		_ = c.Error(err)
 		return
@@ -298,5 +339,9 @@ func (boardHandler *BoardHandler) AppendUserToBoardByLink(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("eventType", "UpdateBoard")
+	c.Set("IdB", appendedBoard.IdB)
+	c.Set("Notification", "AppendUserToBoard")
+	c.Set("ToSend", uint(userId.(uint64)))
 	c.Data(http.StatusOK, "application/json; charset=utf-8", boardJson)
 }

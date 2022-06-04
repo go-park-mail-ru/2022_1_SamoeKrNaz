@@ -137,6 +137,7 @@ func TestGetInfoById(t *testing.T) {
 	defer controller.Finish()
 	userUseCase := mock_usecases.NewMockUserUseCase(controller)
 	userHandler := MakeUserHandler(userUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -147,7 +148,7 @@ func TestGetInfoById(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -183,6 +184,7 @@ func TestGetInfoByCookie(t *testing.T) {
 	defer controller.Finish()
 	userUseCase := mock_usecases.NewMockUserUseCase(controller)
 	userHandler := MakeUserHandler(userUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -193,7 +195,7 @@ func TestGetInfoByCookie(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -229,6 +231,7 @@ func TestRefactorProfile(t *testing.T) {
 	defer controller.Finish()
 	userUseCase := mock_usecases.NewMockUserUseCase(controller)
 	userHandler := MakeUserHandler(userUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -239,7 +242,7 @@ func TestRefactorProfile(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -288,13 +291,14 @@ func TestGetUsersLike(t *testing.T) {
 	router := gin.Default()
 	router.Use(middleware.CheckError())
 	sessionRepo := mock_repositories.NewMockSessionRepository(controller)
+	boardRepository, _, _ := CreateBoardMock()
 
 	cookie := &http.Cookie{
 		Name:  "token",
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{

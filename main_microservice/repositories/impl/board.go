@@ -29,9 +29,9 @@ func (boardRepository *BoardRepositoryImpl) Create(board *models.Board) (uint, e
 	return board.IdB, err
 }
 
-func (boardRepository *BoardRepositoryImpl) AppendUser(boardId uint, userId uint) error {
+func (boardRepository *BoardRepositoryImpl) AppendUser(boardId uint, IdU uint) error {
 	user := new(models.User)
-	result := boardRepository.db.Find(user, userId)
+	result := boardRepository.db.Find(user, IdU)
 	if result.RowsAffected == 0 {
 		return customErrors.ErrUserNotFound
 	} else if result.Error != nil {
@@ -67,6 +67,14 @@ func (boardRepository *BoardRepositoryImpl) Update(board models.Board) error {
 
 func (boardRepository *BoardRepositoryImpl) Delete(IdB uint) error {
 	err := boardRepository.db.Model(&models.Board{IdB: IdB}).Association("Users").Clear()
+	if err != nil {
+		return err
+	}
+	err = boardRepository.db.Where("id_b = ?", IdB).Delete(&models.Notification{}).Error
+	if err != nil {
+		return err
+	}
+	err = boardRepository.db.Where("id_b = ?", IdB).Delete(&models.ImportantTask{}).Error
 	if err != nil {
 		return err
 	}

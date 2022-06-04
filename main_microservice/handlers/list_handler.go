@@ -107,6 +107,8 @@ func (listHandler *ListHandler) CreateList(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("eventType", "UpdateBoard")
+	c.Set("IdB", uint(boardId))
 	c.Data(http.StatusOK, "application/json; charset=utf-8", listJson)
 }
 
@@ -136,6 +138,12 @@ func (listHandler *ListHandler) RefactorList(c *gin.Context) {
 		return
 	}
 
+	getList, err := listHandler.usecase.GetSingleList(list.IdL, uint(userId.(uint64)))
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
 	var isUpdated models.Updated
 	isUpdated.UpdatedInfo = true
 	isUpdatedJson, err := isUpdated.MarshalJSON()
@@ -143,6 +151,8 @@ func (listHandler *ListHandler) RefactorList(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("eventType", "UpdateBoard")
+	c.Set("IdB", getList.IdB)
 	c.Data(http.StatusCreated, "application/json; charset=utf-8", isUpdatedJson)
 }
 
@@ -160,6 +170,12 @@ func (listHandler *ListHandler) DeleteList(c *gin.Context) {
 
 	//вызываю юзкейс
 
+	getList, err := listHandler.usecase.GetSingleList(uint(listId), uint(userId.(uint64)))
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
 	err = listHandler.usecase.DeleteList(uint(listId), uint(userId.(uint64)))
 	if err != nil {
 		_ = c.Error(err)
@@ -173,5 +189,7 @@ func (listHandler *ListHandler) DeleteList(c *gin.Context) {
 		_ = c.Error(customErrors.ErrBadInputData)
 		return
 	}
+	c.Set("eventType", "UpdateBoard")
+	c.Set("IdB", getList.IdB)
 	c.Data(http.StatusOK, "application/json; charset=utf-8", isDeletedJson)
 }

@@ -23,6 +23,7 @@ func TestGetLists(t *testing.T) {
 	defer controller.Finish()
 	listUseCase := mock_usecases.NewMockListUseCase(controller)
 	listHandler := MakeListHandler(listUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -34,7 +35,7 @@ func TestGetLists(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -71,6 +72,7 @@ func TestGetList(t *testing.T) {
 	defer controller.Finish()
 	listUseCase := mock_usecases.NewMockListUseCase(controller)
 	listHandler := MakeListHandler(listUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -82,7 +84,7 @@ func TestGetList(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -119,6 +121,7 @@ func TestCreateList(t *testing.T) {
 	defer controller.Finish()
 	listUseCase := mock_usecases.NewMockListUseCase(controller)
 	listHandler := MakeListHandler(listUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -130,7 +133,7 @@ func TestCreateList(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -173,6 +176,7 @@ func TestRefactorList(t *testing.T) {
 	defer controller.Finish()
 	listUseCase := mock_usecases.NewMockListUseCase(controller)
 	listHandler := MakeListHandler(listUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -184,7 +188,7 @@ func TestRefactorList(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{
@@ -224,6 +228,7 @@ func TestDeleteList(t *testing.T) {
 	defer controller.Finish()
 	listUseCase := mock_usecases.NewMockListUseCase(controller)
 	listHandler := MakeListHandler(listUseCase)
+	boardRepository, _, _ := CreateBoardMock()
 
 	router := gin.Default()
 	router.Use(middleware.CheckError())
@@ -235,7 +240,7 @@ func TestDeleteList(t *testing.T) {
 		Value: "sess1",
 	}
 
-	authMiddleware := middleware.CreateMiddleware(sessionRepo)
+	authMiddleware := middleware.CreateMiddleware(sessionRepo, boardRepository)
 
 	mainRoutes := router.Group(routes.HomeRoute)
 	{

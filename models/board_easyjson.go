@@ -337,7 +337,7 @@ func easyjson202377feDecodePLANEXABackendModels4(in *jlexer.Lexer, out *Task) {
 			out.Position = uint(in.Uint())
 		case "dateCreated":
 			out.DateCreated = string(in.String())
-		case "IdL":
+		case "idl":
 			out.IdL = uint(in.Uint())
 		case "IdB":
 			out.IdB = uint(in.Uint())
@@ -352,7 +352,7 @@ func easyjson202377feDecodePLANEXABackendModels4(in *jlexer.Lexer, out *Task) {
 		case "is_ready":
 			out.IsReady = bool(in.Bool())
 		case "is_important":
-			out.IsImportant = bool(in.Bool())
+			out.IsImportant = string(in.String())
 		case "link":
 			out.Link = string(in.String())
 		case "checkList":
@@ -441,7 +441,7 @@ func easyjson202377feDecodePLANEXABackendModels4(in *jlexer.Lexer, out *Task) {
 				}
 				for !in.IsDelim(']') {
 					var v16 Attachment
-					easyjson202377feDecodePLANEXABackendModels7(in, &v16)
+					(v16).UnmarshalEasyJSON(in)
 					out.Attachments = append(out.Attachments, v16)
 					in.WantComma()
 				}
@@ -487,7 +487,7 @@ func easyjson202377feEncodePLANEXABackendModels4(out *jwriter.Writer, in Task) {
 		out.String(string(in.DateCreated))
 	}
 	{
-		const prefix string = ",\"IdL\":"
+		const prefix string = ",\"idl\":"
 		out.RawString(prefix)
 		out.Uint(uint(in.IdL))
 	}
@@ -519,7 +519,7 @@ func easyjson202377feEncodePLANEXABackendModels4(out *jwriter.Writer, in Task) {
 	{
 		const prefix string = ",\"is_important\":"
 		out.RawString(prefix)
-		out.Bool(bool(in.IsImportant))
+		out.String(string(in.IsImportant))
 	}
 	{
 		const prefix string = ",\"link\":"
@@ -585,73 +585,10 @@ func easyjson202377feEncodePLANEXABackendModels4(out *jwriter.Writer, in Task) {
 				if v23 > 0 {
 					out.RawByte(',')
 				}
-				easyjson202377feEncodePLANEXABackendModels7(out, v24)
+				(v24).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}
-	}
-	out.RawByte('}')
-}
-func easyjson202377feDecodePLANEXABackendModels7(in *jlexer.Lexer, out *Attachment) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "id_a":
-			out.IdA = uint(in.Uint())
-		case "default_name":
-			out.DefaultName = string(in.String())
-		case "system_name":
-			out.SystemName = string(in.String())
-		case "id_t":
-			out.IdT = uint(in.Uint())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjson202377feEncodePLANEXABackendModels7(out *jwriter.Writer, in Attachment) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"id_a\":"
-		out.RawString(prefix[1:])
-		out.Uint(uint(in.IdA))
-	}
-	{
-		const prefix string = ",\"default_name\":"
-		out.RawString(prefix)
-		out.String(string(in.DefaultName))
-	}
-	{
-		const prefix string = ",\"system_name\":"
-		out.RawString(prefix)
-		out.String(string(in.SystemName))
-	}
-	{
-		const prefix string = ",\"id_t\":"
-		out.RawString(prefix)
-		out.Uint(uint(in.IdT))
 	}
 	out.RawByte('}')
 }
@@ -774,7 +711,7 @@ func easyjson202377feDecodePLANEXABackendModels5(in *jlexer.Lexer, out *CheckLis
 				}
 				for !in.IsDelim(']') {
 					var v25 CheckListItem
-					easyjson202377feDecodePLANEXABackendModels8(in, &v25)
+					easyjson202377feDecodePLANEXABackendModels7(in, &v25)
 					out.CheckListItems = append(out.CheckListItems, v25)
 					in.WantComma()
 				}
@@ -820,14 +757,14 @@ func easyjson202377feEncodePLANEXABackendModels5(out *jwriter.Writer, in CheckLi
 				if v26 > 0 {
 					out.RawByte(',')
 				}
-				easyjson202377feEncodePLANEXABackendModels8(out, v27)
+				easyjson202377feEncodePLANEXABackendModels7(out, v27)
 			}
 			out.RawByte(']')
 		}
 	}
 	out.RawByte('}')
 }
-func easyjson202377feDecodePLANEXABackendModels8(in *jlexer.Lexer, out *CheckListItem) {
+func easyjson202377feDecodePLANEXABackendModels7(in *jlexer.Lexer, out *CheckListItem) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -866,7 +803,7 @@ func easyjson202377feDecodePLANEXABackendModels8(in *jlexer.Lexer, out *CheckLis
 		in.Consumed()
 	}
 }
-func easyjson202377feEncodePLANEXABackendModels8(out *jwriter.Writer, in CheckListItem) {
+func easyjson202377feEncodePLANEXABackendModels7(out *jwriter.Writer, in CheckListItem) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1049,6 +986,29 @@ func easyjson202377feDecodePLANEXABackendModels2(in *jlexer.Lexer, out *User) {
 				}
 				in.Delim(']')
 			}
+		case "Tasks":
+			if in.IsNull() {
+				in.Skip()
+				out.Tasks = nil
+			} else {
+				in.Delim('[')
+				if out.Tasks == nil {
+					if !in.IsDelim(']') {
+						out.Tasks = make([]Task, 0, 0)
+					} else {
+						out.Tasks = []Task{}
+					}
+				} else {
+					out.Tasks = (out.Tasks)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v32 Task
+					easyjson202377feDecodePLANEXABackendModels4(in, &v32)
+					out.Tasks = append(out.Tasks, v32)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
 		case "comments":
 			if in.IsNull() {
 				in.Skip()
@@ -1065,9 +1025,9 @@ func easyjson202377feDecodePLANEXABackendModels2(in *jlexer.Lexer, out *User) {
 					out.Comments = (out.Comments)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v32 Comment
-					easyjson202377feDecodePLANEXABackendModels6(in, &v32)
-					out.Comments = append(out.Comments, v32)
+					var v33 Comment
+					easyjson202377feDecodePLANEXABackendModels6(in, &v33)
+					out.Comments = append(out.Comments, v33)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -1113,11 +1073,27 @@ func easyjson202377feEncodePLANEXABackendModels2(out *jwriter.Writer, in User) {
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v33, v34 := range in.Boards {
-				if v33 > 0 {
+			for v34, v35 := range in.Boards {
+				if v34 > 0 {
 					out.RawByte(',')
 				}
-				(v34).MarshalEasyJSON(out)
+				(v35).MarshalEasyJSON(out)
+			}
+			out.RawByte(']')
+		}
+	}
+	{
+		const prefix string = ",\"Tasks\":"
+		out.RawString(prefix)
+		if in.Tasks == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v36, v37 := range in.Tasks {
+				if v36 > 0 {
+					out.RawByte(',')
+				}
+				easyjson202377feEncodePLANEXABackendModels4(out, v37)
 			}
 			out.RawByte(']')
 		}
@@ -1129,11 +1105,11 @@ func easyjson202377feEncodePLANEXABackendModels2(out *jwriter.Writer, in User) {
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v35, v36 := range in.Comments {
-				if v35 > 0 {
+			for v38, v39 := range in.Comments {
+				if v38 > 0 {
 					out.RawByte(',')
 				}
-				easyjson202377feEncodePLANEXABackendModels6(out, v36)
+				easyjson202377feEncodePLANEXABackendModels6(out, v39)
 			}
 			out.RawByte(']')
 		}
