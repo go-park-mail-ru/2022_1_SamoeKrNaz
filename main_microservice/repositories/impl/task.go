@@ -221,14 +221,14 @@ func (taskRepository *TaskRepositoryImpl) GetImportantTasks(IdU uint) (*[]models
 	if err != nil {
 		return nil, err
 	}
-	importantTasks := new([]models.Task)
-	for i := range *tasks {
-		currentImportant := new([]models.ImportantTask)
-		result := taskRepository.db.Where("id_t = ? and id_u = ?", (*tasks)[i].IdT, IdU).Find(currentImportant)
-		if result.RowsAffected != 0 {
-			*importantTasks = append(*importantTasks, (*tasks)[i])
-		}
-	}
+	//importantTasks := new([]models.Task)
+	//for i := range *tasks {
+	//	currentImportant := new([]models.ImportantTask)
+	//	result := taskRepository.db.Where("id_t = ? and id_u = ?", (*tasks)[i].IdT, IdU).Find(currentImportant)
+	//	if result.RowsAffected != 0 {
+	//		*importantTasks = append(*importantTasks, (*tasks)[i])
+	//	}
+	//}
 	return importantTasks, nil
 }
 
