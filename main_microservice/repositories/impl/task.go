@@ -45,13 +45,16 @@ func (taskRepository *TaskRepositoryImpl) Create(task *models.Task, IdL uint, Id
 	return task.IdT, err
 }
 
-func (taskRepository *TaskRepositoryImpl) GetTasks(IdL uint) (*[]models.Task, error) {
+func (taskRepository *TaskRepositoryImpl) GetTasks(IdL uint, IdU uint) (*[]models.Task, error) {
 	tasks := new([]models.Task)
 	result := taskRepository.db.Where("id_l = ?", IdL).Find(tasks)
+	for i := range *tasks {
+		(*tasks)[i].IsImportant = taskRepository.GetImportance((*tasks)[i].IdT, IdU)
+	}
 	return tasks, result.Error
 }
 
-func (taskRepository *TaskRepositoryImpl) Update(task models.Task) error {
+func (taskRepository *TaskRepositoryImpl) Update(task models.Task, IdU uint) error {
 	currentData, err := taskRepository.GetById(task.IdT)
 	if err != nil {
 		return err
@@ -68,8 +71,18 @@ func (taskRepository *TaskRepositoryImpl) Update(task models.Task) error {
 	if currentData.Deadline != task.Deadline && task.Deadline != "" {
 		currentData.Deadline = task.Deadline
 	}
-	if currentData.IsImportant != task.IsImportant && task.IsImportant != "" {
-		currentData.IsImportant = task.IsImportant
+	if task.IsImportant != "" {
+		if task.IsImportant == "false" {
+			err := taskRepository.db.Delete(&models.ImportantTask{IdB: currentData.IdB, IdT: currentData.IdT, IdU: IdU}).Error
+			if err != nil {
+				return err
+			}
+		} else {
+			err := taskRepository.db.Create(&models.ImportantTask{IdB: currentData.IdB, IdT: currentData.IdT, IdU: IdU}).Error
+			if err != nil {
+				return err
+			}
+		}
 	}
 	if currentData.Position != task.Position && currentData.IdL == task.IdL {
 		// если список переместили вниз
@@ -159,6 +172,17 @@ func (taskRepository *TaskRepositoryImpl) GetById(IdT uint) (*models.Task, error
 	}
 }
 
+func (taskRepository *TaskRepositoryImpl) GetImportance(IdT uint, IdU uint) string {
+	importantTask := new(models.ImportantTask)
+	importantResult := taskRepository.db.Where("id_u = ? and id_t = ?", IdU, IdT).Find(importantTask)
+	// если выборка в 0 строк, то такой таски нет
+	if importantResult.RowsAffected == 0 {
+		return "false"
+	} else {
+		return "true"
+	}
+}
+
 func (taskRepository *TaskRepositoryImpl) GetCheckLists(IdT uint) (*[]models.CheckList, error) {
 	checkLists := new([]models.CheckList)
 	err := taskRepository.db.Where("id_t = ?", IdT).Order("id_cl").Find(checkLists).Error
@@ -192,10 +216,19 @@ func (taskRepository *TaskRepositoryImpl) IsAppendedToTask(IdU uint, IdT uint) (
 }
 
 func (taskRepository *TaskRepositoryImpl) GetImportantTasks(IdU uint) (*[]models.Task, error) {
-	tasks := new([]models.Task)
-	err := taskRepository.db.Where("id_u = ? and is_important = 'true'", IdU).Order("date_to_order").Find(tasks).Error
+	importantTasks := new([]models.ImportantTask)
+	err := taskRepository.db.Where("id_u = ?", IdU).Order("date_to_order").Find(importantTasks).Error
 	if err != nil {
 		return nil, err
+	}
+	tasks := new([]models.Task)
+	for i := range *importantTasks {
+		currentImportant := new([]models.Task)
+		err = taskRepository.db.Where("id_t = ?", (*importantTasks)[i].IdT).Find(currentImportant).Error
+		if err != nil {
+			return nil, err
+		}
+		*tasks = append(*tasks, *currentImportant...)
 	}
 	return tasks, nil
 }
