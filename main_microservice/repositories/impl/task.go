@@ -224,7 +224,7 @@ func (taskRepository *TaskRepositoryImpl) GetImportantTasks(IdU uint) (*[]models
 	importantTasks := new([]models.Task)
 	for i := range *tasks {
 		currentImportant := new([]models.Task)
-		err = taskRepository.db.Where("id_t = ?", (*tasks)[i].IdT).Find(currentImportant).Error
+		err = taskRepository.db.Where("id_t = ? and id_u = ?", (*tasks)[i].IdT, IdU).Find(currentImportant).Error
 		if err != nil {
 			return nil, err
 		}
