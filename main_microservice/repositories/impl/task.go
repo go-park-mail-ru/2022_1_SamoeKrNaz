@@ -221,15 +221,16 @@ func (taskRepository *TaskRepositoryImpl) GetImportantTasks(IdU uint) (*[]models
 	if err != nil {
 		return nil, err
 	}
+	importantTasks := new([]models.Task)
 	for i := range *tasks {
 		currentImportant := new([]models.Task)
 		err = taskRepository.db.Where("id_t = ?", (*tasks)[i].IdT).Find(currentImportant).Error
 		if err != nil {
 			return nil, err
 		}
-		*tasks = append(*tasks, *currentImportant...)
+		*importantTasks = append(*importantTasks, *currentImportant...)
 	}
-	return tasks, nil
+	return importantTasks, nil
 }
 
 func (taskRepository *TaskRepositoryImpl) GetTaskUser(IdT uint) (*[]models.User, error) {
